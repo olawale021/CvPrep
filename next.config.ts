@@ -1,4 +1,3 @@
-
 const nextConfig = {
   // Disable server logs for sensitive requests
   serverRuntimeConfig: {
@@ -55,6 +54,24 @@ const nextConfig = {
   
   // Configure external packages for server components
   serverExternalPackages: ['next-auth'],
+  
+  // Fix for Vercel redirect issues with protected routes
+  async redirects() {
+    return [
+      {
+        source: '/dashboard',
+        has: [
+          {
+            type: 'cookie',
+            key: 'next-auth.session-token',
+            value: undefined,
+          },
+        ],
+        permanent: false,
+        destination: '/?callbackUrl=%2Fdashboard',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

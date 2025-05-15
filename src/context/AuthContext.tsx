@@ -199,9 +199,7 @@ function AuthContextProvider({ children }: { children: React.ReactNode }) {
       }
       
       // Use next-auth's signIn function with the standard callbackUrl parameter
-      await signIn('google', { 
-        callbackUrl: '/api/redirect?to=' + encodeURIComponent(redirectPath || '/dashboard')
-      });
+      await signIn('google', { callbackUrl: redirectPath || '/dashboard' });
     } catch (err) {
       logger.error('Google sign-in error', {
         error: err,

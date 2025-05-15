@@ -2,32 +2,35 @@
 
 import { CalendarDays, CheckCircle, Clock, FileText, Lightbulb, LogOut, Users } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Dashboard() {
   const { user, signOut, isLoading, authError } = useAuth();
-  const router = useRouter();
   const [redirecting, setRedirecting] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
   
-  // Handle redirect to home if not authenticated and finished loading
+  // Manually fetch session status for Vercel deployments
   useEffect(() => {
-    // Only redirect if not loading, no user, and we haven't tried redirecting yet
-    if (!isLoading && !user && !redirecting && sessionChecked) {
-      setRedirecting(true);
-      
-      // Use replace instead of push to avoid browser history issues
-      router.replace("/");
+    async function checkSession() {
+      try {
+        if (!sessionChecked && !isLoading) {
+          setSessionChecked(true);
+          // If user is not authenticated, redirect
+          if (!user && !redirecting) {
+            setRedirecting(true);
+            // Replace URL to avoid history issues
+            window.location.href = "/";
+          }
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      }
     }
     
-    // Mark session as checked once loading is complete
-    if (!isLoading && !sessionChecked) {
-      setSessionChecked(true);
-    }
-  }, [user, isLoading, router, redirecting, sessionChecked]);
+    checkSession();
+  }, [user, isLoading, redirecting, sessionChecked]);
   
   // Show loading state when authentication is pending
   if (isLoading || !sessionChecked) {
@@ -50,7 +53,7 @@ export default function Dashboard() {
           </p>
           <div className="space-y-4">
             <Button
-              onClick={() => router.replace("/")}
+              onClick={() => window.location.href = "/"}
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
               Return to Home
