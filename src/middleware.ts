@@ -31,9 +31,9 @@ const logSuppressedPaths = [
   '/callback',
 ];
 
-// Auth.js middleware handles protected routes and authentications
+// Custom middleware that uses NextAuth's withAuth under the hood
 export default withAuth(
-  function middleware(req) {
+  async function middleware(req) {
     const { pathname } = req.nextUrl;
     
     // Skip middleware for excluded paths
@@ -58,18 +58,19 @@ export default withAuth(
     if (shouldSuppressLogs) {
       response.headers.set('x-exclude-logging', 'true');
     }
-    
+
     // If it's not a protected path, always allow the request
     if (!isProtectedPath) {
       return response;
     }
     
-    // If we get here, it's a protected path and Auth.js will handle authentication
+    // For protected paths, JWT validation is handled by withAuth wrapper
+    // This function only runs for authorized requests or non-protected paths
     return response;
   },
   {
     callbacks: {
-      // Only run middleware on protected paths
+      // Define when the middleware should run
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
         const isProtectedPath = protectedPaths.some(path => 
@@ -86,7 +87,7 @@ export default withAuth(
       },
     },
     pages: {
-      // Simple signIn configuration without redirect parameters
+      // Simple signIn configuration
       signIn: '/',
     }
   }

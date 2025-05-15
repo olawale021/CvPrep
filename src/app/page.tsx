@@ -38,8 +38,8 @@ export default function Home() {
           path: redirectPath,
           context: 'HomePage'
         });
-        // Directly navigate to avoid potential loop
-        router.push(redirectPath);
+        // Force direct navigation instead of client-side routing
+        window.location.href = redirectPath;
       } else {
         // Check localStorage for a fallback redirect
         try {
@@ -51,14 +51,14 @@ export default function Home() {
             });
             // Clear the stored redirect
             localStorage.removeItem('authRedirectTo');
-            // Redirect to the stored path
-            router.push(storedRedirect);
+            // Force direct navigation for more reliable redirect
+            window.location.href = storedRedirect;
           } else if (user) {
             // If user is logged in but no redirect specified, go to dashboard
             logger.debug('Default redirect to dashboard', {
               context: 'HomePage'
             });
-            router.push('/dashboard');
+            window.location.href = '/dashboard';
           }
         } catch (err) {
           logger.error('Error accessing localStorage', {
@@ -74,7 +74,7 @@ export default function Home() {
   const handlePrimaryAction = () => {
     if (user) {
       logger.debug('Navigating to dashboard', { context: 'HomePage' });
-      router.push('/dashboard');
+      window.location.href = '/api/redirect?to=/dashboard';
     } else {
       logger.debug('Starting Google sign-in', { context: 'HomePage' });
       signInWithGoogle('/dashboard');
@@ -84,7 +84,7 @@ export default function Home() {
   // Navigate to specific feature page or sign in first
   const goToFeature = (path: string) => {
     if (user) {
-      router.push(path);
+      window.location.href = '/api/redirect?to=' + encodeURIComponent(path);
     } else {
       signInWithGoogle(path);
     }
