@@ -3,20 +3,34 @@
 import { CalendarDays, CheckCircle, Clock, FileText, Lightbulb, LogOut, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Dashboard() {
   const { user, signOut, isLoading, authError } = useAuth();
   const router = useRouter();
+  const [redirecting, setRedirecting] = useState(false);
   
   // Handle redirect to home if not authenticated and finished loading
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/?redirect=/dashboard");
+    if (!isLoading && !user && !redirecting) {
+      setRedirecting(true);
+      
+      // Use replace instead of push to avoid browser history issues
+      router.replace("/?callbackUrl=/dashboard");
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, redirecting]);
+  
+  // Show loading state when authentication is pending
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+        <div className="w-12 h-12 border-t-4 border-blue-600 border-solid rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-600">Loading your dashboard...</p>
+      </div>
+    );
+  }
   
   // Show minimal UI when not authenticated
   if (!user) {
@@ -25,13 +39,11 @@ export default function Dashboard() {
         <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Dashboard Access</h1>
           <p className="text-gray-600 mb-6">
-            {isLoading 
-              ? "Loading your account information..." 
-              : "Please sign in to access your dashboard."}
+            Please sign in to access your dashboard.
           </p>
           <div className="space-y-4">
             <Button
-              onClick={() => router.push("/?redirect=/dashboard")}
+              onClick={() => router.replace("/")}
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
               Return to Home

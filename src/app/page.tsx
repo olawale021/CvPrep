@@ -31,7 +31,7 @@ export default function Home() {
       
       // First check URL params for redirect target
       const params = new URLSearchParams(window.location.search);
-      const redirectPath = params.get('redirect');
+      const redirectPath = params.get('callbackUrl') || params.get('redirect');
       
       if (redirectPath) {
         logger.debug('Processing redirect', {

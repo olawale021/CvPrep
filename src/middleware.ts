@@ -87,8 +87,7 @@ export default withAuth(
       },
     },
     pages: {
-      // Redirect to home page with redirect parameter
-      signIn: '/',
+      signIn: '/'
     }
   }
 );
