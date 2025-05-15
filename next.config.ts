@@ -27,23 +27,10 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/api/auth/:path*',
+        source: '/(api/auth|auth)/:path*',
         headers: [
           {
-            key: 'X-Auth-Route',
-            value: 'true',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'no-store, max-age=0',
-          },
-        ],
-      },
-      {
-        source: '/auth/callback/:path*',
-        headers: [
-          {
-            key: 'X-Auth-Route',
+            key: 'x-exclude-logging',
             value: 'true',
           },
           {
@@ -64,6 +51,11 @@ const nextConfig = {
   env: {
     // Flag to help conditionally disable logs
     DISABLE_AUTH_LOGS: 'true',
+  },
+  
+  // Configure cookies for cross-domain use
+  experimental: {
+    serverComponentsExternalPackages: ['next-auth'],
   },
 };
 

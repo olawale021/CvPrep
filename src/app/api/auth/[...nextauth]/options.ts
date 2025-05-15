@@ -12,6 +12,10 @@ interface ExtendedJWT extends JWT {
   error?: string;
 }
 
+// Determine site URL for correct cookie settings
+const NEXTAUTH_URL = process.env.NEXTAUTH_URL || 
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
 // Configure Auth.js options
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -24,6 +28,36 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  // Configure proper cookie handling
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: NEXTAUTH_URL.startsWith("https://"),
+      },
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: NEXTAUTH_URL.startsWith("https://"),
+      },
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: NEXTAUTH_URL.startsWith("https://"),
+      },
+    },
   },
   callbacks: {
     async jwt({ token, account, user }) {

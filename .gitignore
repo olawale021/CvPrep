@@ -55,3 +55,5 @@ src/db/migrations/user_rls_policy.sql
 .gitignore
 src/db/README.md
 .gitignore
+README-VERCEL-DEPLOY.md
+.gitignore
