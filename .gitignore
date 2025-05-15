@@ -39,3 +39,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+README-AUTH-SETUP.md
+README-OAUTH-CALLBACK-FIX.md
+README-RLS-POLICY-FIX.md
+README-SECURITY-ENHANCEMENTS.md
+README-SUPABASE-AUTH-FIX.md
+README-SUPABASE-CONNECTION-FIX.md
+README-UUID-FIX.md
+src/db/migrations/google_id_column.sql
+src/db/migrations/migrate_oauth_id_to_google_id.sql
+src/db/migrations/oauth_id_column.sql
+src/db/migrations/simplified_rls_policies.sql
+src/db/migrations/toggle_rls_mode.sql
+src/db/migrations/user_rls_policy.sql
+.gitignore
+src/db/README.md
+.gitignore

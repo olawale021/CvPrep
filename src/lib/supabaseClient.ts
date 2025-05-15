@@ -1,0 +1,57 @@
+import { createClient } from '@supabase/supabase-js';
+import logger from './logger';
+
+// Check for required environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Validate environment variables with proper error handling
+if (!supabaseUrl || !supabaseAnonKey) {
+  logger.error('Missing required Supabase environment variables');
+  throw new Error('Missing Supabase environment variables. Check your .env file.');
+}
+
+// This will only log in development mode
+logger.debug('Initializing Supabase client', { 
+  context: 'SupabaseClient'
+});
+
+// Create a supabase client for database operations only (no auth)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false, // We don't need to persist auth sessions as we're using NextAuth
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+  },
+  global: {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  },
+  db: {
+    schema: 'public',
+  },
+  // Add sensible request timeout settings
+  realtime: {
+    timeout: 10000, // 10 seconds
+  },
+});
+
+// Test the connection and log results
+export async function testSupabaseConnection() {
+  try {
+    logger.info('Testing Supabase connection', { context: 'SupabaseClient' });
+    const { error } = await supabase.from('users').select('*').limit(1);
+    
+    if (error) {
+      logger.error('Failed to connect to Supabase', { error: error.message, context: 'SupabaseClient' });
+      return false;
+    }
+    
+    logger.info('Successfully connected to Supabase', { context: 'SupabaseClient' });
+    return true;
+  } catch (err) {
+    logger.error('Unexpected error testing Supabase connection', { error: err, context: 'SupabaseClient' });
+    return false;
+  }
+}
