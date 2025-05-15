@@ -53,10 +53,8 @@ const nextConfig = {
     DISABLE_AUTH_LOGS: 'true',
   },
   
-  // Configure cookies for cross-domain use
-  experimental: {
-    serverComponentsExternalPackages: ['next-auth'],
-  },
+  // Configure external packages for server components
+  serverExternalPackages: ['next-auth'],
 };
 
 export default nextConfig;
