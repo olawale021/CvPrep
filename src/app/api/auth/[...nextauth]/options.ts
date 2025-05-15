@@ -32,13 +32,17 @@ export const authOptions: NextAuthOptions = {
   // Configure proper cookie handling
   cookies: {
     sessionToken: {
-      name: `__Secure-next-auth.session-token`,
+      name: process.env.NODE_ENV === "production"
+        ? "__Secure-next-auth.session-token"
+        : "next-auth.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: true,
-        domain: ".career-pal-v2.vercel.app",
+        secure: process.env.NODE_ENV === "production",
+        ...(process.env.NODE_ENV === "production"
+          ? { domain: ".career-pal-v2.vercel.app" }
+          : {}),
       },
     },
     callbackUrl: {
