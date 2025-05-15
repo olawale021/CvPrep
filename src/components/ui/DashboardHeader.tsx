@@ -8,24 +8,46 @@ import { useAuth } from "../../context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "./Avatar";
 import { Button } from "./Button";
 
+// Create a type that works with both NextAuth and Supabase users
+type AuthUser = User | {
+  id: string;
+  email?: string | null;
+  name?: string | null;
+  image?: string | null;
+  user_metadata?: {
+    full_name?: string;
+    avatar_url?: string;
+    [key: string]: unknown;
+  };
+};
+
 // User dropdown component with proper types
 interface UserDropdownProps {
-  user: User;
+  user: AuthUser;
   signOut: () => Promise<void>;
 }
 
 const UserDropdown = ({ user, signOut }: UserDropdownProps) => {
+  // Get user details safely regardless of the user type
+  const userEmail = user.email || '';
+  const userName = 'user_metadata' in user 
+    ? user.user_metadata?.full_name 
+    : user.name || 'User';
+  const avatarUrl = 'user_metadata' in user 
+    ? user.user_metadata?.avatar_url 
+    : user.image || '';
+    
   return (
     <div className="relative group">
       <Button variant="ghost" className="h-8 flex items-center gap-2 px-2">
         <Avatar className="h-8 w-8">
-          <AvatarImage src={user.user_metadata?.avatar_url || ""} />
+          <AvatarImage src={avatarUrl} />
           <AvatarFallback>
-            {user.email?.charAt(0) || "U"}
+            {userEmail?.charAt(0) || "U"}
           </AvatarFallback>
         </Avatar>
         <span className="hidden md:inline-block font-medium">
-          {user.user_metadata?.full_name || "User"}
+          {userName}
         </span>
       </Button>
       
@@ -34,10 +56,10 @@ const UserDropdown = ({ user, signOut }: UserDropdownProps) => {
           <div className="p-3 border-b">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium text-gray-900">
-                {user.user_metadata?.full_name || "User"}
+                {userName}
               </p>
               <p className="text-xs text-gray-500">
-                {user.email}
+                {userEmail}
               </p>
             </div>
           </div>

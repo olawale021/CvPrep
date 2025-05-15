@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import logger from '../../../lib/logger';
 import { supabase } from '../../../lib/supabaseClient';
 import { oauthIdToUuid } from '../../../lib/utils';
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '../auth/[...nextauth]/options';
 
 /**
  * Check if a user with the given email already exists in the database

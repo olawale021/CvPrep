@@ -1,3 +1,4 @@
+import { createBrowserClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import logger from './logger';
 
@@ -16,26 +17,38 @@ logger.debug('Initializing Supabase client', {
   context: 'SupabaseClient'
 });
 
-// Create a supabase client for database operations only (no auth)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false, // We don't need to persist auth sessions as we're using NextAuth
-    autoRefreshToken: false,
-    detectSessionInUrl: false,
-  },
-  global: {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  },
-  db: {
-    schema: 'public',
-  },
-  // Add sensible request timeout settings
-  realtime: {
-    timeout: 10000, // 10 seconds
-  },
-});
+// Helper function to determine if we're on the client side
+const isClient = typeof window !== 'undefined';
+
+// Create a supabase client appropriate for the execution environment
+export const supabase = isClient
+  ? createBrowserClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false, // We don't need to persist auth sessions as we're using NextAuth
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+      global: {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    })
+  : createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+      global: {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+      db: {
+        schema: 'public',
+      },
+    });
 
 // Test the connection and log results
 export async function testSupabaseConnection() {
