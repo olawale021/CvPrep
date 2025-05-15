@@ -32,12 +32,13 @@ export const authOptions: NextAuthOptions = {
   // Configure proper cookie handling
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
+      name: `__Secure-next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: NEXTAUTH_URL.startsWith("https://"),
+        secure: true,
+        domain: ".career-pal-v2.vercel.app",
       },
     },
     callbackUrl: {
