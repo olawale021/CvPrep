@@ -11,19 +11,26 @@ export default function Dashboard() {
   const { user, signOut, isLoading, authError } = useAuth();
   const router = useRouter();
   const [redirecting, setRedirecting] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
   
   // Handle redirect to home if not authenticated and finished loading
   useEffect(() => {
-    if (!isLoading && !user && !redirecting) {
+    // Only redirect if not loading, no user, and we haven't tried redirecting yet
+    if (!isLoading && !user && !redirecting && sessionChecked) {
       setRedirecting(true);
       
       // Use replace instead of push to avoid browser history issues
-      router.replace("/?callbackUrl=/dashboard");
+      router.replace("/");
     }
-  }, [user, isLoading, router, redirecting]);
+    
+    // Mark session as checked once loading is complete
+    if (!isLoading && !sessionChecked) {
+      setSessionChecked(true);
+    }
+  }, [user, isLoading, router, redirecting, sessionChecked]);
   
   // Show loading state when authentication is pending
-  if (isLoading) {
+  if (isLoading || !sessionChecked) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
         <div className="w-12 h-12 border-t-4 border-blue-600 border-solid rounded-full animate-spin mb-4"></div>

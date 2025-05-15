@@ -31,7 +31,7 @@ const logSuppressedPaths = [
   '/callback',
 ];
 
-// Auth.js middleware will handle authentication checks automatically
+// Auth.js middleware handles protected routes and authentications
 export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
@@ -57,15 +57,14 @@ export default withAuth(
     // Add header to suppress logging for sensitive paths
     if (shouldSuppressLogs) {
       response.headers.set('x-exclude-logging', 'true');
-      // No logging of path or request details for auth routes
     }
     
-    // If it's not a protected path, allow the request
+    // If it's not a protected path, always allow the request
     if (!isProtectedPath) {
       return response;
     }
     
-    // If we get here, it's a protected path and Auth.js will check authentication
+    // If we get here, it's a protected path and Auth.js will handle authentication
     return response;
   },
   {
@@ -77,7 +76,7 @@ export default withAuth(
           pathname === path || pathname.startsWith(`${path}/`)
         );
         
-        // If it's a protected path, check for a valid token
+        // For protected paths, verify token exists
         if (isProtectedPath) {
           return !!token;
         }
@@ -87,7 +86,8 @@ export default withAuth(
       },
     },
     pages: {
-      signIn: '/'
+      // Simple signIn configuration without redirect parameters
+      signIn: '/',
     }
   }
 );

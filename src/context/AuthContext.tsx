@@ -34,6 +34,11 @@ function AuthContextProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated: !!session?.user,
       context: 'AuthContext'
     });
+    
+    // Clear any auth errors when session changes
+    if (session?.user) {
+      setAuthError(null);
+    }
   }, [session, status]);
 
   // Save user to database when authenticated

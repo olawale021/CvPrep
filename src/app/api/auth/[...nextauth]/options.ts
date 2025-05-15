@@ -150,12 +150,29 @@ export const authOptions: NextAuthOptions = {
         context: "Auth" 
       });
       
+      // Direct dashboard URLs without base are allowed
+      if (url === '/dashboard' || url.startsWith('/dashboard/')) {
+        return `${baseUrl}${url}`;
+      }
+      
+      // Handle relative URLs
       if (url.startsWith("/")) {
         return `${baseUrl}${url}`;
-      } else if (url.startsWith("http")) {
+      } else if (new URL(url).origin === baseUrl) {
+        // If it's the same origin, don't redirect
         return url;
+      } else if (url.startsWith("http")) {
+        // External URLs - be careful with this for security reasons
+        const allowedHosts = [new URL(baseUrl).host];
+        const urlHost = new URL(url).host;
+        
+        if (allowedHosts.includes(urlHost)) {
+          return url;
+        }
       }
-      return baseUrl;
+      
+      // Default redirect to dashboard for logged in users
+      return `${baseUrl}/dashboard`;
     },
   },
   pages: {
