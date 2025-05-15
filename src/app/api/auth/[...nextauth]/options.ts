@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  // Configure proper cookie handling for Vercel
+  // Configure proper cookie handling
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production" || NEXTAUTH_URL.startsWith("https://"),
+        secure: NEXTAUTH_URL.startsWith("https://"),
       },
     },
     callbackUrl: {
@@ -46,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production" || NEXTAUTH_URL.startsWith("https://"),
+        secure: NEXTAUTH_URL.startsWith("https://"),
       },
     },
     csrfToken: {
@@ -55,7 +55,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production" || NEXTAUTH_URL.startsWith("https://"),
+        secure: NEXTAUTH_URL.startsWith("https://"),
       },
     },
   },

@@ -1,6 +1,19 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
+// List of paths that require authentication
+const protectedPaths = [
+  '/dashboard',
+  '/profile',
+  '/settings',
+  '/resume-builder',
+  '/interview-prep',
+  '/cover-letter',
+  '/applications',
+  '/calendar',
+  '/career-roadmap',
+];
+
 // Paths to exclude from middleware processing
 const excludedPaths = [
   '/_next',
@@ -18,7 +31,7 @@ const logSuppressedPaths = [
   '/callback',
 ];
 
-// Use a simplified middleware approach for Vercel 
+// Auth.js middleware handles protected routes and authentications
 export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
@@ -27,6 +40,11 @@ export default withAuth(
     if (excludedPaths.some(path => pathname.startsWith(path)) || pathname.includes('.')) {
       return NextResponse.next();
     }
+    
+    // Check if path is protected
+    const isProtectedPath = protectedPaths.some(path => 
+      pathname === path || pathname.startsWith(`${path}/`)
+    );
     
     // Check if path should have logging suppressed
     const shouldSuppressLogs = logSuppressedPaths.some(path => 
@@ -41,30 +59,46 @@ export default withAuth(
       response.headers.set('x-exclude-logging', 'true');
     }
     
-    // For non-protected paths, always allow
+    // If it's not a protected path, always allow the request
+    if (!isProtectedPath) {
+      return response;
+    }
+    
+    // If we get here, it's a protected path and Auth.js will handle authentication
     return response;
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,  // Simplify to just check for token existence
+      // Only run middleware on protected paths
+      authorized: ({ token, req }) => {
+        const { pathname } = req.nextUrl;
+        const isProtectedPath = protectedPaths.some(path => 
+          pathname === path || pathname.startsWith(`${path}/`)
+        );
+        
+        // For protected paths, verify token exists
+        if (isProtectedPath) {
+          return !!token;
+        }
+        
+        // For non-protected paths, always allow access
+        return true;
+      },
     },
     pages: {
-      signIn: '/', // Redirect to home page if unauthenticated
-    },
+      // Simple signIn configuration without redirect parameters
+      signIn: '/',
+    }
   }
 );
 
-// Configure matcher to run only on protected routes
+// Configure matcher to specifically include paths we want to run middleware on
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/profile/:path*',
-    '/settings/:path*',
-    '/resume-builder/:path*',
-    '/interview-prep/:path*',
-    '/cover-letter/:path*',
-    '/applications/:path*',
-    '/calendar/:path*',
-    '/career-roadmap/:path*',
+    // Include all paths except excluded ones defined in the excluded paths array
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+    // Explicitly match auth callback routes to apply headers
+    '/api/auth/:path*',
+    '/auth/callback/:path*',
   ],
 }; 

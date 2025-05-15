@@ -54,21 +54,27 @@ const nextConfig = {
   
   // Configure external packages for server components
   serverExternalPackages: ['next-auth'],
-  
-  // Fix for Vercel redirect issues with protected routes
+
   async redirects() {
     return [
       {
         source: '/dashboard',
-        has: [
+        destination: '/?callbackUrl=/dashboard',
+        permanent: false,
+        // This condition checks if the user is NOT authenticated
+        // by looking for the absence of the session token cookie.
+        // The exact cookie name might vary based on your NextAuth.js setup,
+        // but 'next-auth.session-token' or '__Secure-next-auth.session-token' are common.
+        missing: [
           {
             type: 'cookie',
-            key: 'next-auth.session-token',
-            value: undefined,
+            key: 'next-auth.session-token', // Or '__Secure-next-auth.session-token' if using HTTPS
           },
+           {
+            type: 'cookie',
+            key: '__Secure-next-auth.session-token', 
+          }
         ],
-        permanent: false,
-        destination: '/?callbackUrl=%2Fdashboard',
       },
     ];
   },
