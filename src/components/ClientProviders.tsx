@@ -2,6 +2,7 @@
 
 import { AuthProvider } from "../context/AuthContext";
 import NoSSR from "./NoSSR";
+import { Toaster } from "./ui/Toaster";
 
 export default function ClientProviders({
   children,
@@ -10,7 +11,10 @@ export default function ClientProviders({
 }) {
   return (
     <NoSSR>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        {children}
+        <Toaster />
+      </AuthProvider>
     </NoSSR>
   );
 } 

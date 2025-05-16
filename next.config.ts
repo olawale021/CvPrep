@@ -5,6 +5,15 @@ const nextConfig = {
     suppressAuthLogs: true,
   },
   
+  // Add image domains configuration for Google user profile images
+  images: {
+    domains: [
+      'lh3.googleusercontent.com',
+      'googleusercontent.com',
+      'avatars.githubusercontent.com'
+    ],
+  },
+  
   // Create custom rewrite rules to handle the sensitive routes
   async rewrites() {
     return [

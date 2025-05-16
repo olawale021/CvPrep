@@ -57,3 +57,6 @@ src/db/README.md
 .gitignore
 README-VERCEL-DEPLOY.md
 .gitignore
+README-STORAGE-RLS-FIX.md
+src/db/schema/resume-storage-policy.sql
+src/db/schema/resume-table.sql
