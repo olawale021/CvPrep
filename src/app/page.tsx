@@ -3,102 +3,34 @@ import { ArrowRight, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "../components/ui/Button";
 import LandingHeader from "../components/ui/LandingHeader";
 import { useAuth } from "../context/AuthContext";
-import logger from "../lib/logger";
 
 export default function Home() {
-  const { user, isLoading, signInWithGoogle } = useAuth();
   const router = useRouter();
-  const [redirectAttempted, setRedirectAttempted] = useState(false);
+  const { user, isLoading } = useAuth();
 
-  // Use secure logging in development only
   useEffect(() => {
-    logger.debug('Home page loaded', { 
-      isAuthenticated: !!user,
-      isLoading,
-      context: 'HomePage'
-    });
-  }, [user, isLoading]);
-
-  // Handle redirect if user is already authenticated
-  useEffect(() => {
-    // Only attempt redirects when auth loading is complete and haven't tried already
-    if (!isLoading && user && !redirectAttempted) {
-      setRedirectAttempted(true);
-      
-      // First check URL params for redirect target
-      const params = new URLSearchParams(window.location.search);
-      const redirectPath = params.get('callbackUrl') || params.get('redirect');
-      
-      if (redirectPath) {
-        logger.debug('Processing redirect', {
-          path: redirectPath,
-          context: 'HomePage'
-        });
-        // Directly navigate to avoid potential loop
-        router.push(redirectPath);
-      } else {
-        // Check localStorage for a fallback redirect
-        try {
-          const storedRedirect = localStorage.getItem('authRedirectTo');
-          if (storedRedirect && storedRedirect !== '/') {
-            logger.debug('Processing stored redirect', {
-              path: storedRedirect,
-              context: 'HomePage'
-            });
-            // Clear the stored redirect
-            localStorage.removeItem('authRedirectTo');
-            // Redirect to the stored path
-            router.push(storedRedirect);
-          } else if (user) {
-            // If user is logged in but no redirect specified, go to dashboard
-            logger.debug('Default redirect to dashboard', {
-              context: 'HomePage'
-            });
-            router.push('/dashboard');
-          }
-        } catch (err) {
-          logger.error('Error accessing localStorage', {
-            error: err,
-            context: 'HomePage'
-          });
-        }
-      }
+    if (!isLoading && !user) {
+      router.replace("/login");
     }
-  }, [user, isLoading, router, redirectAttempted]);
+  }, [user, isLoading, router]);
+
+  if (isLoading || !user) {
+    return <div>Loading...</div>;
+  }
 
   // Handler for primary CTA button
   const handlePrimaryAction = () => {
-    if (user) {
-      logger.debug('Navigating to dashboard', { context: 'HomePage' });
-      router.push('/dashboard');
-    } else {
-      logger.debug('Starting Google sign-in', { context: 'HomePage' });
-      signInWithGoogle('/dashboard');
-    }
+    router.push('/login');
   };
 
-  // Navigate to specific feature page or sign in first
+  // Navigate to specific feature page
   const goToFeature = (path: string) => {
-    if (user) {
-      router.push(path);
-    } else {
-      signInWithGoogle(path);
-    }
+    router.push(path);
   };
-
-  // Show loading state while checking auth
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <div className="w-16 h-16 border-t-4 border-blue-600 border-solid rounded-full animate-spin"></div>
-        <p className="mt-4 text-gray-600">Loading...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -122,7 +54,7 @@ export default function Home() {
                 className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-6"
                 onClick={handlePrimaryAction}
               >
-                {user ? 'Go to Dashboard' : 'Start free trial'}
+                Start free trial
               </Button>
               <Button 
                 className="border border-gray-300 text-gray-700 hover:bg-gray-100 text-lg px-8 py-6"
@@ -435,9 +367,9 @@ export default function Home() {
           </p>
           <Button 
             className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-6"
-            onClick={handlePrimaryAction}
+            onClick={() => router.push('/login')}
           >
-            {user ? 'Go to Dashboard' : 'Start free trial'}
+            Start free trial
           </Button>
         </div>
       </section>

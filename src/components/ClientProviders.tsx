@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthProvider } from "../context/AuthContext";
+import { AuthContextProvider } from "../context/AuthContext";
 import NoSSR from "./NoSSR";
 import { Toaster } from "./ui/Toaster";
 
@@ -11,10 +11,10 @@ export default function ClientProviders({
 }) {
   return (
     <NoSSR>
-      <AuthProvider>
+      <AuthContextProvider>
         {children}
         <Toaster />
-      </AuthProvider>
+      </AuthContextProvider>
     </NoSSR>
   );
 } 

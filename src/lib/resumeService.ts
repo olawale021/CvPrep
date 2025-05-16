@@ -1,10 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import logger from './logger';
-
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from './supabaseClient';
 
 // Resume bucket name
 const RESUME_BUCKET = 'resumes';
@@ -72,6 +67,12 @@ export async function uploadResume(params: ResumeUploadParams): Promise<{ succes
   try {
     const { file, userId, title, isPrimary = false } = params;
     
+    // Log current Supabase user and session for debugging
+    const currentUser = await supabase.auth.getUser();
+    const currentSession = await supabase.auth.getSession();
+    console.log('ResumeService: currentUser', currentUser);
+    console.log('ResumeService: currentSession', currentSession);
+
     // Validate file first
     const validation = validateResumeFile(file);
     if (!validation.valid) {

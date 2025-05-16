@@ -37,62 +37,51 @@ export async function saveUserToDB(user: {
   email: string;
   name?: string | null;
   image?: string | null;
+  googleId: string;
 }) {
   if (!user || !user.id || !user.email) {
     console.error('Invalid user data for database save');
     return { error: 'Invalid user data' };
   }
-  
+
   try {
-    // First check if this user already exists
-    const userExists = await checkUserExists(user.email);
-    
-    if (userExists) {
-      console.log(`User with email ${user.email} already exists, skipping save`);
-      return { success: true, skipped: true };
-    }
-    
-    // Convert OAuth numeric ID to UUID format
-    const dbUserId = oauthIdToUuid(user.id);
-    console.log('Saving user data to DB:', dbUserId, '(converted from:', user.id, ')', user.email);
-    
-    // Prepare the user data with all required fields
+    // Prepare the user data for upsert
     const userData = {
-      id: dbUserId, // Use the converted UUID
-      google_id: user.id, // Store original OAuth ID in google_id column
+      id: user.id,
+      google_id: user.googleId,
+      oauth_id: user.googleId,
       email: user.email,
       full_name: user.name || user.email,
       profile_picture: user.image || null,
-      auth_provider: "google",
+      auth_provider: 'google',
+      password_hash: null,
       is_active: true,
       is_verified: true,
       last_login: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     };
-    
-    console.log('User data prepared for save:', userData);
-    
-    // Perform the upsert operation
-    const { error } = await supabase.from("users").upsert(
-      userData,
-      { 
-        onConflict: "id",
-        ignoreDuplicates: false
+
+    // Check for duplicate emails before upsert
+    const { data: existingUsers } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', user.email);
+
+    if (existingUsers && existingUsers.length > 0) {
+      if (existingUsers[0].id !== user.id) {
+        return { error: 'A user with this email already exists.' };
       }
-    );
-    
-    if (error) {
-      console.error("DB Save Error:", error);
-      // Log more details about the error
-      if (error.details) console.error("Error details:", error.details);
-      if (error.hint) console.error("Error hint:", error.hint);
-      
-      return { error: error.message };
-    } else {
-      console.log("User data saved successfully for:", user.email);
-      return { success: true };
     }
+
+    // Now safe to upsert
+    const { error } = await supabase
+      .from('users')
+      .upsert([userData], { onConflict: 'email' });
+    if (error) {
+      return { error: error.message };
+    }
+    return { success: true };
   } catch (err) {
-    console.error("Unexpected error saving user:", err);
     return { error: `Unexpected error: ${err}` };
   }
 }

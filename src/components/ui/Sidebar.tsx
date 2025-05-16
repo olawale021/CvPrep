@@ -2,6 +2,7 @@
 
 import {
     Bell,
+    Download,
     FolderClosed,
     GraduationCap,
     Home,
@@ -17,8 +18,9 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { getUserResumes, Resume } from "../../lib/resumeService";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -37,6 +39,8 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const pathname = usePathname();
   const [showWelcome, setShowWelcome] = useState(true);
   const [showResumeUpload, setShowResumeUpload] = useState(false);
+  const [userResumes, setUserResumes] = useState<Resume[]>([]);
+  const [isLoadingResumes, setIsLoadingResumes] = useState(false);
   
   const navLinks = [
     { href: "/dashboard", label: "Home", icon: <Home className="h-5 w-5" /> },
@@ -46,22 +50,57 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     { href: "/notifications", label: "Notifications", icon: <Bell className="h-5 w-5" />, badge: "02" },
   ];
   
-  const resumes = [
-    { href: "/resume-builder/tech", label: "Tech Resume" },
-    { href: "/resume-builder/professional", label: "Professional" },
-    { href: "/resume-builder/creative", label: "Creative" },
-    { href: "/resume-builder/entry-level", label: "Entry Level" },
-  ];
+  useEffect(() => {
+    async function loadUserResumes() {
+      if (user?.id) {
+        setIsLoadingResumes(true);
+        try {
+          const { resumes, error } = await getUserResumes(user.id);
+          if (error) {
+            console.error('Failed to load resumes:', error);
+          } else {
+            setUserResumes(resumes);
+          }
+        } catch (err) {
+          console.error('Error loading resumes:', err);
+        } finally {
+          setIsLoadingResumes(false);
+        }
+      }
+    }
+    
+    loadUserResumes();
+  }, [user?.id]);
+
+  const handleResumeUploadOpen = () => {
+    // Log user and session for debugging
+    // console.log('Sidebar user:', user);
+    // Session debug code commented out to avoid unused variable error
+    // if (typeof window !== 'undefined' && window.localStorage) {
+    //   const session = window.localStorage.getItem('supabase.auth.token');
+    //   console.log('Sidebar session (from localStorage):', session);
+    // }
+    setShowResumeUpload(true);
+  };
+
+  const handleResumeUploadSuccess = () => {
+    // Refresh the resume list when a new resume is uploaded
+    if (user?.id) {
+      getUserResumes(user.id).then(({ resumes }) => {
+        setUserResumes(resumes);
+      });
+    }
+  };
 
   return (
     <div className={`w-64 bg-white rounded-xl shadow-sm p-4 flex flex-col h-full ${className}`}>
       {/* Profile Section */}
       <div className="flex items-center gap-3 pb-4 mb-4 border-b">
         <div className="rounded-full overflow-hidden w-10 h-10 bg-lime-200">
-          {user?.image ? (
+          {user?.user_metadata?.avatar_url ? (
             <Image 
-              src={user.image} 
-              alt={user.name || "User"} 
+              src={user.user_metadata.avatar_url} 
+              alt={user.user_metadata?.full_name || "User"} 
               width={40} 
               height={40} 
               className="object-cover"
@@ -69,14 +108,14 @@ export default function Sidebar({ className = "" }: SidebarProps) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-800 font-medium">
-              {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
+              {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || "U"}
             </div>
           )}
         </div>
         
         <div className="flex-1 min-w-0">
           <h3 className="font-medium text-gray-800 truncate">
-            {user?.name || "User"}
+            {user?.user_metadata?.full_name || "User"}
           </h3>
           <p className="text-sm text-gray-500 truncate">
             {user?.email || ""}
@@ -148,7 +187,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-medium text-gray-700">My Resumes</h3>
           <button 
-            onClick={() => setShowResumeUpload(true)}
+            onClick={handleResumeUploadOpen}
             className="p-1 rounded-full hover:bg-gray-100 transition-colors"
             aria-label="Upload new resume"
           >
@@ -157,16 +196,32 @@ export default function Sidebar({ className = "" }: SidebarProps) {
         </div>
         
         <div className="space-y-1">
-          {resumes.map((resume) => (
-            <Link
-              key={resume.href}
-              href={resume.href}
-              className="flex items-center px-3 py-2 text-sm rounded-md text-gray-700 hover:bg-gray-100"
-            >
-              <FolderClosed className="h-4 w-4 text-gray-500 mr-3" />
-              {resume.label}
-            </Link>
-          ))}
+          {isLoadingResumes ? (
+            <div className="px-3 py-2 text-sm text-gray-500">Loading resumes...</div>
+          ) : userResumes.length > 0 ? (
+            userResumes.map((resume) => (
+              <a
+                key={resume.id}
+                href={resume.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between px-3 py-2 text-sm rounded-md text-gray-700 hover:bg-gray-100 group"
+              >
+                <div className="flex items-center overflow-hidden">
+                  <FolderClosed className="h-4 w-4 text-gray-500 mr-3 flex-shrink-0" />
+                  <span className="truncate">{resume.title}</span>
+                  {resume.is_primary && (
+                    <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-1.5 py-0.5 rounded-full">
+                      Primary
+                    </span>
+                  )}
+                </div>
+                <Download className="h-3.5 w-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </a>
+            ))
+          ) : (
+            <div className="px-3 py-2 text-sm text-gray-500">No resumes uploaded yet.</div>
+          )}
         </div>
       </div>
       
@@ -195,9 +250,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
       <ResumeUploadDialog 
         open={showResumeUpload} 
         onOpenChange={setShowResumeUpload} 
-        onSuccess={() => {
-          // Optionally refresh resume list or show success message
-        }}
+        onSuccess={handleResumeUploadSuccess}
       />
     </div>
   );

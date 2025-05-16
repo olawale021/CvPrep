@@ -1,20 +1,64 @@
-import { withAuth } from "next-auth/middleware";
+import { createServerClient } from '@supabase/ssr';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-// Auth.js middleware handles protected routes and authentications
-export default withAuth({
-  pages: {
-    signIn: "/",
-  },
-});
+// This middleware protects routes and handles authentication with Supabase
+export async function middleware(request: NextRequest) {
+  const res = NextResponse.next();
+  
+  // Create a Supabase client for the middleware
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get: (name) => request.cookies.get(name)?.value,
+        set: (name, value, options) => {
+          res.cookies.set({ name, value, ...options });
+        },
+        remove: (name, options) => {
+          res.cookies.set({ name, value: '', ...options });
+        },
+      },
+    }
+  );
+  
+  // Get the session - if it exists, the user is authenticated
+  const { data: { session } } = await supabase.auth.getSession();
 
-// Configure matcher to specifically include paths we want to run middleware on
+  // These are the paths that do not require authentication
+  const publicPaths = [
+    '/',
+    '/login',
+    '/about',
+    '/contact',
+    '/pricing',
+    '/terms',
+    '/privacy',
+    '/api/auth',
+    '/api/webhook',
+    '/auth/callback',
+    '/dashboard',
+  ];
+  
+  // Check if the current path is a public path
+  const isPublicPath = publicPaths.some(path => 
+    request.nextUrl.pathname === path || 
+    request.nextUrl.pathname.startsWith(`${path}/`)
+  );
+  
+  // If not a public path and not authenticated, redirect to login
+  if (!isPublicPath && !session) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  
+  return res;
+}
+
+// Configure matcher to only run middleware on paths that need it
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    // Include all paths except excluded ones defined in the excluded paths array
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-    // Explicitly match auth callback routes to apply headers
-    '/api/auth/:path*',
-    '/auth/callback/:path*',
+    // Exclude static files
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 }; 
