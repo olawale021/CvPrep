@@ -1,7 +1,7 @@
 "use client";
 
 import { User } from "@supabase/supabase-js";
-import { Bell, LogOut, Menu, Search, Settings, UserCircle, X } from "lucide-react";
+import { LogOut, Menu, Search, Settings, UserCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
@@ -133,12 +133,6 @@ export default function DashboardHeader() {
           
           {/* Right side - Navigation and user profile */}
           <div className="flex items-center gap-3">
-            {/* Notifications */}
-            <button className="p-1 rounded-full text-gray-500 hover:bg-gray-100 relative">
-              <Bell className="h-6 w-6" />
-              <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500"></span>
-            </button>
-            
             {/* User dropdown */}
             {user && <UserDropdown user={user} signOut={signOut} />}
           </div>
