@@ -41,7 +41,7 @@ const UserDropdown = ({ user, signOut }: UserDropdownProps) => {
     <div className="relative group">
       <Button variant="ghost" className="h-8 flex items-center gap-2 px-2">
         <Avatar className="h-8 w-8">
-          <AvatarImage src={avatarUrl} />
+          <AvatarImage src={avatarUrl} alt={`${userName}'s profile`} />
           <AvatarFallback>
             {userEmail?.charAt(0) || "U"}
           </AvatarFallback>

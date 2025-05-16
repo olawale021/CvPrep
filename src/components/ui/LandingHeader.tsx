@@ -20,7 +20,7 @@ export default function LandingHeader() {
         {user ? (
           <>
             <Avatar className="h-8 w-8">
-              <AvatarImage src={avatarUrl} />
+              <AvatarImage src={avatarUrl} alt={`${userName}'s profile`} />
               <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
             </Avatar>
             <span className="font-medium text-gray-800">{userName}</span>
