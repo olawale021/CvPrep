@@ -1,3 +1,5 @@
+import type { Configuration } from 'webpack';
+
 const nextConfig = {
   // Disable server logs for sensitive requests
   serverRuntimeConfig: {
@@ -62,7 +64,19 @@ const nextConfig = {
   },
   
   // Configure external packages for server components
-  serverExternalPackages: ['next-auth'],
+  serverExternalPackages: ['next-auth', 'pdf-parse'],
+  
+  // Configure webpack to handle pdf.js and other binary files
+  webpack: (config: Configuration, { isServer }: { isServer: boolean }) => {
+    // Handle pdf-parse module for server-side
+    if (isServer) {
+      if (config.externals) {
+        config.externals = [...(config.externals as string[]), 'canvas', 'jsdom'];
+      }
+    }
+    
+    return config;
+  },
 };
 
 export default nextConfig;

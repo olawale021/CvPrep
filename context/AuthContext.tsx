@@ -1,7 +1,7 @@
 'use client';
 
 import { Session, User } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState } from 'react';
 import logger from '../lib/logger';
 import { supabase } from '../lib/supabaseClient';
@@ -24,7 +24,7 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
-  const router = useRouter();
+  // const router = useRouter();
 
   // Listen for auth state changes
   useEffect(() => {
@@ -90,11 +90,11 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
   }, [user]);
 
   // Redirect to dashboard after login
-  useEffect(() => {
-    if (!isLoading && user) {
-      router.push('/dashboard');
-    }
-  }, [isLoading, user, router]);
+  // useEffect(() => {
+  //   if (!isLoading && user) {
+  //     router.push('/dashboard');
+  //   }
+  // }, [isLoading, user, router]);
 
   // Sign in with Google
   const signInWithGoogle = async (redirectPath?: string) => {

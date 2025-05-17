@@ -60,3 +60,11 @@ README-VERCEL-DEPLOY.md
 README-STORAGE-RLS-FIX.md
 src/db/schema/resume-storage-policy.sql
 src/db/schema/resume-table.sql
+db/migrations/google_id_column.sql
+db/migrations/migrate_oauth_id_to_google_id.sql
+db/migrations/oauth_id_column.sql
+db/migrations/simplified_rls_policies.sql
+db/migrations/toggle_rls_mode.sql
+db/migrations/user_rls_policy.sql
+db/schema/resume-storage-policy.sql
+db/schema/resume-table.sql

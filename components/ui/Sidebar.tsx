@@ -28,7 +28,7 @@ import {
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger
-} from "../ui/DropdownMenu";
+} from "./DropdownMenu";
 import { ResumeUploadDialog } from "./ResumeUploadDialog";
 
 type SidebarProps = {

@@ -3,8 +3,8 @@
 import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "../../context/AuthContext";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/Avatar";
-import { Button } from "../ui/Button";
+import { Avatar, AvatarFallback, AvatarImage } from "./Avatar";
+import { Button } from "./Button";
 
 export default function LandingHeader() {
   const { user, signOut } = useAuth();
