@@ -8,12 +8,12 @@ import { ResumeTemplate } from "../hooks/usePdfGenerator";
 
 interface TemplateSelectorProps {
   selectedTemplate: ResumeTemplate;
-  onTemplateSelect: (template: ResumeTemplate) => void;
+  onTemplateSelectAction: (template: ResumeTemplate) => void;
 }
 
 export default function TemplateSelector({ 
   selectedTemplate,
-  onTemplateSelect 
+  onTemplateSelectAction 
 }: TemplateSelectorProps) {
   return (
     <div className="w-full my-4">
@@ -25,7 +25,7 @@ export default function TemplateSelector({
       <Tabs 
         value={selectedTemplate}
         defaultValue={selectedTemplate} 
-        onValueChange={(value) => onTemplateSelect(value as ResumeTemplate)}
+        onValueChange={(value) => onTemplateSelectAction(value as ResumeTemplate)}
         className="w-full"
       >
         <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -72,7 +72,7 @@ export default function TemplateSelector({
                   variant="default" 
                   size="sm" 
                   className="mt-2 w-full"
-                  onClick={() => onTemplateSelect("classic")}
+                  onClick={() => onTemplateSelectAction("classic")}
                 >
                   <FileText className="h-3 w-3 mr-1" />
                   Select Classic
@@ -128,7 +128,7 @@ export default function TemplateSelector({
                   variant="default" 
                   size="sm" 
                   className="mt-2 w-full"
-                  onClick={() => onTemplateSelect("modern")}
+                  onClick={() => onTemplateSelectAction("modern")}
                 >
                   <Layout className="h-3 w-3 mr-1" />
                   Select Modern
