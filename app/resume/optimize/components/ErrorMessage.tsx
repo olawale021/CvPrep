@@ -1,5 +1,5 @@
-import { AlertDescription, AlertTitle } from "../../../components/ui/Alert";
-import { cn } from "../../../lib/utils";
+import { AlertDescription, AlertTitle } from "../../../../components/ui/Alert";
+import { cn } from "../../../../lib/utils";
 import { AlertCircle } from "lucide-react";
 
 interface ErrorMessageProps {

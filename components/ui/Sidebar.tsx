@@ -215,7 +215,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
       <div 
         className={`
           fixed md:sticky top-0 md:inset-y-0 inset-0 z-45
-          ${isMobile ? 'w-72' : isExpanded ? 'w-64' : 'w-20'} 
+          ${isMobile ? 'w-full max-w-xs' : isExpanded ? 'w-64' : 'w-20'} 
           ${isVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} 
           bg-white shadow-md flex flex-col h-screen transition-all duration-300 ease-in-out
           ${className}

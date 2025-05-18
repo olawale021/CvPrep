@@ -1,5 +1,4 @@
 import { supabase } from './supabaseClient';
-import { oauthIdToUuid } from './utils';
 
 /**
  * Check if a user with the given email already exists in the database
@@ -45,9 +44,13 @@ export async function saveUserToDB(user: {
   }
 
   try {
+    // Use the original UUID directly to match RLS policies
+    // Don't convert it to avoid mismatches with Supabase auth
+    console.log('Saving user to DB with ID:', user.id);
+
     // Prepare the user data for upsert
     const userData = {
-      id: user.id,
+      id: user.id, // Use the original ID from Supabase Auth
       google_id: user.googleId,
       oauth_id: user.googleId,
       email: user.email,
@@ -68,7 +71,7 @@ export async function saveUserToDB(user: {
       .eq('email', user.email);
 
     if (existingUsers && existingUsers.length > 0) {
-      if (existingUsers[0].id !== user.id) {
+      if (existingUsers[0].id !== user.id) { // Compare with original UUID
         return { error: 'A user with this email already exists.' };
       }
     }
@@ -78,10 +81,12 @@ export async function saveUserToDB(user: {
       .from('users')
       .upsert([userData], { onConflict: 'email' });
     if (error) {
+      console.error('Error upserting user:', error);
       return { error: error.message };
     }
     return { success: true };
   } catch (err) {
+    console.error('Unexpected error saving user:', err);
     return { error: `Unexpected error: ${err}` };
   }
 }
@@ -91,14 +96,13 @@ export async function saveUserToDB(user: {
  */
 export async function getUserFromDB(userId: string) {
   try {
-    // Convert OAuth ID to UUID for database lookup
-    const dbUserId = oauthIdToUuid(userId);
-    console.log('Fetching user data from DB for ID:', dbUserId, '(converted from:', userId, ')');
+    // Use original ID for database lookup to match RLS policies
+    console.log('Fetching user data from DB for ID:', userId);
     
     const { data, error } = await supabase
       .from('users')
       .select('*')
-      .eq('id', dbUserId)
+      .eq('id', userId)
       .single();
     
     if (error) {

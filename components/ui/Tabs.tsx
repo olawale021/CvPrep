@@ -20,16 +20,13 @@ export function Tabs({ value, onValueChange, children, className }: TabsProps) {
       {React.Children.map(children, (child) => {
         if (!React.isValidElement(child)) return child;
         
-        // Only pass value/onValueChange to TabsTrigger and TabsContent
-        if (child.type === TabsTrigger || child.type === TabsContent) {
-          return React.cloneElement(child as React.ReactElement<TabsComponentProps>, { 
-            value, 
-            onValueChange 
-          });
-        }
+        // For direct children, pass down value and onValueChange
+        const childWithProps = React.cloneElement(child as React.ReactElement<TabsComponentProps>, { 
+          value, 
+          onValueChange 
+        });
         
-        // For other components, don't pass any special props
-        return child;
+        return childWithProps;
       })}
     </div>
   );
@@ -37,10 +34,22 @@ export function Tabs({ value, onValueChange, children, className }: TabsProps) {
 
 interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
 
-export function TabsList({ children, className, ...props }: TabsListProps) {
-  return <div className={cn("flex border-b mb-2", className)} {...props}>{children}</div>;
+export function TabsList({ children, className, value, onValueChange, ...props }: TabsListProps) {
+  // Pass down value and onValueChange to TabsTrigger children
+  const childrenWithProps = React.Children.map(children, (child) => {
+    if (!React.isValidElement(child)) return child;
+    
+    return React.cloneElement(child as React.ReactElement<TabsComponentProps>, {
+      value,
+      onValueChange
+    });
+  });
+  
+  return <div className={cn("flex border-b mb-2", className)} {...props}>{childrenWithProps}</div>;
 }
 
 interface TabsTriggerProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onValueChange'> {
@@ -81,7 +90,22 @@ export function TabsTrigger({
       )}
       // Fix: Use data attribute instead of aria-selected
       data-state={isSelected ? "active" : "inactive"}
-      onClick={() => onValueChange?.(value)}
+      onClick={() => {
+        console.log(`TabsTrigger clicked - tab: ${value}, current active: ${activeValue}`);
+        // Show the current state values
+        console.log("Before change - TabsTrigger state:", { 
+          clicked: value, 
+          currentActive: activeValue, 
+          willCallOnValueChange: !!onValueChange
+        });
+        
+        if (onValueChange) {
+          onValueChange(value);
+          console.log(`TabsTrigger - Called onValueChange with: ${value}`);
+        } else {
+          console.warn(`TabsTrigger - No onValueChange function available for tab: ${value}`);
+        }
+      }}
       {...domProps}
     >
       {children}
@@ -118,7 +142,27 @@ export function TabsContent({
   // Explicitly remove onValueChange from props to prevent it from reaching the DOM
   delete domProps.onValueChange;
   
-  if (activeValue !== value) return null;
+  // Log content rendering
+  console.log(`TabsContent - tab: ${value}, active: ${activeValue}, isActive: ${activeValue === value}`);
   
-  return <div className={cn(className)} {...domProps}>{children}</div>;
+  // Add a simple check to make all tabs visible if debugging
+  const isActive = activeValue === value;
+  
+  if (!isActive) {
+    console.log(`TabsContent - tab ${value} is not active, returning null`);
+    return null;
+  }
+  
+  console.log(`TabsContent - tab ${value} is active, rendering content`);
+  
+  return (
+    <div 
+      className={cn("block", className)}
+      data-state="active"
+      data-tab-content={value}
+      {...domProps}
+    >
+      {children}
+    </div>
+  );
 } 

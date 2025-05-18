@@ -2,8 +2,11 @@
 export interface WorkExperience {
     company: string;
     title: string;
+    role?: string;
     dates: string;
+    date_range?: string;
     bullets: string[];
+    accomplishments?: string[];
     location?: string;
   }
   

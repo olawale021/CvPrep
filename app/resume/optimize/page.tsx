@@ -1,0 +1,158 @@
+"use client";
+
+import { FileText } from "lucide-react";
+import React, { FormEvent } from "react";
+import Sidebar from "../../../components/ui/Sidebar";
+import ErrorMessage from "./components/ErrorMessage";
+import LoadingState from "./components/LoadingState";
+import OptimizedResume from "./components/OptimizedResume";
+import ResumeUploadForm from "./components/ResumeUploadForm";
+import ScoreResult from "./components/ScoreResult";
+import { ResumeEditProvider } from "./context/ResumeEditContext";
+import { usePdfGenerator } from "./hooks/usePdfGenerator";
+import { useResumeOptimizer } from "./hooks/useResumeOptimizer";
+import { ResumeData } from "./types";
+
+export default function OptimizeResume() {
+  const {
+    file,
+    setFile,
+    jobDescription,
+    setJobDescription,
+    response,
+    loading,
+    error,
+    scoreResult,
+    setScoreResult,
+    scoringMode,
+    isScoring,
+    fileInputRef,
+    resumeResponse,
+    handleScoreSubmit,
+    handleOptimize,
+  } = useResumeOptimizer();
+
+  const { isPdfGenerating, downloadPdf, setIsPdfGenerating, error: pdfError } = usePdfGenerator();
+
+  const handleDownloadPdf = async (editableResume?: ResumeData) => {
+    if (response && resumeResponse) {
+      setIsPdfGenerating(true);
+      try {
+        // Create a deep copy and ensure all required fields exist
+        const safeResponse = {
+          ...response,
+          summary: response.summary || "",
+          skills: response.skills || {},
+          work_experience: response.work_experience || [],
+          education: response.education || [],
+          projects: response.projects || [],
+          certifications: response.certifications || []
+        };
+        
+        // Only merge fields that exist in editableResume
+        const mergedData = { ...safeResponse };
+        if (editableResume) {
+          if (editableResume.summary) mergedData.summary = editableResume.summary;
+          if (editableResume.skills) mergedData.skills = editableResume.skills;
+          if (editableResume.work_experience) mergedData.work_experience = editableResume.work_experience;
+          if (editableResume.education) mergedData.education = editableResume.education;
+          if (editableResume.projects) mergedData.projects = editableResume.projects;
+          if (editableResume.certifications) mergedData.certifications = editableResume.certifications;
+        }
+        
+        await downloadPdf(mergedData, resumeResponse);
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+      } finally {
+        setIsPdfGenerating(false);
+      }
+    }
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <Sidebar />
+      
+      {/* Main Content */}
+      <div className="flex-1 p-4 md:p-6 pt-16 md:pt-6 overflow-x-hidden">
+        <div className="w-full max-w-7xl mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4">Resume Review</h1>
+          
+          <div className="flex flex-col md:flex-row md:gap-6">
+            {/* Left Column - Upload Form + Score Result (when optimizing) */}
+            <div className="w-full md:w-[40%] flex flex-col space-y-6">
+              {/* Resume Upload Form */}
+              <div className="w-full bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="p-4 sm:p-6">
+                  <ResumeUploadForm
+                    file={file}
+                    setFile={setFile}
+                    jobDescription={jobDescription}
+                    setJobDescription={setJobDescription}
+                    isScoring={isScoring}
+                    fileInputRef={fileInputRef as React.RefObject<HTMLInputElement>}
+                    onSubmit={(e: FormEvent<Element>) => handleScoreSubmit(e as FormEvent<HTMLFormElement>)}
+                  />
+                </div>
+              </div>
+              
+              {/* Score Result - Only show when optimization is in progress */}
+              {loading && scoreResult && (
+                <div className="w-full">
+                  <ScoreResult
+                    scoreResult={scoreResult}
+                    handleOptimize={handleOptimize}
+                    loading={loading}
+                    setScoreResult={setScoreResult}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Right Column - Score Results (initially), Optimized Resume, or Loading States */}
+            <div className="w-full md:w-[60%] mt-6 md:mt-0">
+              <div className="w-full bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="p-4 sm:p-6">
+                  {loading ? (
+                    <LoadingState type="optimizing" />
+                  ) : isScoring ? (
+                    <LoadingState type="scoring" />
+                  ) : scoreResult && scoringMode ? (
+                    <ScoreResult
+                      scoreResult={scoreResult}
+                      handleOptimize={handleOptimize}
+                      loading={loading}
+                      setScoreResult={setScoreResult}
+                    />
+                  ) : response && !scoringMode ? (
+                    <ResumeEditProvider initialData={response}>
+                      <OptimizedResume
+                        response={response}
+                        handleDownloadPdf={handleDownloadPdf}
+                        isPdfGenerating={isPdfGenerating}
+                      />
+                    </ResumeEditProvider>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-center py-8">
+                      <div className="p-3 bg-blue-50 rounded-full mb-4">
+                        <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
+                      </div>
+                      <h3 className="text-base sm:text-lg font-medium text-gray-800 mb-2">Two-Step Resume Optimization</h3>
+                      <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto">
+                        First, score your resume against the job description. Then, optimize your resume to improve your chances of getting noticed.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {error && <ErrorMessage message={error} className="mt-4" />}
+          {pdfError && <ErrorMessage message={pdfError} className="mt-4" />}
+        </div>
+      </div>
+    </div>
+  );
+}

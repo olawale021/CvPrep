@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { ResumeData, Project } from '../types';
+import { Project, ResumeData } from '../types';
 
 interface ResumeEditContextType {
   editableResume: ResumeData;

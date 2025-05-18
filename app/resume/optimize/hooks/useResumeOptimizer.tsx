@@ -1,5 +1,5 @@
 import { FormEvent, useRef, useState } from "react";
-import { ResumeScore } from "../../../lib/resume/scoreResume";
+import { ResumeScore } from "../../../../lib/resume/scoreResume";
 import { ApiEducationItem, ApiProjectItem, ApiResumeResponse, ApiWorkExperienceItem, ResumeData, ResumeResponse } from "../types";
 
 export function useResumeOptimizer() {
@@ -95,15 +95,22 @@ export function useResumeOptimizer() {
                            title: exp.role || exp.title || "",
                            dates: exp.date_range || exp.dates || "",
                            bullets: exp.accomplishments || exp.bullets || [],
+                           accomplishments: exp.accomplishments || exp.bullets || [],
                            location: exp.location || ""
                          })) : [],
-        education: Array.isArray(data.education) ? data.education : 
-                  Array.isArray(data.Education) ? data.Education.map((edu: ApiEducationItem) => ({
-                    school: edu.institution || edu.school || "",
-                    degree: edu.degree,
-                    dates: edu.graduation_date || edu.dates || "",
-                    location: edu.location || ""
-                  })) : [],
+        education: (() => {
+          // Verify if we have education data in either format
+          const rawEducation = Array.isArray(data.education) ? data.education : 
+                              Array.isArray(data.Education) ? data.Education : [];
+          
+          // Map and ensure all required fields have fallback values
+          return rawEducation.map((edu: ApiEducationItem) => ({
+            school: edu.institution || edu.school || "",
+            degree: edu.degree || "Degree",
+            dates: edu.graduation_date || edu.dates || "",
+            location: edu.location || ""
+          }));
+        })(),
         certifications: Array.isArray(data.certifications) ? data.certifications : 
                        Array.isArray(data.Certifications) ? data.Certifications : [],
         projects: Array.isArray(data.projects) ? data.projects :
