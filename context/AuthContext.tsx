@@ -5,7 +5,6 @@ import { Session, User } from '@supabase/supabase-js';
 import { createContext, useContext, useEffect, useState } from 'react';
 import logger from '../lib/logger';
 import { supabase } from '../lib/supabaseClient';
-import { saveUserToDB } from '../lib/userOperations';
 
 // Type for the auth context value
 export type AuthContextType = {
@@ -52,26 +51,35 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
           email: user.email,
           context: 'AuthContext',
         });
-        // Add debug logs for troubleshooting RLS issues
-        // console.log('Supabase Auth user object:', user);
-        // console.log('Supabase Auth user.id:', user.id);
-        // console.log('Supabase session:', session);
+        
         try {
           const googleId = user.user_metadata?.provider_id || user.user_metadata?.sub || user.id;
-          const result = await saveUserToDB({
-            id: user.id,
-            email: user.email,
-            name: user.user_metadata?.full_name || user.email,
-            image: user.user_metadata?.avatar_url || null,
-            googleId,
+          
+          // Use the API route instead of direct Supabase client call
+          const response = await fetch('/api/user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: user.id,
+              email: user.email,
+              name: user.user_metadata?.full_name || user.email,
+              image: user.user_metadata?.avatar_url || null,
+              googleId,
+            }),
           });
+          
+          const result = await response.json();
+          
           logger.debug('Save user to DB result', {
             success: result.success,
             error: result.error ? true : false,
             context: 'AuthContext',
           });
+          
           if (result.error) {
-            logger.error('Failed to save user via client', {
+            logger.error('Failed to save user via API', {
               error: result.error,
               context: 'AuthContext',
             });
