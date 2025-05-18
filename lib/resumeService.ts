@@ -68,10 +68,10 @@ export async function uploadResume(params: ResumeUploadParams): Promise<{ succes
     const { file, userId, title, isPrimary = false } = params;
     
     // Log current Supabase user and session for debugging
-    const currentUser = await supabase.auth.getUser();
-    const currentSession = await supabase.auth.getSession();
-    console.log('ResumeService: currentUser', currentUser);
-    console.log('ResumeService: currentSession', currentSession);
+    // const currentUser = await supabase.auth.getUser();
+    // const currentSession = await supabase.auth.getSession();
+    // console.log('ResumeService: currentUser', currentUser);
+    // console.log('ResumeService: currentSession', currentSession);
 
     // Validate file first
     const validation = validateResumeFile(file);

@@ -1,33 +1,39 @@
 "use client";
 
 import {
-    Briefcase,
-    ChevronLeft,
-    ChevronRight,
-    FileText,
-    FolderClosed,
-    GraduationCap,
-    Home,
-    LineChart,
-    LogOut,
-    Menu,
-    MoreVertical,
-    Plus,
-    Settings,
-    Users,
-    X
+  Briefcase,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Download,
+  FileText,
+  FolderClosed,
+  GraduationCap,
+  Home,
+  LineChart,
+  LogOut,
+  Menu,
+  MoreVertical,
+  Plus,
+  Settings,
+  Star,
+  Trash2,
+  Users,
+  X
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { Resume, deleteResume, getUserResumes, setPrimaryResume } from "../../lib/resumeService";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "./DropdownMenu";
 import { ResumeUploadDialog } from "./ResumeUploadDialog";
 
@@ -39,9 +45,13 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const { user, signOut } = useAuth();
   const pathname = usePathname();
   const [showResumeUpload, setShowResumeUpload] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [resumes, setResumes] = useState<Resume[]>([]);
+  const [isResumesExpanded, setIsResumesExpanded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Handle responsiveness
   useEffect(() => {
@@ -51,6 +61,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
       
       if (!mobile) {
         setIsVisible(true);
+        setIsExpanded(true);
       } else {
         setIsVisible(false);
       }
@@ -65,6 +76,33 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     // Clean up
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Fetch user resumes when component mounts or user changes
+  useEffect(() => {
+    async function fetchResumes() {
+      if (!user?.id) return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const { resumes: userResumes, error: resumeError } = await getUserResumes(user.id);
+        
+        if (resumeError) {
+          setError(resumeError);
+        } else {
+          setResumes(userResumes);
+        }
+      } catch (err) {
+        setError('Failed to fetch resumes');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchResumes();
+  }, [user?.id]);
   
   const navLinks = [
     { href: "/dashboard", label: "Home", icon: <Home className="h-5 w-5" /> },
@@ -80,8 +118,15 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     setShowResumeUpload(true);
   };
 
-  const handleResumeUploadSuccess = () => {
-    // No need to refresh resumes as we're not displaying them in the sidebar anymore
+  const handleResumeUploadSuccess = async () => {
+    if (user?.id) {
+      setIsLoading(true);
+      const { resumes: updatedResumes } = await getUserResumes(user.id);
+      setResumes(updatedResumes);
+      setIsLoading(false);
+      // Expand resumes section when a new resume is uploaded
+      setIsResumesExpanded(true);
+    }
   };
 
   const toggleSidebar = () => {
@@ -92,10 +137,55 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     setIsVisible(!isVisible);
   };
 
+  const toggleResumesSection = () => {
+    setIsResumesExpanded(!isResumesExpanded);
+  };
+
   // Allow navigation links to close sidebar on mobile
   const handleNavigation = () => {
     if (isMobile) {
       setIsVisible(false);
+    }
+  };
+
+  // Handle setting a resume as primary
+  const handleSetPrimary = async (resumeId: string) => {
+    if (!user?.id) return;
+    
+    try {
+      const { success, error: setPrimaryError } = await setPrimaryResume(resumeId, user.id);
+      
+      if (success) {
+        // Update local state to reflect changes
+        setResumes(prevResumes => 
+          prevResumes.map(resume => ({
+            ...resume,
+            is_primary: resume.id === resumeId
+          }))
+        );
+      } else if (setPrimaryError) {
+        console.error('Error setting primary resume:', setPrimaryError);
+      }
+    } catch (err) {
+      console.error('Error setting primary resume:', err);
+    }
+  };
+
+  // Handle deleting a resume
+  const handleDeleteResume = async (resumeId: string) => {
+    if (!user?.id || !window.confirm('Are you sure you want to delete this resume?')) return;
+    
+    try {
+      const { success, error: deleteError } = await deleteResume(resumeId, user.id);
+      
+      if (success) {
+        // Remove the deleted resume from state
+        setResumes(prevResumes => prevResumes.filter(resume => resume.id !== resumeId));
+      } else if (deleteError) {
+        console.error('Error deleting resume:', deleteError);
+      }
+    } catch (err) {
+      console.error('Error deleting resume:', err);
     }
   };
 
@@ -107,14 +197,14 @@ export default function Sidebar({ className = "" }: SidebarProps) {
       {/* Mobile menu overlay */}
       {isVisible && isMobile && (
         <div 
-          className="md:hidden fixed inset-0 bg-black/20 z-20"
+          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           onClick={() => setIsVisible(false)}
         />
       )}
       
       {/* Mobile Toggle Button */}
       <button
-        className="md:hidden fixed top-4 right-4 z-30 p-2 rounded-md bg-white shadow-md"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md"
         onClick={toggleSidebarVisibility}
         aria-label="Toggle sidebar"
       >
@@ -124,10 +214,10 @@ export default function Sidebar({ className = "" }: SidebarProps) {
       {/* Sidebar */}
       <div 
         className={`
-          fixed md:static inset-y-0 md:left-0 ${isMobile ? 'right-0' : 'left-0'} z-30
-          ${isMobile ? 'w-64' : isExpanded ? 'w-64' : 'w-20'} 
-          ${isVisible ? 'translate-x-0' : `${isMobile ? 'translate-x-full' : '-translate-x-full'} md:translate-x-0`} 
-          bg-white shadow-md flex flex-col h-full transition-all duration-300
+          fixed md:sticky top-0 md:inset-y-0 inset-0 z-45
+          ${isMobile ? 'w-72' : isExpanded ? 'w-64' : 'w-20'} 
+          ${isVisible ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} 
+          bg-white shadow-md flex flex-col h-screen transition-all duration-300 ease-in-out
           ${className}
         `}
       >
@@ -142,7 +232,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
         )}
 
         {/* Profile Section */}
-        <div className="flex flex-col items-center justify-center py-6 border-b">
+        <div className="flex flex-col items-center justify-center py-6 border-b mt-2 md:mt-0">
           <div className="rounded-full overflow-hidden w-12 h-12 bg-lime-200 mb-2">
             {user?.user_metadata?.avatar_url ? (
               <Image 
@@ -195,7 +285,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
         </div>
         
         {/* Navigation */}
-        <nav className="flex-1 py-6">
+        <nav className="flex-1 py-6 overflow-y-auto">
           <div className="space-y-2 px-3">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
@@ -216,6 +306,96 @@ export default function Sidebar({ className = "" }: SidebarProps) {
                 </Link>
               );
             })}
+            
+            {/* Resumes Section (Only in expanded view) */}
+            {showExpandedView && (
+              <div className="mt-2">
+                <button 
+                  onClick={toggleResumesSection}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+                >
+                  <div className="flex items-center">
+                    <FileText className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>My Resumes</span>
+                  </div>
+                  {isResumesExpanded ? 
+                    <ChevronUp className="h-4 w-4 text-gray-500" /> : 
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  }
+                </button>
+                
+                {isResumesExpanded && (
+                  <div className="ml-8 mt-2 space-y-1">
+                    {isLoading && (
+                      <div className="text-sm text-gray-500 py-2 px-3">
+                        Loading resumes...
+                      </div>
+                    )}
+                    
+                    {error && (
+                      <div className="text-sm text-red-500 py-2 px-3">
+                        {error}
+                      </div>
+                    )}
+                    
+                    {!isLoading && !error && resumes.length === 0 && (
+                      <div className="text-sm text-gray-500 py-2 px-3">
+                        No resumes found
+                      </div>
+                    )}
+                    
+                    {resumes.map((resume) => (
+                      <div key={resume.id} className="rounded-md border border-gray-200 py-2 px-3 mb-2">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium text-gray-800 truncate max-w-[150px]">
+                            {resume.title}
+                          </span>
+                          {resume.is_primary && (
+                            <span className="bg-blue-50 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
+                              Primary
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="text-xs text-gray-500 mb-2">
+                          {new Date(resume.created_at).toLocaleDateString()}
+                        </div>
+                        
+                        <div className="flex space-x-2">
+                          {!resume.is_primary && (
+                            <button 
+                              onClick={() => handleSetPrimary(resume.id)}
+                              className="p-1.5 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100"
+                              title="Set as primary"
+                            >
+                              <Star className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          
+                          <a 
+                            href={resume.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 rounded-md bg-green-50 text-green-700 hover:bg-green-100"
+                            title="Download"
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                          </a>
+                          
+                          <button 
+                            onClick={() => handleDeleteResume(resume.id)}
+                            className="p-1.5 rounded-md bg-red-50 text-red-700 hover:bg-red-100"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </nav>
         
