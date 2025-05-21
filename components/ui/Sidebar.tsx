@@ -106,7 +106,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   
   const navLinks = [
     { href: "/dashboard", label: "Home", icon: <Home className="h-5 w-5" /> },
-    { href: "/resume-builder", label: "Resume Builder", icon: <FolderClosed className="h-5 w-5" /> },
+    { href: "/resume/optimize", label: "Resume Optimizer", icon: <FolderClosed className="h-5 w-5" /> },
     { href: "/career-roadmap", label: "Progress Tracker", icon: <LineChart className="h-5 w-5" /> },
     { href: "/interview-prep", label: "Interview Prep", icon: <GraduationCap className="h-5 w-5" /> },
     { href: "/cover-letter", label: "Cover Letter", icon: <FileText className="h-5 w-5" /> },
