@@ -79,9 +79,9 @@ export default function OptimizeResume() {
         <div className="w-full max-w-7xl mx-auto">
           <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4">Resume Review</h1>
           
-          <div className="flex flex-col md:flex-row md:gap-6">
-            {/* Left Column - Upload Form + Score Result (when optimizing) */}
-            <div className="w-full md:w-[40%] flex flex-col space-y-6">
+          <div className="flex flex-col md:flex-row md:gap-6 min-h-[calc(100vh-64px)] h-full">
+            {/* Left Column - Upload Form + Score Result */}
+            <div className="w-full md:w-[40%] flex flex-col space-y-6 h-full">
               {/* Resume Upload Form */}
               <div className="w-full bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="p-4 sm:p-6">
@@ -96,9 +96,8 @@ export default function OptimizeResume() {
                   />
                 </div>
               </div>
-              
-              {/* Score Result - Only show when optimization is in progress */}
-              {loading && scoreResult && (
+              {/* Always show ScoreResult if scoreResult exists */}
+              {scoreResult && (
                 <div className="w-full">
                   <ScoreResult
                     scoreResult={scoreResult}
@@ -111,20 +110,13 @@ export default function OptimizeResume() {
             </div>
 
             {/* Right Column - Score Results (initially), Optimized Resume, or Loading States */}
-            <div className="w-full md:w-[60%] mt-6 md:mt-0">
-              <div className="w-full bg-white rounded-xl shadow-sm overflow-hidden">
-                <div className="p-4 sm:p-6">
+            <div className="w-full md:w-[60%] mt-6 md:mt-0 flex flex-col h-full">
+              <div className="w-full bg-white rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col h-full">
+                <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
                   {loading ? (
                     <LoadingState type="optimizing" />
                   ) : isScoring ? (
                     <LoadingState type="scoring" />
-                  ) : scoreResult && scoringMode ? (
-                    <ScoreResult
-                      scoreResult={scoreResult}
-                      handleOptimize={handleOptimize}
-                      loading={loading}
-                      setScoreResult={setScoreResult}
-                    />
                   ) : response && !scoringMode ? (
                     <ResumeEditProvider initialData={response}>
                       <OptimizedResume
@@ -138,8 +130,8 @@ export default function OptimizeResume() {
                       <div className="p-3 bg-blue-50 rounded-full mb-4">
                         <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
                       </div>
-                      <h3 className="text-base sm:text-lg font-medium text-gray-800 mb-2">Two-Step Resume Optimization</h3>
-                      <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto">
+                      <h3 className="text-base sm:text-lg font-medium text-black mb-2">Two-Step Resume Optimization</h3>
+                      <p className="text-sm sm:text-base text-black max-w-md mx-auto">
                         First, score your resume against the job description. Then, optimize your resume to improve your chances of getting noticed.
                       </p>
                     </div>

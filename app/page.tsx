@@ -41,11 +41,11 @@ export default function Home() {
       <section className="relative bg-gradient-to-b from-white via-blue-50 to-white pt-20 pb-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-black mb-6">
               Magically simplify<br />
               your job search
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-black mb-10 max-w-3xl mx-auto">
               Automated resume building, effortless interview prep, real-time insights.
               Set up in 10 mins. Back to job hunting by 10:11am.
             </p>
@@ -87,10 +87,10 @@ export default function Home() {
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
               Everything You Need to Land Your Dream Job
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-black max-w-3xl mx-auto">
               Our AI-powered platform provides all the tools you need to stand out in the job market
             </p>
           </div>
@@ -102,10 +102,10 @@ export default function Home() {
               <div className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 mb-3">
                 Resume Builder
               </div>
-              <h3 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+              <h3 className="text-2xl md:text-4xl font-bold text-black mb-3">
                 Create ATS-optimized resumes in minutes
               </h3>
-              <p className="text-lg text-gray-600 mb-6 max-w-3xl mx-auto">
+              <p className="text-lg text-black mb-6 max-w-3xl mx-auto">
                 Our AI analyzes job descriptions and tailors your resume to highlight the most relevant skills and experiences.
               </p>
             </div>
@@ -126,17 +126,17 @@ export default function Home() {
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
                 <h4 className="font-medium mb-2">Keyword optimization</h4>
-                <p className="text-gray-600">Get past ATS systems with optimized keywords</p>
+                <p className="text-black">Get past ATS systems with optimized keywords</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
                 <h4 className="font-medium mb-2">Professional templates</h4>
-                <p className="text-gray-600">Choose from templates for any industry</p>
+                <p className="text-black">Choose from templates for any industry</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
                 <h4 className="font-medium mb-2">AI content suggestions</h4>
-                <p className="text-gray-600">Get smart suggestions to improve your resume</p>
+                <p className="text-black">Get smart suggestions to improve your resume</p>
               </div>
             </div>
             
@@ -185,10 +185,10 @@ export default function Home() {
               <div className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 mb-3">
                 Interview Preparation
               </div>
-              <h3 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+              <h3 className="text-2xl md:text-4xl font-bold text-black mb-3">
                 Practice with AI-powered interview simulations
               </h3>
-              <p className="text-lg text-gray-600 mb-6 max-w-3xl mx-auto">
+              <p className="text-lg text-black mb-6 max-w-3xl mx-auto">
                 Get ready for your interviews with personalized questions based on your target role and receive instant feedback.
               </p>
             </div>
@@ -209,17 +209,17 @@ export default function Home() {
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
                 <h4 className="font-medium mb-2">Role-specific questions</h4>
-                <p className="text-gray-600">Practice with questions tailored to your target role</p>
+                <p className="text-black">Practice with questions tailored to your target role</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
                 <h4 className="font-medium mb-2">Real-time feedback</h4>
-                <p className="text-gray-600">Get instant feedback on your interview answers</p>
+                <p className="text-black">Get instant feedback on your interview answers</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
                 <h4 className="font-medium mb-2">Behavioral & technical</h4>
-                <p className="text-gray-600">Practice both behavioral and technical interviews</p>
+                <p className="text-black">Practice both behavioral and technical interviews</p>
               </div>
             </div>
             
@@ -268,10 +268,10 @@ export default function Home() {
               <div className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-800 mb-3">
                 Cover Letter Generator
               </div>
-              <h3 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+              <h3 className="text-2xl md:text-4xl font-bold text-black mb-3">
                 Generate personalized cover letters in seconds
               </h3>
-              <p className="text-lg text-gray-600 mb-6 max-w-3xl mx-auto">
+              <p className="text-lg text-black mb-6 max-w-3xl mx-auto">
                 Create compelling cover letters that highlight your relevant skills and experience for each job application.
               </p>
             </div>
@@ -292,17 +292,17 @@ export default function Home() {
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
                 <h4 className="font-medium mb-2">Customized for each job</h4>
-                <p className="text-gray-600">Tailor your cover letter for each application</p>
+                <p className="text-black">Tailor your cover letter for each application</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
                 <h4 className="font-medium mb-2">Professional tone</h4>
-                <p className="text-gray-600">Perfect formatting and professional language</p>
+                <p className="text-black">Perfect formatting and professional language</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
                 <h4 className="font-medium mb-2">Highlight achievements</h4>
-                <p className="text-gray-600">Showcase your most relevant accomplishments</p>
+                <p className="text-black">Showcase your most relevant accomplishments</p>
               </div>
             </div>
             

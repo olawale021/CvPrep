@@ -244,7 +244,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
                 unoptimized
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-800 font-medium">
+              <div className="w-full h-full flex items-center justify-center text-black font-medium">
                 {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || "U"}
               </div>
             )}
@@ -252,16 +252,16 @@ export default function Sidebar({ className = "" }: SidebarProps) {
           
           {showExpandedView && (
             <div className="text-center">
-              <h3 className="font-medium text-gray-800 truncate max-w-[160px]">
+              <h3 className="font-medium text-black truncate max-w-[160px]">
                 {user?.user_metadata?.full_name || "User"}
               </h3>
-              <p className="text-xs text-gray-500 truncate max-w-[160px]">
+              <p className="text-xs text-black truncate max-w-[160px]">
                 {user?.email || ""}
               </p>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="mt-1 p-1 rounded-full hover:bg-gray-100">
-                    <MoreVertical className="h-4 w-4 text-gray-500" />
+                    <MoreVertical className="h-4 w-4 text-black" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center">

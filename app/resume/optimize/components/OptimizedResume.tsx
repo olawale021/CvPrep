@@ -280,8 +280,11 @@ function OptimizedResumeContent({
             )}
             
             {activeTab === "experience" && editableResume.work_experience && editableResume.work_experience.length > 0 && (
-              <div className="space-y-4">
-                <WorkExperience work_experience={editableResume.work_experience} isEditMode={isEditMode} />
+              <div className="mt-6">
+                <h3 className="text-xl font-semibold mb-4">Work Experience</h3>
+                <div className="max-h-96 overflow-y-auto pr-2">
+                  <WorkExperience work_experience={editableResume.work_experience} isEditMode={isEditMode} />
+                </div>
               </div>
             )}
             

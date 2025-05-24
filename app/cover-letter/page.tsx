@@ -99,8 +99,8 @@ export default function CoverLetterGenerator() {
       <Sidebar />
       <main className="flex-1 p-8 min-h-screen">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-2 text-center">Cover Letter Generator</h1>
-          <p className="text-center text-gray-600 mb-8">Generate a tailored cover letter in seconds. Upload your resume and paste the job description below.</p>
+          <h1 className="text-4xl font-extrabold text-black mb-2 text-center">Cover Letter Generator</h1>
+          <p className="text-center text-black mb-8">Generate a tailored cover letter in seconds. Upload your resume and paste the job description below.</p>
           
           {/* Tab Switcher */}
           <div className="flex border-b mb-6">
@@ -194,7 +194,7 @@ export default function CoverLetterGenerator() {
               <CardContent>
                 <div 
                   ref={coverLetterRef}
-                  className="bg-white p-6 rounded-lg border border-gray-100 whitespace-pre-line text-gray-900 text-base leading-relaxed shadow-inner min-h-[200px]"
+                  className="bg-white p-6 rounded-lg border border-gray-100 whitespace-pre-line text-black text-base leading-relaxed shadow-inner min-h-[200px]"
                 >
                   {coverLetter}
                 </div>
