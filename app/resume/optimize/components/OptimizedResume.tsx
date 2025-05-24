@@ -125,68 +125,68 @@ function OptimizedResumeContent({
       <div className={`bg-white rounded-xl shadow-sm overflow-hidden ${isEditMode ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}>
         {/* Global edit mode indicator banner */}
         {isEditMode && (
-          <div className="bg-blue-50 border-b border-blue-200 px-4 py-2 text-sm text-blue-800 flex items-center justify-center">
+          <div className="bg-blue-50 border-b border-blue-200 p-6 text-sm text-blue-800 flex items-center justify-center">
             <Edit className="h-4 w-4 mr-2" />
             Edit mode is active — make changes to your resume
           </div>
         )}
         
         {/* Header Section */}
-        <div className={`p-3 sm:p-4 bg-white border-b ${isEditMode ? 'bg-blue-50/30' : ''}`}>
+        <div className={`p-6 bg-white border-b ${isEditMode ? 'bg-blue-50/30' : ''}`}>
           <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center space-x-2">
               <FileText className="h-5 w-5 text-gray-600" />
               <h2 className="text-lg font-semibold">Optimized Resume</h2>
             </div>
             
-            {/* Action Buttons - Stack on mobile */}
-            <div className="flex flex-wrap gap-2">
-              <div className="mt-6 flex justify-center space-x-4">
-                <Button
-                  variant={isEditMode ? "default" : "outline"}
-                  size="default"
-                  className={`items-center ${isEditMode ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
-                  onClick={() => setIsEditMode(!isEditMode)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  {isEditMode ? "Done Editing" : "Edit Resume"}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="default"
-                  className="items-center"
-                  onClick={handlePreview}
-                  disabled={isPreviewLoading}
-                >
-                  <Expand className="h-4 w-4 mr-2" />
-                  {isPreviewLoading ? "Loading Preview..." : "Preview"}
-                </Button>
-                <Button
-                  variant="default"
-                  size="default"
-                  className="items-center"
-                  onClick={() => handleDownloadPdf(editableResume)}
-                  disabled={isPdfGenerating}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  {isPdfGenerating ? "Generating..." : "Download PDF"}
-                </Button>
-              </div>
+            {/* Action Buttons - Keep horizontal layout but ensure visibility on mobile */}
+            <div className="w-full flex justify-start gap-2 overflow-x-auto pb-2">
+              <Button
+                variant={isEditMode ? "default" : "outline"}
+                size="default"
+                className={`whitespace-nowrap items-center ${isEditMode ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                onClick={() => setIsEditMode(!isEditMode)}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                {isEditMode ? "Done Editing" : "Edit Resume"}
+              </Button>
+              <Button
+                variant="outline"
+                size="default"
+                className="whitespace-nowrap items-center"
+                onClick={handlePreview}
+                disabled={isPreviewLoading}
+              >
+                <Expand className="h-4 w-4 mr-2" />
+                {isPreviewLoading ? "Loading Preview..." : "Preview"}
+              </Button>
+              <Button
+                variant="default"
+                size="default"
+                className="whitespace-nowrap items-center"
+                onClick={() => handleDownloadPdf(editableResume)}
+                disabled={isPdfGenerating}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isPdfGenerating ? "Generating..." : "Download PDF"}
+              </Button>
             </div>
           </div>
         </div>
         
         {/* Add Template Selector */}
-        <TemplateSelector 
-          selectedTemplate={selectedTemplate}
-          setSelectedTemplate={setSelectedTemplate}
-        />
+        <div className="px-6 py-4">
+          <TemplateSelector 
+            selectedTemplate={selectedTemplate}
+            setSelectedTemplate={setSelectedTemplate}
+          />
+        </div>
         
         {/* Tabs Section */}
         <div ref={resumeContentRef}>
           {/* Simple Tabs Navigation */}
-          <div className={`border-b mb-4 ${isEditMode ? 'bg-blue-50/30' : ''}`}>
-            <div className="flex overflow-x-auto">
+          <div className={`border-b ${isEditMode ? 'bg-blue-50/30' : ''}`}>
+            <div className="flex overflow-x-auto px-6">
               <button
                 className={`px-4 py-3 text-sm font-medium ${
                   activeTab === "summary" 

@@ -1,6 +1,6 @@
 import { AlertCircle, ArrowRight, Check, ExternalLink, FileText, Loader, Sparkles, Star, X } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../../../../components/ui/Button";
 import { ResumeScore } from "../../../../lib/resume/scoreResume";
 
@@ -17,6 +17,23 @@ export default function ScoreResult({
   loading,
   setScoreResult 
 }: ScoreResultProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    // Check initially
+    checkMobile();
+    
+    // Add event listener
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Convert score to star rating (0-5 scale)
   const getStarRating = (score: number) => {
     return (score / 100) * 5;
@@ -27,7 +44,7 @@ export default function ScoreResult({
       <div className="p-4 bg-white border-b flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <FileText className="h-5 w-5 text-gray-600" />
-          <h2 className="text-lg font-semibold">Resume Match Score</h2>
+          <h2 className="text-lg font-semibold text-black">Resume Match Score</h2>
         </div>
         
         {loading && (
@@ -134,9 +151,9 @@ export default function ScoreResult({
                   <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-amber-500" />
                   Missing Skills ({scoreResult.missing_skills.length})
                 </h4>
-                <div className="max-h-16 sm:max-h-24 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+                <div className="sm:max-h-24 sm:overflow-y-auto sm:scrollbar-thin sm:scrollbar-thumb-gray-300">
                   <ul className="space-y-1 pl-2 text-xs">
-                    {scoreResult.missing_skills.slice(0, 5).map((skill: string, index: number) => (
+                    {(isMobile ? scoreResult.missing_skills : scoreResult.missing_skills.slice(0, 5)).map((skill: string, index: number) => (
                       <li key={index} className="flex items-start">
                         <span className="inline-flex items-center justify-center rounded-full bg-amber-100 text-amber-600 mr-1.5 flex-shrink-0 p-0.5">
                           <X className="h-2 w-2" />
@@ -144,7 +161,7 @@ export default function ScoreResult({
                         <span className="text-gray-700">{skill}</span>
                       </li>
                     ))}
-                    {scoreResult.missing_skills.length > 5 && (
+                    {!isMobile && scoreResult.missing_skills.length > 5 && (
                       <li className="text-xs text-gray-500 italic pl-4">
                         +{scoreResult.missing_skills.length - 5} more
                       </li>
@@ -161,9 +178,9 @@ export default function ScoreResult({
                   <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-green-500" />
                   Matched Skills ({scoreResult.matched_skills.length})
                 </h4>
-                <div className="max-h-16 sm:max-h-24 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+                <div className="sm:max-h-24 sm:overflow-y-auto sm:scrollbar-thin sm:scrollbar-thumb-gray-300">
                   <ul className="space-y-1 pl-2 text-xs">
-                    {scoreResult.matched_skills.slice(0, 5).map((skill: string, index: number) => (
+                    {(isMobile ? scoreResult.matched_skills : scoreResult.matched_skills.slice(0, 5)).map((skill: string, index: number) => (
                       <li key={index} className="flex items-start">
                         <span className="inline-flex items-center justify-center rounded-full bg-green-100 text-green-600 mr-1.5 flex-shrink-0 p-0.5">
                           <Check className="h-2 w-2" />
@@ -171,7 +188,7 @@ export default function ScoreResult({
                         <span className="text-gray-700">{skill}</span>
                       </li>
                     ))}
-                    {scoreResult.matched_skills.length > 5 && (
+                    {!isMobile && scoreResult.matched_skills.length > 5 && (
                       <li className="text-xs text-gray-500 italic pl-4">
                         +{scoreResult.matched_skills.length - 5} more
                       </li>

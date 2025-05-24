@@ -20,7 +20,7 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ file, onFileChange, 
 
   return (
     <div>
-      <Label htmlFor="resume-upload" className="mb-2 block">Upload Resume</Label>
+      <Label htmlFor="resume-upload" className="mb-2 block text-black">Upload Resume</Label>
       <div
         className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center hover:border-blue-500 transition-colors cursor-pointer bg-gray-50"
         onClick={() => fileInputRef.current?.click()}

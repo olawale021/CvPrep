@@ -31,14 +31,14 @@ export default function ResumeUploadForm({
           accept=".pdf,.doc,.docx,.odt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text"
           onChange={e => setFile(e.target.files?.[0] || null)}
           ref={fileInputRef}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border rounded-md"
+          className="block w-full text-black text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border rounded-md"
         />
       </div>
       <div className="relative">
         <label htmlFor="jobDescription" className="block text-base font-medium text-gray-800 mb-2">
           Job Description
         </label>
-        <div className="relative">
+        <div className="relative" style={{ fontFamily: 'Times New Roman', color: 'black' }} >
           <textarea
             id="jobDescription"
             placeholder="Paste job description here..."

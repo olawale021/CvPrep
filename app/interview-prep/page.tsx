@@ -293,23 +293,23 @@ export default function InterviewPrep() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-4 md:p-6 pt-16 md:pt-6 overflow-x-hidden">
         <div className="max-w-5xl mx-auto">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-black">Interview Preparation</h1>
+          {/* Header - Make it stack on mobile */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-black">Interview Preparation</h1>
             <Button 
               variant="outline" 
               onClick={resetAll}
-              className="text-sm"
+              className="text-sm w-full sm:w-auto"
             >
               Reset All
             </Button>
           </div>
 
-          {/* Tabs Navigation */}
-          <div className="border-b mb-6">
-            <div className="flex space-x-4">
+          {/* Tabs Navigation - Make it scrollable on mobile */}
+          <div className="border-b mb-6 overflow-x-auto">
+            <div className="flex space-x-4 min-w-max pb-2">
               <button
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === "generate"
@@ -367,9 +367,9 @@ export default function InterviewPrep() {
             </div>
           </div>
 
-          {/* Generate Tab Content */}
+          {/* Generate Tab Content - Stack cards on mobile */}
           {activeTab === "generate" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Resume Upload Card */}
               <Card className="shadow-md">
                 <CardHeader>
@@ -405,7 +405,7 @@ export default function InterviewPrep() {
                   
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium flex items-center">
+                      <label className="text-black text-sm font-medium flex items-center">
                         Questions per category
                         <Info className="h-4 w-4 ml-2 text-gray-400" />
                       </label>
@@ -449,7 +449,7 @@ export default function InterviewPrep() {
             </div>
           )}
 
-          {/* Questions Tab */}
+          {/* Questions Tab - Adjust question items for mobile */}
           {activeTab === "questions" && (
             <div ref={questionsRef}>
               <Card>
@@ -474,13 +474,14 @@ export default function InterviewPrep() {
                           <ul className="space-y-4">
                             {questionsResponse.questions.technical_questions.map((question, index) => (
                               <li key={`tech-${index}`} className="p-3 bg-gray-50 rounded-md">
-                                <div className="flex justify-between items-start">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                                   <p className="text-black">{question}</p>
-                                  <div className="flex space-x-2 ml-4">
+                                  <div className="flex gap-2 w-full sm:w-auto">
                                     <Button 
                                       variant="outline" 
                                       size="sm"
                                       onClick={() => getAnswerTips(question)}
+                                      className="flex-1 sm:flex-none"
                                     >
                                       <HelpCircle className="h-4 w-4 mr-1" />
                                       Tips
@@ -489,6 +490,7 @@ export default function InterviewPrep() {
                                       variant="outline" 
                                       size="sm"
                                       onClick={() => addQuestionToSimulation(question)}
+                                      className="flex-1 sm:flex-none"
                                     >
                                       <MessageSquare className="h-4 w-4 mr-1" />
                                       Practice
@@ -512,13 +514,14 @@ export default function InterviewPrep() {
                           <ul className="space-y-4">
                             {questionsResponse.questions.behavioral_questions.map((question, index) => (
                               <li key={`behav-${index}`} className="p-3 bg-gray-50 rounded-md">
-                                <div className="flex justify-between items-start">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                                   <p className="text-black">{question}</p>
-                                  <div className="flex space-x-2 ml-4">
+                                  <div className="flex gap-2 w-full sm:w-auto">
                                     <Button 
                                       variant="outline" 
                                       size="sm"
                                       onClick={() => getAnswerTips(question)}
+                                      className="flex-1 sm:flex-none"
                                     >
                                       <HelpCircle className="h-4 w-4 mr-1" />
                                       Tips
@@ -527,6 +530,7 @@ export default function InterviewPrep() {
                                       variant="outline" 
                                       size="sm"
                                       onClick={() => addQuestionToSimulation(question)}
+                                      className="flex-1 sm:flex-none"
                                     >
                                       <MessageSquare className="h-4 w-4 mr-1" />
                                       Practice
@@ -550,13 +554,14 @@ export default function InterviewPrep() {
                           <ul className="space-y-4">
                             {questionsResponse.questions.situational_questions.map((question, index) => (
                               <li key={`sit-${index}`} className="p-3 bg-gray-50 rounded-md">
-                                <div className="flex justify-between items-start">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                                   <p className="text-black">{question}</p>
-                                  <div className="flex space-x-2 ml-4">
+                                  <div className="flex gap-2 w-full sm:w-auto">
                                     <Button 
                                       variant="outline" 
                                       size="sm"
                                       onClick={() => getAnswerTips(question)}
+                                      className="flex-1 sm:flex-none"
                                     >
                                       <HelpCircle className="h-4 w-4 mr-1" />
                                       Tips
@@ -565,6 +570,7 @@ export default function InterviewPrep() {
                                       variant="outline" 
                                       size="sm"
                                       onClick={() => addQuestionToSimulation(question)}
+                                      className="flex-1 sm:flex-none"
                                     >
                                       <MessageSquare className="h-4 w-4 mr-1" />
                                       Practice
@@ -588,13 +594,14 @@ export default function InterviewPrep() {
                           <ul className="space-y-4">
                             {questionsResponse.questions.role_specific_questions.map((question, index) => (
                               <li key={`role-${index}`} className="p-3 bg-gray-50 rounded-md">
-                                <div className="flex justify-between items-start">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                                   <p className="text-black">{question}</p>
-                                  <div className="flex space-x-2 ml-4">
+                                  <div className="flex gap-2 w-full sm:w-auto">
                                     <Button 
                                       variant="outline" 
                                       size="sm"
                                       onClick={() => getAnswerTips(question)}
+                                      className="flex-1 sm:flex-none"
                                     >
                                       <HelpCircle className="h-4 w-4 mr-1" />
                                       Tips
@@ -603,6 +610,7 @@ export default function InterviewPrep() {
                                       variant="outline" 
                                       size="sm"
                                       onClick={() => addQuestionToSimulation(question)}
+                                      className="flex-1 sm:flex-none"
                                     >
                                       <MessageSquare className="h-4 w-4 mr-1" />
                                       Practice
@@ -626,13 +634,14 @@ export default function InterviewPrep() {
                           <ul className="space-y-4">
                             {questionsResponse.questions.culture_fit_questions.map((question, index) => (
                               <li key={`culture-${index}`} className="p-3 bg-gray-50 rounded-md">
-                                <div className="flex justify-between items-start">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                                   <p className="text-black">{question}</p>
-                                  <div className="flex space-x-2 ml-4">
+                                  <div className="flex gap-2 w-full sm:w-auto">
                                     <Button 
                                       variant="outline" 
                                       size="sm"
                                       onClick={() => getAnswerTips(question)}
+                                      className="flex-1 sm:flex-none"
                                     >
                                       <HelpCircle className="h-4 w-4 mr-1" />
                                       Tips
@@ -641,6 +650,7 @@ export default function InterviewPrep() {
                                       variant="outline" 
                                       size="sm"
                                       onClick={() => addQuestionToSimulation(question)}
+                                      className="flex-1 sm:flex-none"
                                     >
                                       <MessageSquare className="h-4 w-4 mr-1" />
                                       Practice
@@ -655,13 +665,19 @@ export default function InterviewPrep() {
                     </Accordion>
                   )}
                   
-                  <div className="mt-6 flex justify-between">
-                    <Button variant="outline" onClick={() => setActiveTab("generate")}>
+                  {/* Navigation buttons - Stack on mobile */}
+                  <div className="mt-6 flex flex-col sm:flex-row justify-between gap-3">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setActiveTab("generate")}
+                      className="w-full sm:w-auto"
+                    >
                       Back to Generator
                     </Button>
                     <Button 
                       onClick={() => setActiveTab("simulation")} 
                       disabled={simulationQuestions.length === 0}
+                      className="w-full sm:w-auto"
                     >
                       Go to Practice Simulation
                       {simulationQuestions.length > 0 && (
@@ -755,7 +771,7 @@ export default function InterviewPrep() {
             </div>
           )}
           
-          {/* Simulation Tab */}
+          {/* Simulation Tab - Adjust answer boxes for mobile */}
           {activeTab === "simulation" && (
             <Card>
               <CardHeader>
@@ -769,20 +785,20 @@ export default function InterviewPrep() {
                   <div className="space-y-6">
                     {simulationQuestions.map((question, index) => (
                       <div key={index} className="p-4 border rounded-md">
-                        <div className="flex justify-between items-start mb-2">
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-2">
                           <h3 className="font-medium text-black">{index + 1}. {question}</h3>
                           <Button 
                             variant="ghost" 
                             size="sm" 
                             onClick={() => removeQuestionFromSimulation(index)}
-                            className="text-red-500 hover:text-red-700"
+                            className="text-red-500 hover:text-red-700 w-full sm:w-auto"
                           >
                             Remove
                           </Button>
                         </div>
                         <Textarea
                           placeholder="Type your answer here..."
-                          className="min-h-[120px] text-black"
+                          className="min-h-[120px] text-black mt-2"
                           value={simulationAnswers[index]}
                           onChange={(e) => handleAnswerChange(index, e.target.value)}
                         />
@@ -791,6 +807,7 @@ export default function InterviewPrep() {
                             variant="outline" 
                             size="sm"
                             onClick={() => getAnswerTips(question)}
+                            className="w-full sm:w-auto"
                           >
                             <HelpCircle className="h-4 w-4 mr-1" />
                             Get Tips
@@ -805,18 +822,24 @@ export default function InterviewPrep() {
                       </Alert>
                     )}
                     
-                    <div className="flex justify-between mt-6">
-                      <Button variant="outline" onClick={() => setActiveTab("questions")}>
+                    {/* Navigation buttons - Stack on mobile */}
+                    <div className="flex flex-col sm:flex-row justify-between gap-3 mt-6">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setActiveTab("questions")}
+                        className="w-full sm:w-auto"
+                      >
                         Back to Questions
                       </Button>
                       <Button 
                         onClick={runSimulation}
                         disabled={simulationLoading || simulationQuestions.some((_, i) => !simulationAnswers[i])}
+                        className="w-full sm:w-auto"
                       >
                         {simulationLoading ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Analyzing Answers...
+                            Analyzing...
                           </>
                         ) : (
                           <>
@@ -836,7 +859,7 @@ export default function InterviewPrep() {
             </Card>
           )}
           
-          {/* Results Tab */}
+          {/* Results Tab - Adjust feedback sections for mobile */}
           {activeTab === "results" && (
             <Card>
               <CardHeader>
@@ -886,14 +909,17 @@ export default function InterviewPrep() {
                       </p>
                     </div>
                     
+                    {/* Answer Feedback - Adjust for mobile */}
                     <div>
                       <h3 className="text-lg font-medium mb-2 text-black">Answer Feedback</h3>
                       <div className="space-y-4">
                         {simulationResults.answer_feedback.map((feedback, index) => (
                           <div key={index} className="p-4 border rounded-md">
-                            <div className="flex justify-between items-start mb-2">
+                            <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-2">
                               <p className="font-medium text-black">{feedback.question}</p>
-                              <Badge className="bg-blue-500">{feedback.score}/10</Badge>
+                              <Badge className="bg-blue-500 w-full sm:w-auto text-center">
+                                {feedback.score}/10
+                              </Badge>
                             </div>
                             
                             <div className="mt-3">
@@ -931,11 +957,20 @@ export default function InterviewPrep() {
                       </div>
                     </div>
                     
-                    <div className="flex justify-between mt-6">
-                      <Button variant="outline" onClick={() => setActiveTab("simulation")}>
+                    {/* Navigation buttons - Stack on mobile */}
+                    <div className="flex flex-col sm:flex-row justify-between gap-3 mt-6">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setActiveTab("simulation")}
+                        className="w-full sm:w-auto"
+                      >
                         Back to Practice
                       </Button>
-                      <Button onClick={resetAll} variant="outline">
+                      <Button 
+                        onClick={resetAll} 
+                        variant="outline"
+                        className="w-full sm:w-auto"
+                      >
                         Start Over
                       </Button>
                     </div>

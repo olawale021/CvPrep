@@ -12,7 +12,7 @@ interface JobDescriptionInputProps {
 
 export const JobDescriptionInput: React.FC<JobDescriptionInputProps> = ({ value, onChange, maxLength = 2000, error }) => (
   <div className="space-y-3">
-    <Label htmlFor="job-description">Paste Job Description</Label>
+    <Label htmlFor="job-description" className="text-black">Paste Job Description</Label>
     <Textarea
       id="job-description"
       placeholder="e.g. We are looking for a Frontend Developer with experience in React, TypeScript, and UI/UX best practices..."

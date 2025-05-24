@@ -77,7 +77,7 @@ export default function OptimizeResume() {
       {/* Main Content */}
       <div className="flex-1 p-4 md:p-6 pt-16 md:pt-6 overflow-x-hidden">
         <div className="w-full max-w-7xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4">Resume Review</h1>
+          <h1 className="text-2xl sm:text-3xl text-black font-bold text-center mb-4">Resume Review</h1>
           
           <div className="flex flex-col md:flex-row md:gap-6 min-h-[calc(100vh-64px)] h-full">
             {/* Left Column - Upload Form + Score Result */}

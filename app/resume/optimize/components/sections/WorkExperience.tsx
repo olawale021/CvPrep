@@ -391,7 +391,7 @@ export default function WorkExperienceSection({
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteBullet(index, bulletIndex)}
-                              className="mt-1 ml-1 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="mt-1 ml-1 text-red-400 hover:text-red-600 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>
