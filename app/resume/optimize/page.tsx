@@ -97,7 +97,7 @@ export default function OptimizeResume() {
                 </div>
               </div>
               {/* Always show ScoreResult if scoreResult exists */}
-              {scoreResult && (
+              {scoreResult && !isScoring && (
                 <div className="w-full">
                   <ScoreResult
                     scoreResult={scoreResult}

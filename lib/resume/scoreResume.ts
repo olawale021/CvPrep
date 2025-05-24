@@ -171,6 +171,11 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
        - Leadership experience
        - Location/arrangement compatibility
     
+    IMPORTANT:
+    - When matching required skills, licenses, or certifications, treat "certifications", "certificates", and "licenses" as equivalent. 
+    - If a required license or certificate (e.g., "Door Supervisor License") is present in the candidate's certifications, certificates, or licenses section, do NOT mark it as missing.
+    - Only list a skill, license, or certificate as missing if it is truly not present anywhere in the resume, including certifications, certificates, or licenses sections.
+    
     Return JSON with:
     - "match_score": overall percentage (0-100)
     - "category_scores": detailed breakdown by category
