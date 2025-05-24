@@ -199,7 +199,29 @@ export default function ScoreResult({
             )}
           </div>
         </div>
-        
+
+        {/* Recommendations */}
+        {scoreResult.recommendations && scoreResult.recommendations.length > 0 && (
+          <div className="bg-blue-50 border rounded-lg p-2 sm:p-3 mt-2">
+            <h4 className="font-semibold text-gray-700 mb-1 flex items-center text-xs sm:text-sm">
+              <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-blue-500" />
+              Recommendations
+            </h4>
+            <div className="sm:max-h-24 sm:overflow-y-auto sm:scrollbar-thin sm:scrollbar-thumb-gray-300">
+              <ul className="space-y-1 pl-2 text-xs">
+                {scoreResult.recommendations.map((rec: string, idx: number) => (
+                  <li key={idx} className="flex items-start">
+                    <span className="inline-flex items-center justify-center rounded-full bg-blue-100 text-blue-600 mr-1.5 flex-shrink-0 p-0.5">
+                      <Sparkles className="h-2 w-2" />
+                    </span>
+                    <span className="text-gray-700">{rec}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
         {scoreResult.match_score < 40 ? (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">

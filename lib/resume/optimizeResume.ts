@@ -63,10 +63,12 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
     
     2. SKILLS (create comprehensive bullet-point lists):
        a) Technical Skills:
+          - Return a flat array of individual skills, tools, technologies, and methodologies (NO category prefixes like "Programming Languages:", "Frameworks:", etc.)
+          - Only list the skill/technology name, e.g., "Java 11+", "Spring Boot", "Kafka", "AWS", "Docker"
+          - Ensure all technical keywords from the job description are included
           - IMPORTANT: Always include a well-populated list of technical skills
           - Generate a complete list of technical skills NECESSARY for this job
           - Include software, tools, platforms, and methodologies required
-          - Ensure all technical keywords from the job description are included
        
        b) Soft Skills:
           - List interpersonal and professional skills essential for success in this role
@@ -85,6 +87,12 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
     
     4. EDUCATION & CERTIFICATIONS:
        - Keep original education but highlight relevance to the position
+    
+    5. PROJECTS (if any):
+       - For each project, return an object with:
+         - title: string
+         - description: string
+         - technologies: string[] (if available)
     
     Resume Text:
     ${resumeText}

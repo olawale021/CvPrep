@@ -25,6 +25,8 @@ export default function Projects({ projects, isEditMode }: ProjectsProps) {
   // Use projects from editableResume if available
   const projectsData = editableResume.projects || projects || [];
 
+  console.log("projectsData", projectsData);
+
   if (!projectsData || projectsData.length === 0) {
     return (
       <>
@@ -120,6 +122,7 @@ export default function Projects({ projects, isEditMode }: ProjectsProps) {
     setEditing(true);
   };
 
+
   return (
     <>
       <div className="flex justify-between items-center mb-4">
@@ -198,7 +201,7 @@ export default function Projects({ projects, isEditMode }: ProjectsProps) {
                 ) : (
                   <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
                     <FolderPlus className="h-4 w-4 mr-2 text-blue-500" />
-                    {project.title}
+                    {project.title || <span className="text-gray-400 italic">No title</span>}
                   </h4>
                 )}
                 
@@ -249,7 +252,9 @@ export default function Projects({ projects, isEditMode }: ProjectsProps) {
                   />
                 </div>
               ) : (
-                <p className="text-gray-700 mb-3">{project.description}</p>
+                <p className="text-gray-700 mb-3">
+                  {project.description || <span className="text-gray-400 italic">No description</span>}
+                </p>
               )}
               
               {isActive ? (
@@ -266,18 +271,15 @@ export default function Projects({ projects, isEditMode }: ProjectsProps) {
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {project.technologies && Array.isArray(project.technologies) ?
+                  {project.technologies && project.technologies.length > 0 ? (
                     project.technologies.map((tech, techIndex) => (
                       <span key={techIndex} className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">
                         {tech}
                       </span>
-                    )) :
-                    project.technologies && typeof project.technologies === 'string' ?
-                      <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">
-                        {project.technologies}
-                      </span>
-                    : null
-                  }
+                    ))
+                  ) : (
+                    <span className="text-gray-400 italic">No technologies listed</span>
+                  )}
                 </div>
               )}
             </div>
