@@ -34,30 +34,30 @@ export const config = {
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
-    if (!file) throw new Error('No file uploaded');
-    
-    const job = formData.get('job') as string || '';
-    if (!job) throw new Error('No job description provided');
-    
-    // Get this from form but don't use it
-    formData.get('useOpenAI');
-    
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const mimetype = file.type;
-    
-    // Extract text from the resume file
-    const text = await extractTextFromFile(buffer, mimetype);
+      const formData = await req.formData();
+      const file = formData.get('file') as File;
+      if (!file) throw new Error('No file uploaded');
+      
+      const job = formData.get('job') as string || '';
+      if (!job) throw new Error('No job description provided');
+      
+      // Get this from form but don't use it
+      formData.get('useOpenAI');
+      
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const mimetype = file.type;
+      
+      // Extract text from the resume file
+      const text = await extractTextFromFile(buffer, mimetype);
 
-    
-    // Structure the resume for better optimization
-    const structuredResume = await structure_resume(text);
+      
+      // Structure the resume for better optimization
+      const structuredResume = await structure_resume(text);
 
-    
-    // Optimize the resume using both text and structured data
-    const optimized = await optimizeResume(text, job, structuredResume);
+      
+      // Optimize the resume using both text and structured data
+      const optimized = await optimizeResume(text, job, structuredResume);
     
     // Log the optimized resume data for debugging
 

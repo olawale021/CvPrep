@@ -71,3 +71,7 @@ db/schema/resume-storage-policy.sql
 db/schema/resume-table.sql
 README-ERROR-BOUNDARIES-AND-LOGGING.md
 .env.example
+README-CENTRALIZED-ERROR-REPORTING.md
+README-RATE-LIMITING.md
+README-VERCEL-RATE-LIMITING.md
+db/migrations/create_error_reports_table.sql

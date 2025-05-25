@@ -92,7 +92,7 @@ function OptimizedResumeContent({
 
   return (
     <>
-      <div className={`bg-white rounded-xl shadow-sm overflow-hidden ${isEditMode ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}>
+      <div className={`bg-white rounded-xl shadow-sm overflow-hidden h-full flex flex-col ${isEditMode ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}>
         {/* Global edit mode indicator banner */}
         {isEditMode && (
           <div className="bg-blue-50 border-b border-blue-200 p-6 text-sm text-blue-800 flex items-center justify-center">
@@ -153,7 +153,7 @@ function OptimizedResumeContent({
         </div>
         
         {/* Tabs Section */}
-        <div ref={resumeContentRef}>
+        <div ref={resumeContentRef} className="flex-1 flex flex-col">
           {/* Simple Tabs Navigation */}
           <div className={`border-b ${isEditMode ? 'bg-blue-50/30' : ''}`}>
             <div className="flex overflow-x-auto px-6">
@@ -236,7 +236,7 @@ function OptimizedResumeContent({
           </div>
             
           {/* Tab Content Section */}
-          <div className={`p-3 sm:p-6 border border-gray-200 rounded-md bg-white shadow-sm ${isEditMode ? 'bg-blue-50/10' : ''}`}>
+          <div className={`p-3 sm:p-6 border border-gray-200 rounded-md bg-white shadow-sm flex-1 overflow-y-auto ${isEditMode ? 'bg-blue-50/10' : ''}`}>
             {activeTab === "summary" && (
               <div className="space-y-4">
                 <Summary summary={editableResume.summary} isEditMode={isEditMode} />
@@ -250,9 +250,9 @@ function OptimizedResumeContent({
             )}
             
             {activeTab === "experience" && editableResume.work_experience && editableResume.work_experience.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-xl font-semibold mb-4">Work Experience</h3>
-                <div className="max-h-96 overflow-y-auto pr-2">
+              <div className="space-y-4 h-full flex flex-col">
+                <h3 className="text-xl font-semibold flex-shrink-0">Work Experience</h3>
+                <div className="flex-1 overflow-y-auto pr-2 min-h-0">
                   <WorkExperience work_experience={editableResume.work_experience} isEditMode={isEditMode} />
                 </div>
               </div>

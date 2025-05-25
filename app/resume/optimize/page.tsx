@@ -82,7 +82,7 @@ export default function OptimizeResume() {
           
           <div className="flex flex-col md:flex-row md:gap-6 min-h-[calc(100vh-64px)] h-full">
             {/* Left Column - Upload Form + Score Result */}
-            <div className="w-full md:w-[40%] flex flex-col space-y-6 h-full">
+            <div className="w-full md:w-[40%] flex flex-col space-y-6 h-full max-h-[calc(100vh-64px)]">
               {/* Resume Upload Form */}
               <div className="w-full bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="p-4 sm:p-6">
@@ -123,7 +123,7 @@ export default function OptimizeResume() {
             </div>
 
             {/* Right Column - Score Results (initially), Optimized Resume, or Loading States */}
-            <div className="w-full md:w-[60%] mt-6 md:mt-0 flex flex-col h-full">
+            <div className="w-full md:w-[60%] mt-6 md:mt-0 flex flex-col h-full max-h-[calc(100vh-64px)]">
               <div className="w-full bg-white rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col h-full">
                 <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
                   {loading ? (

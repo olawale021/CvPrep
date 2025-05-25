@@ -2,6 +2,7 @@
 
 import { AlertTriangle, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { Component, ErrorInfo, ReactNode } from 'react';
+import errorReporting from '../../lib/errorReporting-simple';
 import { Button } from './Button';
 
 interface Props {
@@ -32,6 +33,11 @@ export class ApiErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({ error, errorInfo });
     
+    // Report API error to centralized error reporting
+    const errorType = this.getErrorType(error);
+    const statusCode = this.extractStatusCode(error);
+    errorReporting.reportAPIError(error, this.props.context || 'unknown', statusCode);
+    
     // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
@@ -42,6 +48,12 @@ export class ApiErrorBoundary extends Component<Props, State> {
       console.error('ApiErrorBoundary caught an error:', error, errorInfo);
     }
   }
+
+  private extractStatusCode = (error: Error): number | undefined => {
+    const message = error.message;
+    const statusMatch = message.match(/(\d{3})/);
+    return statusMatch ? parseInt(statusMatch[1]) : undefined;
+  };
 
   handleRetry = async () => {
     this.setState({ isRetrying: true });

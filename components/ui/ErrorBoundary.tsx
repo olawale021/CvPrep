@@ -2,6 +2,7 @@
 
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import errorReporting from '../../lib/errorReporting-simple';
 import { Button } from './Button';
 
 interface Props {
@@ -28,6 +29,9 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({ error, errorInfo });
+    
+    // Report error to centralized error reporting
+    errorReporting.reportUIError(error, errorInfo.componentStack || 'ErrorBoundary');
     
     // Call custom error handler if provided
     if (this.props.onError) {

@@ -25,8 +25,6 @@ export async function GET(req: NextRequest) {
     redirectUrl.searchParams.set('state', state);
   }
   
-  
-  
   // Redirect to the NextAuth callback
   return NextResponse.redirect(redirectUrl);
 } 
