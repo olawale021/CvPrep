@@ -13,7 +13,7 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Acceptance of Terms</h2>
             <p className="text-gray-700 mb-4">
-              By accessing and using CareerPal ("Service"), you accept and agree to be bound by the terms and provision of this agreement. 
+              By accessing and using CareerPal (&quot;Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. 
               If you do not agree to abide by the above, please do not use this service.
             </p>
           </section>
@@ -31,7 +31,7 @@ export default function TermsOfService() {
               <li>PDF generation and document management</li>
             </ul>
             <p className="text-gray-700 mb-4">
-              Our service uses artificial intelligence, including OpenAI's technology, to analyze and improve your career documents.
+              Our service uses artificial intelligence, including OpenAI&apos;s technology, to analyze and improve your career documents.
             </p>
           </section>
 
@@ -94,7 +94,7 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. AI Services and Limitations</h2>
             <p className="text-gray-700 mb-4">
-              Our AI-powered features are provided "as is" and for informational purposes only. You acknowledge that:
+              Our AI-powered features are provided &quot;as is&quot; and for informational purposes only. You acknowledge that:
             </p>
             <ul className="list-disc pl-6 text-gray-700 mb-4">
               <li>AI-generated content may not always be accurate or appropriate</li>

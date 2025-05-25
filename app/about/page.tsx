@@ -11,7 +11,7 @@ export default function About() {
             About CareerPal
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            We're on a mission to democratize career success by making AI-powered job search tools 
+            We&apos;re on a mission to democratize career success by making AI-powered job search tools 
             accessible to everyone, regardless of their background or experience level.
           </p>
         </div>
@@ -24,7 +24,7 @@ export default function About() {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
               <p className="text-lg text-gray-600 mb-6">
-                Job searching shouldn't be a full-time job. We believe that everyone deserves access to 
+                Job searching shouldn&apos;t be a full-time job. We believe that everyone deserves access to 
                 the same high-quality career tools that were once only available to those who could 
                 afford expensive career coaches.
               </p>
@@ -75,7 +75,7 @@ export default function About() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Innovation</h3>
               <p className="text-gray-600">
-                We continuously push the boundaries of what's possible with AI to create better, 
+                We continuously push the boundaries of what&apos;s possible with AI to create better, 
                 more effective career tools.
               </p>
             </div>
@@ -101,7 +101,7 @@ export default function About() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Accessibility</h3>
               <p className="text-gray-600">
-                Career success shouldn't depend on your budget. We offer powerful free tools and 
+                Career success shouldn&apos;t depend on your budget. We offer powerful free tools and 
                 affordable premium features for everyone.
               </p>
             </div>
@@ -125,14 +125,14 @@ export default function About() {
               realized there had to be a better way.
             </p>
             <p className="text-lg text-gray-600 mb-6">
-              That's when they decided to build CareerPal - an AI-powered platform that could provide 
+              That&apos;s when they decided to build CareerPal - an AI-powered platform that could provide 
               personalized career guidance at scale. By leveraging the latest advances in artificial 
               intelligence, we can analyze job descriptions, optimize resumes, and provide tailored 
               recommendations in seconds, not hours.
             </p>
             <p className="text-lg text-gray-600">
               Today, CareerPal helps thousands of job seekers every month land interviews and advance 
-              their careers. We're just getting started.
+              their careers. We&apos;re just getting started.
             </p>
           </div>
         </div>
@@ -216,7 +216,7 @@ export default function About() {
             Ready to accelerate your career?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of professionals who have already transformed their job search with CareerPal's AI-powered tools.
+            Join thousands of professionals who have already transformed their job search with CareerPal&apos;s AI-powered tools.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3">

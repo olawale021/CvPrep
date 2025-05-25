@@ -53,7 +53,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
       
       // Reset error state after successful retry
       this.setState({ hasError: false, error: undefined, errorInfo: undefined, isRetrying: false });
-    } catch (retryError) {
+    } catch {
       // If retry fails, keep error state but stop retrying
       this.setState({ isRetrying: false });
     }

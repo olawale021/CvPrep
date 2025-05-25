@@ -121,7 +121,7 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
           } else {
             setAppUser(null);
           }
-        } catch (err) {
+        } catch {
           setAppUser(null);
         }
       } else {
