@@ -23,7 +23,7 @@ export default function Certifications({ certifications, isEditMode = false }: C
       updateResumeField('certifications', certifications);
     }
     // Log props when component mounts or props change
-    console.log("Certifications component props:", { certifications, isEditMode });
+  
   }, [certifications, editableResume.certifications, updateResumeField, isEditMode]);
 
   const certList = editableResume.certifications || [];

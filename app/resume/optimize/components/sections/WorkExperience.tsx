@@ -37,20 +37,14 @@ export default function WorkExperienceSection({
   
   // Log props and state when component mounts or props change
   useEffect(() => {
-    console.log("WorkExperience component props:", { isEditMode, work_experience });
-    console.log("WorkExperience component state:", { editableResumeExperience: editableResume.work_experience });
-    console.log("Is Edit Mode:", isEditMode);
-    console.log("Is this component allowed to edit?", isEditMode === true);
-    console.log("Current editing state:", { editing, activeExpIndex });
+    
   }, [isEditMode, work_experience, editableResume.work_experience, editing, activeExpIndex]);
   
   // Only use experiences from the editable resume
   const experiences = (editableResume.work_experience || []) as ExtendedWorkExperience[];
 
   // Add debugging to help identify issues
-  console.log("isEditMode:", isEditMode);
-  console.log("editableResume:", editableResume);
-  console.log("experiences:", experiences);
+  
 
   // Add new work experience
   const handleAddExperience = () => {
@@ -86,11 +80,11 @@ export default function WorkExperienceSection({
 
   // Update the function to handle when user clicks "Done"
   const handleEditExperience = (index: number) => {
-    console.log("Edit experience triggered for index:", index);
+
     
     if (editing && activeExpIndex === index) {
       // User is clicking "Done" - ensure all edits are committed
-      console.log("Finishing edits for experience:", index);
+
       
       // Apply any pending bullet edits to the work experience
       const updatedExperiences = [...experiences];
@@ -100,7 +94,7 @@ export default function WorkExperienceSection({
       const bulletKeys = Object.keys(bulletEdits).filter(key => key.startsWith(`${index}-`));
       
       if (bulletKeys.length > 0) {
-        console.log("Committing bullet edits:", bulletKeys);
+
         
         // Apply each edit to the final object
         bulletKeys.forEach(key => {

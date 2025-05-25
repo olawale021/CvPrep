@@ -18,7 +18,6 @@ export async function extract_job_requirements(jobDescription: string): Promise<
   job_responsibilities: string[];
 }> {
   if (!openai || jobDescription.trim().length < 50) {
-    console.log("OpenAI API not available or job description too short");
     return {
       required_skills: [],
       preferred_skills: [],
@@ -105,7 +104,6 @@ export async function extract_key_job_terms(jobDescription: string): Promise<{
   company_values: string[];
 }> {
   if (!openai || jobDescription.trim().length < 50) {
-    console.log("OpenAI API not available or job description too short");
     return {
       keywords: [],
       industry: "",

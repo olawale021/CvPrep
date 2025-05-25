@@ -13,8 +13,7 @@ export default function Summary({ summary, isEditMode = false }: SummaryProps) {
   const [isEditing, setIsEditing] = useState(false);
   
   React.useEffect(() => {
-    console.log("Summary component props:", { summary, isEditMode });
-    console.log("Summary component state:", { editableResumeSummary: editableResume.summary });
+    
     
     if (summary && !editableResume.summary) {
       updateResumeField('summary', summary);

@@ -2,6 +2,7 @@
 
 import { FileText } from "lucide-react";
 import React, { FormEvent } from "react";
+import { ErrorBoundary } from "../../../components/ui/ErrorBoundary";
 import Sidebar from "../../../components/ui/Sidebar";
 import ErrorMessage from "./components/ErrorMessage";
 import LoadingState from "./components/LoadingState";
@@ -85,26 +86,38 @@ export default function OptimizeResume() {
               {/* Resume Upload Form */}
               <div className="w-full bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="p-4 sm:p-6">
-                  <ResumeUploadForm
-                    file={file}
-                    setFile={setFile}
-                    jobDescription={jobDescription}
-                    setJobDescription={setJobDescription}
-                    isScoring={isScoring}
-                    fileInputRef={fileInputRef as React.RefObject<HTMLInputElement>}
-                    onSubmit={(e: FormEvent<Element>) => handleScoreSubmit(e as FormEvent<HTMLFormElement>)}
-                  />
+                  <ErrorBoundary fallback={
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <p className="text-red-800">Error loading upload form. Please refresh the page.</p>
+                    </div>
+                  }>
+                    <ResumeUploadForm
+                      file={file}
+                      setFile={setFile}
+                      jobDescription={jobDescription}
+                      setJobDescription={setJobDescription}
+                      isScoring={isScoring}
+                      fileInputRef={fileInputRef as React.RefObject<HTMLInputElement>}
+                      onSubmit={(e: FormEvent<Element>) => handleScoreSubmit(e as FormEvent<HTMLFormElement>)}
+                    />
+                  </ErrorBoundary>
                 </div>
               </div>
               {/* Always show ScoreResult if scoreResult exists */}
               {scoreResult && !isScoring && (
                 <div className="w-full">
-                  <ScoreResult
-                    scoreResult={scoreResult}
-                    handleOptimize={handleOptimize}
-                    loading={loading}
-                    setScoreResult={setScoreResult}
-                  />
+                  <ErrorBoundary fallback={
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <p className="text-red-800">Error displaying score results.</p>
+                    </div>
+                  }>
+                    <ScoreResult
+                      scoreResult={scoreResult}
+                      handleOptimize={handleOptimize}
+                      loading={loading}
+                      setScoreResult={setScoreResult}
+                    />
+                  </ErrorBoundary>
                 </div>
               )}
             </div>
@@ -118,13 +131,19 @@ export default function OptimizeResume() {
                   ) : isScoring ? (
                     <LoadingState type="scoring" />
                   ) : response && !scoringMode ? (
-                    <ResumeEditProvider initialData={response}>
-                      <OptimizedResume
-                        response={response}
-                        handleDownloadPdf={handleDownloadPdf}
-                        isPdfGenerating={isPdfGenerating}
-                      />
-                    </ResumeEditProvider>
+                    <ErrorBoundary fallback={
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <p className="text-red-800">Error displaying optimized resume. Please try optimizing again.</p>
+                      </div>
+                    }>
+                      <ResumeEditProvider initialData={response}>
+                        <OptimizedResume
+                          response={response}
+                          handleDownloadPdf={handleDownloadPdf}
+                          isPdfGenerating={isPdfGenerating}
+                        />
+                      </ResumeEditProvider>
+                    </ErrorBoundary>
                   ) : (
                     <div className="flex flex-col items-center justify-center text-center py-8">
                       <div className="p-3 bg-blue-50 rounded-full mb-4">

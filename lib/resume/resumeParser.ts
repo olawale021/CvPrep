@@ -33,7 +33,7 @@ export interface StructuredResume {
  */
 export async function segment_resume_sections(text: string): Promise<Record<string, string>> {
   if (!openai) {
-    console.log("OpenAI API not available for resume segmentation");
+
     return { "Full Resume": text };
   }
   
@@ -81,7 +81,7 @@ export async function segment_resume_sections(text: string): Promise<Record<stri
  */
 export async function structure_resume(text: string): Promise<StructuredResume> {
   if (!openai) {
-    console.log("OpenAI API not available for resume structuring");
+
     return { 
       Summary: "",
       "Work Experience": [],
@@ -185,7 +185,7 @@ export async function structure_resume(text: string): Promise<StructuredResume> 
  */
 export async function extract_skills_from_text(text: string): Promise<string[]> {
   if (!openai) {
-    console.log("OpenAI API not available for skill extraction");
+
     return [];
   }
   

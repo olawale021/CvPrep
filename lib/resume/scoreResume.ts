@@ -27,7 +27,7 @@ if (openaiApiKey) {
 export async function scoreResume(resumeText: string, jobDescription: string): Promise<ResumeScore> {
   // Verify job description has sufficient length
   if (jobDescription.trim().length < 20) {
-    console.log("Job description too short for reliable analysis");
+
     return {
       matched_skills: [],
       missing_skills: [],
@@ -38,7 +38,7 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
   }
 
   if (!openai) {
-    console.log("OpenAI API not available, using basic matching");
+
     // Return a basic error-state response instead of using the removed fallback method
     return {
       matched_skills: [],
@@ -212,7 +212,7 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
     ${jobDescription}
     `;
     
-    console.log("Sending detailed scoring request to OpenAI...");
+
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -329,7 +329,7 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
         }
       }
       
-      console.log("OpenAI scoring complete:", validated_data);
+  
       return validated_data;
       
     } catch (parseError) {

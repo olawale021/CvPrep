@@ -31,6 +31,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
+.env.local
 .env*
 
 # vercel
@@ -68,3 +69,5 @@ db/migrations/toggle_rls_mode.sql
 db/migrations/user_rls_policy.sql
 db/schema/resume-storage-policy.sql
 db/schema/resume-table.sql
+README-ERROR-BOUNDARIES-AND-LOGGING.md
+.env.example

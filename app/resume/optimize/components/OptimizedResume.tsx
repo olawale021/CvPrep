@@ -41,24 +41,10 @@ export default function OptimizedResume({
 
   // Add debug logging to verify data
   useEffect(() => {
-    console.log("OptimizedResume component received data:", response);
-    console.log("Summary:", response.summary);
-    console.log("Skills:", response.skills);
-    console.log("Work Experience:", response.work_experience);
+    
   }, [response]);
   
-  // Add logging when active tab changes
-  useEffect(() => {
-    console.log("Active tab changed to:", activeTab);
-    console.log("Current resume data available:", {
-      summary: response.summary ? "Yes" : "No",
-      skills: response.skills && Object.keys(response.skills).length > 0 ? "Yes" : "No",
-      work_experience: response.work_experience && response.work_experience.length > 0 ? "Yes" : "No",
-      education: response.education && response.education.length > 0 ? "Yes" : "No",
-      certifications: response.certifications && response.certifications.length > 0 ? "Yes" : "No",
-      projects: response.projects && response.projects.length > 0 ? "Yes" : "No"
-    });
-  }, [activeTab, response]);
+
 
   return (
     <ResumeEditProvider initialData={response}>
@@ -102,23 +88,7 @@ function OptimizedResumeContent({
     setIsPreviewLoading(false);
   };
 
-  // Add debug logging to verify data is accessible
-  useEffect(() => {
-    console.log("OptimizedResumeContent - editableResume:", editableResume);
-  }, [editableResume]);
 
-  // Add logging when active tab changes
-  useEffect(() => {
-    console.log("Active tab changed to:", activeTab);
-    console.log("Current resume data available:", {
-      summary: editableResume.summary ? "Yes" : "No",
-      skills: editableResume.skills && Object.keys(editableResume.skills).length > 0 ? "Yes" : "No",
-      work_experience: editableResume.work_experience && editableResume.work_experience.length > 0 ? "Yes" : "No",
-      education: editableResume.education && editableResume.education.length > 0 ? "Yes" : "No",
-      certifications: editableResume.certifications && editableResume.certifications.length > 0 ? "Yes" : "No",
-      projects: editableResume.projects && editableResume.projects.length > 0 ? "Yes" : "No"
-    });
-  }, [activeTab, editableResume]);
 
   return (
     <>

@@ -22,10 +22,7 @@ export default function Skills({ isEditMode, skills }: SkillsProps) {
   
   // Log props and state when component mounts or props change
   React.useEffect(() => {
-    console.log("Skills component props:", { isEditMode, skills });
-    console.log("Skills component state:", { editableResumeSkills: editableResume.skills });
-    console.log("Is Edit Mode:", isEditMode);
-    console.log("Is this component allowed to edit?", isEditMode === true);
+    
   }, [isEditMode, skills, editableResume.skills]);
   
   // Initialize from props if needed

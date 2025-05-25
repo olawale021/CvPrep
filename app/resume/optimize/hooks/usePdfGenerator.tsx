@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useAuth } from "../../../../context/AuthContext";
 import { generatePdf } from "../templates";
 import { ResumeData, ResumeResponse } from "../types";
+import { isTemplateAllowed } from "../utils/templateGuards";
 
 // Type definition for available templates
 export type ResumeTemplate = "classic" | "modern";
@@ -13,12 +15,20 @@ export function usePdfGenerator() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>("classic");
+  const { appUser } = useAuth();
+  const isPremium = appUser?.type === "premium";
 
   /**
    * Generate a PDF based on the selected template
    */
   const generatePdfDocument = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null, template: ResumeTemplate = "classic") => {
     if (!resumeData) return null; // Return null if no data
+    
+    // Check if template is allowed for user's subscription
+    if (!isTemplateAllowed(template, isPremium)) {
+      setError("This template requires a premium subscription");
+      throw new Error("Premium subscription required for this template");
+    }
     
     try {
       setIsPdfGenerating(true);
@@ -37,6 +47,12 @@ export function usePdfGenerator() {
    */
   const generatePreview = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => {
     if (!resumeData) return;
+    
+    // Check if template is allowed for user's subscription
+    if (!isTemplateAllowed(selectedTemplate, isPremium)) {
+      setError("This template requires a premium subscription");
+      return;
+    }
     
     try {
       setIsPdfGenerating(true);
@@ -57,7 +73,7 @@ export function usePdfGenerator() {
       
       // Create a new blob URL
       const url = URL.createObjectURL(pdfBlob);
-      console.log("Generated PDF preview URL:", url);
+  
       setPreviewUrl(url);
       return url;
     } catch (err) {
@@ -73,6 +89,12 @@ export function usePdfGenerator() {
    */
   const downloadPdf = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => {
     if (!resumeData) return;
+    
+    // Check if template is allowed for user's subscription
+    if (!isTemplateAllowed(selectedTemplate, isPremium)) {
+      setError("This template requires a premium subscription");
+      return;
+    }
     
     try {
       setIsPdfGenerating(true);

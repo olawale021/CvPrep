@@ -41,15 +41,14 @@ export default function EducationSection({ education = [], isEditMode = false }:
     }
     
     // Log props when component mounts or props change
-    console.log("Education component props:", { education, isEditMode });
-    console.log("Education editable data:", editableResume.education);
+    
   }, [education, editableResume.education, updateResumeField, isEditMode]);
 
   const educationItems = (editableResume.education || []) as Education[];
   
   // Function to handle education field updates
   const handleUpdateField = (index: number, field: string, value: string) => {
-    console.log("Updating education field:", field, "with value:", value);
+
     
     const updatedEducation = [...educationItems];
     updatedEducation[index] = {

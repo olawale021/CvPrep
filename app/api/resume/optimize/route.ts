@@ -50,23 +50,17 @@ export async function POST(req: NextRequest) {
     
     // Extract text from the resume file
     const text = await extractTextFromFile(buffer, mimetype);
-    console.log('Extracted text length:', text.length);
+
     
     // Structure the resume for better optimization
     const structuredResume = await structure_resume(text);
-    console.log('Structured resume:', JSON.stringify(structuredResume, null, 2));
+
     
     // Optimize the resume using both text and structured data
     const optimized = await optimizeResume(text, job, structuredResume);
     
     // Log the optimized resume data for debugging
-    console.log('=== OPTIMIZED RESUME DATA START ===');
-    console.log('Summary:', optimized.summary ? 'Present' : 'Missing');
-    console.log('Skills:', optimized.skills ? `Present (${Object.keys(optimized.skills).length} categories)` : 'Missing');
-    console.log('Work Experience:', optimized.work_experience ? `Present (${optimized.work_experience.length} entries)` : 'Missing');
-    console.log('Education:', optimized.education ? `Present (${optimized.education.length} entries)` : 'Missing');
-    console.log('Projects:', optimized.projects ? `Present (${optimized.projects.length} entries)` : 'Missing');
-    console.log('Certifications:', optimized.certifications ? `Present (${optimized.certifications.length} entries)` : 'Missing');
+
     
     // Typecast the optimized result to a more specific type
     const optimizedWithCapitalKeys = optimized as ExtendedOptimizedResume;
@@ -89,16 +83,14 @@ export async function POST(req: NextRequest) {
     
     // Sample of data returned from each section
     if (responseData.skills) {
-      console.log('Skills Sample:', Object.keys(responseData.skills));
+
     }
     
     if (responseData.work_experience && responseData.work_experience.length > 0) {
-      console.log('Work Experience Sample:', responseData.work_experience[0]);
+
     }
     
-    // Log full data structure for debugging
-    console.log('Full response data:', JSON.stringify(responseData, null, 2));
-    console.log('=== OPTIMIZED RESUME DATA END ===');
+
     
     return NextResponse.json(responseData);
   } catch (error: unknown) {

@@ -6,6 +6,16 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import logger from '../lib/logger';
 import { supabase } from '../lib/supabaseClient';
 
+// Type for your app's user (from your DB)
+export type AppUser = {
+  id: string;
+  email: string;
+  type: 'free' | 'premium';
+  full_name?: string;
+  profile_picture?: string;
+  // Add other fields as needed
+};
+
 // Type for the auth context value
 export type AuthContextType = {
   user: User | null;
@@ -14,6 +24,7 @@ export type AuthContextType = {
   signInWithGoogle: (redirectPath?: string) => Promise<void>;
   signOut: () => Promise<void>;
   authError: string | null;
+  appUser: AppUser | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +34,7 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [appUser, setAppUser] = useState<AppUser | null>(null);
   // const router = useRouter();
 
   // Listen for auth state changes
@@ -97,6 +109,28 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
     }
   }, [user]);
 
+  // Fetch app user (with type) from your DB
+  useEffect(() => {
+    const fetchAppUser = async () => {
+      if (user?.email) {
+        try {
+          const res = await fetch(`/api/user?email=${encodeURIComponent(user.email)}`);
+          if (res.ok) {
+            const data = await res.json();
+            setAppUser(data.user);
+          } else {
+            setAppUser(null);
+          }
+        } catch (err) {
+          setAppUser(null);
+        }
+      } else {
+        setAppUser(null);
+      }
+    };
+    fetchAppUser();
+  }, [user]);
+
   // Redirect to dashboard after login
   // useEffect(() => {
   //   if (!isLoading && user) {
@@ -142,6 +176,7 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
       await supabase.auth.signOut();
       setSession(null);
       setUser(null);
+      setAppUser(null);
       logger.debug('Signed out user', { context: 'AuthContext' });
     } catch (err) {
       setAuthError(String(err));
@@ -156,6 +191,7 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
     signInWithGoogle,
     signOut,
     authError,
+    appUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,4 +1,4 @@
-import { FormEvent, RefObject } from "react";
+import { FormEvent, RefObject, useState } from "react";
 
 interface ResumeUploadFormProps {
   file: File | null;
@@ -19,6 +19,8 @@ export default function ResumeUploadForm({
   fileInputRef,
   onSubmit,
 }: ResumeUploadFormProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
@@ -38,24 +40,31 @@ export default function ResumeUploadForm({
         <label htmlFor="jobDescription" className="block text-base font-medium text-gray-800 mb-2">
           Job Description
         </label>
-        <div className="relative" style={{ fontFamily: 'Times New Roman', color: 'black' }} >
+        <div className="relative">
           <textarea
             id="jobDescription"
             placeholder="Paste job description here..."
             value={jobDescription}
             onChange={e => setJobDescription(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             rows={6}
-            className="block w-full rounded-md border-2 border-blue-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 bg-blue-50/30"
+            className="block w-full rounded-md border-2 border-blue-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 bg-blue-50/30 text-gray-900 placeholder-gray-400"
+            style={{ fontFamily: 'inherit' }}
           />
-          {!jobDescription && (
-            <div className="absolute top-0 left-0 right-0 pointer-events-none p-3 text-sm text-gray-500">
-              <p className="font-medium text-blue-600 mb-1">💼 Enter Job Description</p>
-              <p className="text-gray-600">For best results, include:</p>
-              <ul className="list-disc pl-5 text-xs space-y-1 mt-1 text-gray-500">
-                <li>Job title & required skills</li>
-                <li>Responsibilities & qualifications</li>
-                <li>Company details</li>
-              </ul>
+          {!jobDescription && !isFocused && (
+            <div className="absolute inset-0 pointer-events-none flex flex-col justify-start p-3 text-sm">
+              <div className="bg-white/90 rounded-md p-3 border border-blue-100 shadow-sm">
+                <p className="font-medium text-blue-600 mb-2 flex items-center">
+                  💼 Enter Job Description
+                </p>
+                <p className="text-gray-600 mb-2">For best results, include:</p>
+                <ul className="list-disc pl-5 text-xs space-y-1 text-gray-500">
+                  <li>Job title & required skills</li>
+                  <li>Responsibilities & qualifications</li>
+                  <li>Company details</li>
+                </ul>
+              </div>
             </div>
           )}
         </div>

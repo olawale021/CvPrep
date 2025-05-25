@@ -18,14 +18,13 @@ export default function Projects({ projects, isEditMode }: ProjectsProps) {
   
   // Log props and state when component mounts or props change
   React.useEffect(() => {
-    console.log("Projects component props:", { projects, isEditMode });
-    console.log("Projects component state:", { editableResumeProjects: editableResume.projects });
+    
   }, [projects, isEditMode, editableResume.projects]);
   
   // Use projects from editableResume if available
   const projectsData = editableResume.projects || projects || [];
 
-  console.log("projectsData", projectsData);
+  
 
   if (!projectsData || projectsData.length === 0) {
     return (

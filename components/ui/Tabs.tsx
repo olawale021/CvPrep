@@ -91,19 +91,8 @@ export function TabsTrigger({
       // Fix: Use data attribute instead of aria-selected
       data-state={isSelected ? "active" : "inactive"}
       onClick={() => {
-        console.log(`TabsTrigger clicked - tab: ${value}, current active: ${activeValue}`);
-        // Show the current state values
-        console.log("Before change - TabsTrigger state:", { 
-          clicked: value, 
-          currentActive: activeValue, 
-          willCallOnValueChange: !!onValueChange
-        });
-        
         if (onValueChange) {
           onValueChange(value);
-          console.log(`TabsTrigger - Called onValueChange with: ${value}`);
-        } else {
-          console.warn(`TabsTrigger - No onValueChange function available for tab: ${value}`);
         }
       }}
       {...domProps}
@@ -142,18 +131,11 @@ export function TabsContent({
   // Explicitly remove onValueChange from props to prevent it from reaching the DOM
   delete domProps.onValueChange;
   
-  // Log content rendering
-  console.log(`TabsContent - tab: ${value}, active: ${activeValue}, isActive: ${activeValue === value}`);
-  
-  // Add a simple check to make all tabs visible if debugging
   const isActive = activeValue === value;
   
   if (!isActive) {
-    console.log(`TabsContent - tab ${value} is not active, returning null`);
     return null;
   }
-  
-  console.log(`TabsContent - tab ${value} is active, rendering content`);
   
   return (
     <div 

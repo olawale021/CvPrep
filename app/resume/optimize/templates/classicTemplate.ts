@@ -109,7 +109,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   // Adjust extra spacing based on content density
   const adjustedExtraSpacing = extraSpacing * densitySpacingFactor;
   
-  console.log(`Resume has ${significantSections} sections with ${contentDensity.totalEntries} entries and ${contentDensity.totalBullets} bullets. ${contentDensity.isHighDensity ? 'Using compressed layout.' : 'Using standard layout.'}`);
+
   
   // Header with name - increased font size
   pdf.setFontSize(fontScaling * 22);
@@ -327,7 +327,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
     // Calculate how much we need to compress
     const heightRatio = totalEstimatedHeight / (pageHeight - 40); // Leave some margin
     
-    console.log(`Estimated height: ${totalEstimatedHeight}px, Page height: ${pageHeight}px, Ratio: ${heightRatio.toFixed(2)}, Sections: ${sectionCount}`);
+
     
     // Progressive compression based on content amount and section count
     if (sectionCount >= 6 || heightRatio > 1.4) {

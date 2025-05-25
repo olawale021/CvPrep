@@ -5,7 +5,7 @@ import { supabase } from './supabaseClient';
  */
 export async function checkUserExists(email: string): Promise<boolean> {
   try {
-    console.log('Checking if user exists with email:', email);
+  
     
     const { data, error } = await supabase
       .from('users')
@@ -19,7 +19,7 @@ export async function checkUserExists(email: string): Promise<boolean> {
     }
     
     const exists = !!data && data.length > 0;
-    console.log('User exists check result:', exists, 'found records:', data?.length || 0);
+
     return exists;
   } catch (err) {
     console.error('Unexpected error checking user existence:', err);
@@ -46,7 +46,7 @@ export async function saveUserToDB(user: {
   try {
     // Use the original UUID directly to match RLS policies
     // Don't convert it to avoid mismatches with Supabase auth
-    console.log('Saving user to DB with ID:', user.id);
+  
 
     // Prepare the user data for upsert
     const userData = {
@@ -97,7 +97,7 @@ export async function saveUserToDB(user: {
 export async function getUserFromDB(userId: string) {
   try {
     // Use original ID for database lookup to match RLS policies
-    console.log('Fetching user data from DB for ID:', userId);
+  
     
     const { data, error } = await supabase
       .from('users')
@@ -110,7 +110,7 @@ export async function getUserFromDB(userId: string) {
       return { error: error.message };
     }
     
-    console.log('User data fetched successfully:', data ? 'Found' : 'Not found');
+
     return { data };
   } catch (err) {
     console.error('Unexpected error fetching user:', err);

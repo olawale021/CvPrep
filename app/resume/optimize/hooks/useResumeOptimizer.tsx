@@ -52,34 +52,25 @@ export function useResumeOptimizer() {
     setScoringMode(false);
     
     try {
-      console.log("Starting resume optimization...");
+  
       
       const form = new FormData();
       form.append("file", file);
       form.append("job", jobDescription);
       
-      console.log("Sending request to /api/resume/optimize...");
-      const startTime = performance.now();
-      const res = await fetch("/api/resume/optimize", { method: "POST", body: form });
-      const endTime = performance.now();
-      console.log(`Optimization request completed in ${Math.round(endTime - startTime)}ms`);
+
+              const res = await fetch("/api/resume/optimize", { method: "POST", body: form });
+
       
       const data = await res.json() as ApiResumeResponse;
       
       if (!res.ok) throw new Error(data.error || "Failed to optimize resume");
       
       // Log the response to help debug
-      console.log("== FRONTEND: Optimization response received ==");
-      console.log("Raw API response:", data);
+
       
       // Check for field names with both lowercase and capitalized versions
-      console.log("Response contains summary?", !!(data.summary || data.Summary));
-      console.log("Response contains skills?", !!(data.skills || data.Skills || data["Technical Skills"]));
-      console.log("Response contains work experience?", !!(data.work_experience || data["Work Experience"]));
-      console.log("Response contains education?", !!(data.education || data.Education));
-      console.log("Response contains projects?", !!(data.projects || data.Projects));
-      console.log("Response contains certifications?", !!(data.certifications || data.Certifications));
-      console.log("Response contains optimized_text?", !!data.optimized_text);
+
       
       // Extract structured data from optimization response with fallbacks for capitalized field names
       const structuredData: ResumeData = {
@@ -163,13 +154,12 @@ export function useResumeOptimizer() {
         }
       };
       
-      console.log("Structured data prepared:", structuredData);
-      console.log("Setting response state...");
+      
       
       setResponse(structuredData);
       setResumeResponse(resumeResponseData);
       
-      console.log("Resume optimization complete and state updated");
+
     } catch (e: unknown) {
       console.error("Optimization error:", e);
       setError(e instanceof Error ? e.message : "Failed to optimize resume");

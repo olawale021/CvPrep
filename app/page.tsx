@@ -375,37 +375,37 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-50 border-t py-12 px-4">
+      <footer className="py-12 px-4" style={{ backgroundColor: '#252525' }}>
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">CareerPal</h3>
-            <p className="text-gray-600 text-sm">The AI-powered job search assistant for modern professionals.</p>
+            <h3 className="text-lg font-semibold mb-4 text-white">CareerPal</h3>
+            <p className="text-gray-300 text-sm">The AI-powered job search assistant for modern professionals.</p>
           </div>
           <div>
-            <h4 className="font-medium mb-4">Features</h4>
+            <h4 className="font-medium mb-4 text-white">Features</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/resume-builder" className="text-gray-600 hover:text-gray-900">Resume Builder</Link></li>
-              <li><Link href="/interview-prep" className="text-gray-600 hover:text-gray-900">Interview Prep</Link></li>
-              <li><Link href="/cover-letter" className="text-gray-600 hover:text-gray-900">Cover Letter Generator</Link></li>
+              <li><Link href="/resume-builder" className="text-gray-300 hover:text-white transition-colors">Resume Builder</Link></li>
+              <li><Link href="/interview-prep" className="text-gray-300 hover:text-white transition-colors">Interview Prep</Link></li>
+              <li><Link href="/cover-letter" className="text-gray-300 hover:text-white transition-colors">Cover Letter Generator</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-medium mb-4">Company</h4>
+            <h4 className="font-medium mb-4 text-white">Company</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="text-gray-600 hover:text-gray-900">About Us</Link></li>
-              <li><Link href="/pricing" className="text-gray-600 hover:text-gray-900">Pricing</Link></li>
-              <li><Link href="/contact" className="text-gray-600 hover:text-gray-900">Contact</Link></li>
+              <li><Link href="/about" className="text-gray-300 hover:text-white transition-colors">About Us</Link></li>
+              <li><Link href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link></li>
+              <li><Link href="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-medium mb-4">Legal</h4>
+            <h4 className="font-medium mb-4 text-white">Legal</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/privacy" className="text-gray-600 hover:text-gray-900">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-gray-600 hover:text-gray-900">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-gray-300 hover:text-white transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto mt-8 pt-8 border-t text-center text-sm text-gray-600">
+        <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-gray-600 text-center text-sm text-gray-300">
           &copy; {new Date().getFullYear()} CareerPal. All rights reserved.
         </div>
       </footer>

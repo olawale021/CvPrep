@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     redirectUrl.searchParams.set('state', state);
   }
   
-  console.log('Redirecting to NextAuth callback:', redirectUrl.toString());
+  
   
   // Redirect to the NextAuth callback
   return NextResponse.redirect(redirectUrl);

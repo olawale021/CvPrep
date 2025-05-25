@@ -5,18 +5,38 @@ import { useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { uploadResume, validateResumeFile } from "../../lib/resumeService";
 import { cn } from "../../lib/utils";
-// Create a simple toast implementation to avoid the import errors
+// Simple toast implementation
 const useToast = () => {
-  return {
-    toast: ({ title, description, variant, duration }: { 
-      title: string; 
-      description: string; 
-      variant?: string; 
-      duration?: number;
-    }) => {
-      console.log({ title, description, variant, duration });
-    }
+  const toast = (options: {
+    title: string;
+    description?: string;
+    variant?: "default" | "destructive";
+    duration?: number;
+  }) => {
+    // Create a simple toast notification
+    const toastElement = document.createElement('div');
+    toastElement.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+      options.variant === 'destructive' 
+        ? 'bg-red-600 text-white' 
+        : 'bg-green-600 text-white'
+    }`;
+    
+    toastElement.innerHTML = `
+      <div class="font-semibold">${options.title}</div>
+      ${options.description ? `<div class="text-sm mt-1">${options.description}</div>` : ''}
+    `;
+    
+    document.body.appendChild(toastElement);
+    
+    // Remove after duration
+    setTimeout(() => {
+      if (document.body.contains(toastElement)) {
+        document.body.removeChild(toastElement);
+      }
+    }, options.duration || 3000);
   };
+  
+  return { toast };
 };
 
 interface ResumeUploadDialogProps {
@@ -27,7 +47,7 @@ interface ResumeUploadDialogProps {
 
 export function ResumeUploadDialog({ open, onOpenChange, onSuccess }: ResumeUploadDialogProps) {
   const { user } = useAuth();
-  // console.log('ResumeUploadDialog user:', user);
+
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
