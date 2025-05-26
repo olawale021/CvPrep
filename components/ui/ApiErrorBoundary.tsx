@@ -34,7 +34,6 @@ export class ApiErrorBoundary extends Component<Props, State> {
     this.setState({ error, errorInfo });
     
     // Report API error to centralized error reporting
-    const errorType = this.getErrorType(error);
     const statusCode = this.extractStatusCode(error);
     errorReporting.reportAPIError(error, this.props.context || 'unknown', statusCode);
     

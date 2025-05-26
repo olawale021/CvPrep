@@ -1,25 +1,25 @@
 "use client";
 
 import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  Download,
-  FileText,
-  FolderClosed,
-  GraduationCap,
-  Home,
-
-  LogOut,
-  Menu,
-  MoreVertical,
-  Plus,
-  Settings,
-  Star,
-  Trash2,
-  Users,
-  X
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    ChevronUp,
+    Download,
+    FileText,
+    FolderClosed,
+    GraduationCap,
+    HelpCircle,
+    Home,
+    LogOut,
+    Menu,
+    MoreVertical,
+    Plus,
+    Settings,
+    Star,
+    Trash2,
+    Users,
+    X
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,11 +28,11 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Resume, deleteResume, getUserResumes, setPrimaryResume } from "../../lib/resumeService";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
 } from "./DropdownMenu";
 import { ResumeUploadDialog } from "./ResumeUploadDialog";
 
@@ -109,6 +109,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     { href: "/interview-prep", label: "Interview Prep", icon: <GraduationCap className="h-5 w-5" /> },
     { href: "/cover-letter", label: "Cover Letter", icon: <FileText className="h-5 w-5" /> },
     { href: "/community", label: "Community", icon: <Users className="h-5 w-5" /> },
+    { href: "/help", label: "Help Center", icon: <HelpCircle className="h-5 w-5" /> },
   ];
 
   const handleResumeUploadOpen = () => {
@@ -330,8 +331,9 @@ export default function Sidebar({ className = "" }: SidebarProps) {
                 {isResumesExpanded && (
                   <div className="ml-8 mt-2 space-y-2">
                     {isLoading && (
-                      <div className="text-sm text-gray-400 py-2 px-3">
-                        Loading resumes...
+                      <div className="flex items-center space-x-2 py-2 px-3">
+                        <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-sm text-gray-400">Loading resumes...</span>
                       </div>
                     )}
                     

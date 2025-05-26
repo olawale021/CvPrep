@@ -1,6 +1,6 @@
 "use client";
 
-import { HelpCircle, Info, Loader2, MessageSquare, Send } from "lucide-react";
+import { HelpCircle, Info, MessageSquare, Send } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
 import { Alert, AlertDescription } from "../../components/ui/Alert";
@@ -434,7 +434,7 @@ export default function InterviewPrep() {
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         Generating Questions...
                       </>
                     ) : (
@@ -703,8 +703,8 @@ export default function InterviewPrep() {
                 <CardContent>
                   {tipsLoading ? (
                     <div className="flex flex-col items-center justify-center py-12">
-                      <Loader2 className="h-8 w-8 animate-spin text-blue-500 mb-4" />
-                      <p>Loading answer tips...</p>
+                      <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+                      <p className="text-gray-600">Loading answer tips...</p>
                     </div>
                   ) : answerTips ? (
                     <div className="space-y-6">
@@ -838,7 +838,7 @@ export default function InterviewPrep() {
                       >
                         {simulationLoading ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             Analyzing...
                           </>
                         ) : (

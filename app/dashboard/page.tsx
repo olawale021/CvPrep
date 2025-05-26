@@ -34,8 +34,14 @@ export default function Dashboard() {
   if (isLoading || !sessionChecked) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-        <div className="w-12 h-12 border-t-4 border-blue-600 border-solid rounded-full animate-spin mb-4"></div>
-        <p className="text-gray-600">Loading your dashboard...</p>
+        <div className="bg-white rounded-xl shadow-sm p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 mx-auto mb-4 relative">
+            <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Loading Dashboard</h3>
+          <p className="text-gray-600">Setting up your personalized workspace...</p>
+        </div>
       </div>
     );
   }

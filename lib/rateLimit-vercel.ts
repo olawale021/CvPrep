@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from 'next/server';
 
 interface RateLimitConfig {
@@ -23,7 +24,7 @@ const isVercel = process.env.VERCEL === '1';
 const memoryStore = new Map<string, RequestRecord>();
 
 // Vercel KV store (if available)
-let kvStore: any = null;
+let kvStore: { get: (key: string) => Promise<any>; set: (key: string, value: any, options?: { ex: number }) => Promise<void> } | null = null;
 
 // Initialize KV store for Vercel production
 if (isVercel && !isDevelopment) {

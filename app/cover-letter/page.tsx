@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ClipboardCopy, Download, Loader2, Send } from "lucide-react";
+import { Check, ClipboardCopy, Download, Send } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
@@ -161,7 +161,7 @@ export default function CoverLetterGenerator() {
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         Generating...
                       </>
                     ) : (
