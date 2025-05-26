@@ -99,12 +99,12 @@ class ServiceWorkerManager {
   private setupOnlineOfflineListeners(): void {
     window.addEventListener('online', () => {
       this.isOnline = true;
-      this.emit('sw-online');
+      this.emit('sw-online', undefined);
     });
 
     window.addEventListener('offline', () => {
       this.isOnline = false;
-      this.emit('sw-offline');
+      this.emit('sw-offline', undefined);
     });
   }
 
@@ -127,7 +127,7 @@ class ServiceWorkerManager {
         }
       };
 
-      navigator.serviceWorker.controller.postMessage(
+      navigator.serviceWorker.controller!.postMessage(
         { type, payload },
         [messageChannel.port2]
       );
@@ -387,7 +387,6 @@ export const cacheUtils = {
 
 // Export types and utilities
 export { formatBytes };
-export type { ServiceWorkerEvents };
 
 // Import React hooks
     import { useCallback, useEffect, useState } from 'react';

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { vercelRateLimiters } from './lib/rateLimit-vercel';
+import { rateLimiters } from './lib/rateLimit';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -14,19 +14,19 @@ export async function middleware(request: NextRequest) {
   // Determine which rate limiter to use based on the route
   if (pathname.includes('/resume/score') || pathname.includes('/resume/optimize')) {
     // AI-powered endpoints - most restrictive
-    limiter = vercelRateLimiters.ai;
+    limiter = rateLimiters.ai;
   } else if (pathname.includes('/auth/')) {
     // Authentication endpoints
-    limiter = vercelRateLimiters.auth;
+    limiter = rateLimiters.auth;
   } else if (pathname.includes('/upload') || pathname.includes('/file')) {
     // File upload endpoints
-    limiter = vercelRateLimiters.upload;
+    limiter = rateLimiters.upload;
   } else if (pathname.includes('/user/')) {
     // User data endpoints
-    limiter = vercelRateLimiters.user;
+    limiter = rateLimiters.user;
   } else {
     // General API endpoints
-    limiter = vercelRateLimiters.api;
+    limiter = rateLimiters.api;
   }
 
   // Apply rate limiting
