@@ -475,9 +475,9 @@ export default function ScoreResult({
       {/* Add Work Experience Form Modal */}
       {showAddExperienceForm && (
         <AddWorkExperienceForm
-          onSubmit={handleAddWorkExperience}
-          onCancel={handleFormClose}
-          onProceedToScore={handleProceedToScore}
+          onSubmitAction={handleAddWorkExperience}
+          onCancelAction={handleFormClose}
+          onProceedToScoreAction={handleProceedToScore}
           loading={addingExperience}
         />
       )}

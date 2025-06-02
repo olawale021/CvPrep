@@ -11,16 +11,16 @@ interface AddedExperience {
 }
 
 interface AddWorkExperienceFormProps {
-  onSubmit: (data: { jobTitle: string; company: string; achievements: string }) => Promise<AddedExperience>;
-  onCancel: () => void;
-  onProceedToScore: () => void;
+  onSubmitAction: (data: { jobTitle: string; company: string; achievements: string }) => Promise<AddedExperience>;
+  onCancelAction: () => void;
+  onProceedToScoreAction: () => void;
   loading: boolean;
 }
 
 export default function AddWorkExperienceForm({ 
-  onSubmit, 
-  onCancel, 
-  onProceedToScore,
+  onSubmitAction, 
+  onCancelAction, 
+  onProceedToScoreAction,
   loading 
 }: AddWorkExperienceFormProps) {
   const [jobTitle, setJobTitle] = useState("");
@@ -34,12 +34,12 @@ export default function AddWorkExperienceForm({
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
-        onCancel();
+        onCancelAction();
       }, 10000);
       
       return () => clearTimeout(timer);
     }
-  }, [success, onCancel]);
+  }, [success, onCancelAction]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ export default function AddWorkExperienceForm({
     setSubmitting(true);
     
     try {
-      const result = await onSubmit({
+      const result = await onSubmitAction({
         jobTitle: jobTitle.trim(),
         company: company.trim(),
         achievements: achievements.trim()
@@ -65,8 +65,8 @@ export default function AddWorkExperienceForm({
   };
 
   const handleProceedToScore = () => {
-    onProceedToScore();
-    onCancel(); // Close the modal
+    onProceedToScoreAction();
+    onCancelAction(); // Close the modal
   };
 
   if (success && addedExperience) {
@@ -82,7 +82,7 @@ export default function AddWorkExperienceForm({
                 <h2 className="text-lg font-semibold text-gray-900">Experience Added Successfully!</h2>
               </div>
               <button
-                onClick={onCancel}
+                onClick={onCancelAction}
                 className="p-1 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="h-5 w-5 text-gray-500" />
@@ -127,7 +127,7 @@ export default function AddWorkExperienceForm({
                 Proceed to Score Resume
               </Button>
               <Button
-                onClick={onCancel}
+                onClick={onCancelAction}
                 variant="outline"
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
@@ -158,7 +158,7 @@ export default function AddWorkExperienceForm({
               <h2 className="text-lg font-semibold text-gray-900">Add Work Experience</h2>
             </div>
             <button
-              onClick={onCancel}
+              onClick={onCancelAction}
               className="p-1 hover:bg-gray-100 rounded-full transition-colors"
               disabled={isLoading}
             >
@@ -253,7 +253,7 @@ export default function AddWorkExperienceForm({
               </Button>
               <Button
                 type="button"
-                onClick={onCancel}
+                onClick={onCancelAction}
                 disabled={isLoading}
                 variant="outline"
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"

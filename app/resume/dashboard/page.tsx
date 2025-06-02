@@ -386,7 +386,7 @@ export default function ResumeDashboard() {
                 }>
                   <DashboardScoreResult
                     scoreResult={scoreResult}
-                    onStartOver={handleReset}
+                    onStartOverAction={handleReset}
                     showOptimizeButton={!showOptimized}
                     onOptimize={handleOptimizeResume}
                     isOptimizing={loading}

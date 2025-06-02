@@ -7,7 +7,7 @@ import { ResumeScore } from "../../../../lib/resume/scoreResume";
 
 interface DashboardScoreResultProps {
   scoreResult: ResumeScore;
-  onStartOver: () => void;
+  onStartOverAction: () => void;
   showOptimizeButton?: boolean;
   onOptimize?: () => Promise<void>;
   isOptimizing?: boolean;
@@ -15,7 +15,7 @@ interface DashboardScoreResultProps {
 
 export default function DashboardScoreResult({ 
   scoreResult, 
-  onStartOver, 
+  onStartOverAction, 
   showOptimizeButton = false,
   onOptimize,
   isOptimizing = false
@@ -66,7 +66,7 @@ export default function DashboardScoreResult({
           <h2 className="text-lg font-semibold text-black">Resume Analysis</h2>
         </div>
         <button
-          onClick={onStartOver}
+          onClick={onStartOverAction}
           className="flex items-center text-sm text-gray-500 hover:text-gray-700 transition-colors"
         >
           <RefreshCw className="h-4 w-4 mr-1" />
@@ -260,7 +260,7 @@ export default function DashboardScoreResult({
           )}
           
           <Button
-            onClick={onStartOver}
+            onClick={onStartOverAction}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
           >
             <ArrowRight className="h-4 w-4 mr-2" />
