@@ -6,8 +6,10 @@ interface ResumeUploadFormProps {
   jobDescription: string;
   setJobDescription: (description: string) => void;
   isScoring: boolean;
-  fileInputRef: RefObject<HTMLInputElement>;
+  fileInputRef: RefObject<HTMLInputElement | null>;
   onSubmit: (e: FormEvent) => void;
+  submitButtonText?: string;
+  submitButtonIcon?: React.ReactNode;
 }
 
 export default function ResumeUploadForm({
@@ -18,6 +20,8 @@ export default function ResumeUploadForm({
   isScoring,
   fileInputRef,
   onSubmit,
+  submitButtonText = "Score Resume",
+  submitButtonIcon,
 }: ResumeUploadFormProps) {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -72,9 +76,16 @@ export default function ResumeUploadForm({
       <button
         type="submit"
         disabled={isScoring || !file || !jobDescription}
-        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 disabled:cursor-not-allowed"
+        className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 disabled:cursor-not-allowed"
       >
-        {isScoring ? "Scoring..." : "Score Resume"}
+        {isScoring ? (
+          "Processing..."
+        ) : (
+          <>
+            {submitButtonIcon}
+            {submitButtonText}
+          </>
+        )}
       </button>
     </form>
   );

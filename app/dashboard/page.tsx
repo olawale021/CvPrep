@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CheckCircle, Clock, FileText, Lightbulb, Users } from "lucide-react";
+import { CalendarDays, CheckCircle, Clock, FileText, Lightbulb, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -139,14 +139,24 @@ export default function Dashboard() {
           {/* Get Started Section */}
           <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100 mb-6 md:mb-8">
             <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">Get Started</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              <Link href="/resume/dashboard" className="block group">
+                <div className="border border-gray-200 rounded-lg p-4 md:p-5 transition-all duration-200 hover:border-blue-500 hover:shadow-md">
+                  <div className="bg-blue-100 p-2 rounded-lg w-fit mb-2 md:mb-3">
+                    <Sparkles className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
+                  </div>
+                  <h3 className="font-medium text-gray-900 mb-1 md:mb-2 group-hover:text-blue-600 text-sm md:text-base">Resume Dashboard</h3>
+                  <p className="text-xs md:text-sm text-gray-600">Optimize & score your resume in one step.</p>
+                </div>
+              </Link>
+              
               <Link href="/resume/optimize" className="block group">
                 <div className="border border-gray-200 rounded-lg p-4 md:p-5 transition-all duration-200 hover:border-blue-500 hover:shadow-md">
                   <div className="bg-blue-100 p-2 rounded-lg w-fit mb-2 md:mb-3">
                     <FileText className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
                   </div>
-                  <h3 className="font-medium text-gray-900 mb-1 md:mb-2 group-hover:text-blue-600 text-sm md:text-base">Create Resume</h3>
-                  <p className="text-xs md:text-sm text-gray-600">Build an ATS-optimized resume with AI assistance.</p>
+                  <h3 className="font-medium text-gray-900 mb-1 md:mb-2 group-hover:text-blue-600 text-sm md:text-base">Resume Optimizer</h3>
+                  <p className="text-xs md:text-sm text-gray-600">Step-by-step resume optimization process.</p>
                 </div>
               </Link>
               

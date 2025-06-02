@@ -21,5 +21,10 @@ export async function extractTextFromFile(file: Buffer, mimetype: string): Promi
     return value;
   }
   
+  if (mimetype === 'text/plain') {
+    // For plain text files, just convert the buffer to string
+    return file.toString('utf-8');
+  }
+  
   throw new Error('Unsupported file type');
 } 

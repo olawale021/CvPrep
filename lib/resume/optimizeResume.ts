@@ -65,15 +65,28 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
        a) Technical Skills:
           - Return a flat array of individual skills, tools, technologies, and methodologies (NO category prefixes like "Programming Languages:", "Frameworks:", etc.)
           - Only list the skill/technology name, e.g., "Java 11+", "Spring Boot", "Kafka", "AWS", "Docker"
-          - Ensure all technical keywords from the job description are included
-          - IMPORTANT: Always include a well-populated list of technical skills
-          - Generate a complete list of technical skills NECESSARY for this job
-          - Include software, tools, platforms, and methodologies required
+          - CRITICAL: SKILLS should ONLY include actual abilities, tools, technologies, programming languages, software, frameworks, and methodologies
+          - ABSOLUTELY NEVER include ANY licenses, certifications, credentials, or professional qualifications in technical skills
+          - Examples of what SHOULD be in technical skills: "Python", "React", "AWS", "Machine Learning", "Agile", "Docker", "SQL", "JavaScript", "Kubernetes"
+          - Examples of what should NEVER be in technical skills: "Driver's License", "Professional Engineer License", "CPA", "AWS Certified Solutions Architect", "PMP Certified", "CDL License", "Medical License"
+          - WARNING: If you see "License", "Certified", "Certification", or "Credential" anywhere in the text, it does NOT belong in skills
+          - Driver's License specifically belongs in Certifications, NOT in technical skills
+          - Ensure ALL technical keywords from the job description are included
+          - IMPORTANT: Always include a well-populated list of 15-25 technical skills minimum
+          - Generate a complete list of technical skills NECESSARY for this job based on:
+            * Skills mentioned in the job description
+            * Skills that would be required for the work experience shown
+            * Industry-standard tools and technologies for this role
+          - Include software, tools, platforms, frameworks, and methodologies
+          - If the original resume has minimal skills, GENERATE relevant ones based on work experience and job requirements
        
        b) Soft Skills:
-          - List interpersonal and professional skills essential for success in this role
+          - List 8-12 interpersonal and professional skills essential for success in this role
           - Include leadership, communication, or team skills mentioned in the job posting
           - Add relevant traits like problem-solving, adaptability, attention to detail
+          - Base soft skills on the work experience and job requirements
+          - Examples: "Leadership", "Communication", "Problem Solving", "Team Collaboration", "Project Management", "Critical Thinking"
+          - NEVER include licenses, certifications, or credentials here (including Driver's License)
     
     3. WORK EXPERIENCE:
        Keep the original job titles, companies, and dates, but:
@@ -87,12 +100,34 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
     
     4. EDUCATION & CERTIFICATIONS:
        - Keep original education but highlight relevance to the position
+       - For certifications: Include ALL licenses, certifications, and credentials in this section
+       - Professional licenses (e.g., "Professional Engineer License", "CPA License", "Medical License") belong here
+       - Technical certifications (e.g., "AWS Certified Solutions Architect", "Microsoft Azure Certified", "PMP Certification") belong here
+       - Driver's License MUST go here, NEVER in skills
+       - Industry certifications and credentials belong in this section
+       - Any other licenses and professional qualifications belong here
+       - IMPORTANT: These should NEVER appear in the skills sections
     
     5. PROJECTS (if any):
        - For each project, return an object with:
          - title: string
          - description: string
          - technologies: string[] (if available)
+    
+    CRITICAL CATEGORIZATION RULES - FOLLOW THESE STRICTLY:
+    - TECHNICAL SKILLS = ONLY abilities, tools, technologies, software, programming languages, frameworks, methodologies
+    - SOFT SKILLS = ONLY interpersonal and professional abilities like communication, leadership, problem-solving
+    - CERTIFICATIONS = ALL licenses, certifications, credentials, professional qualifications, any "Certified X" or "Licensed X"
+    - MANDATORY RULE: Driver's License ALWAYS goes in Certifications, NEVER in Skills
+    - MANDATORY RULE: If something contains "License", "Certified", "Certification", or "Credential", it goes in Certifications, NOT Skills
+    - MANDATORY RULE: Technical skills should be the actual technology/tool name (e.g., "AWS", "Python") not the certification (e.g., "AWS Certified")
+    - DOUBLE CHECK: Before adding anything to technical skills, ask "Is this a license or certification?" If yes, put it in Certifications
+    
+    IMPORTANT FOR SKILLS: If the original resume has few or no skills listed, you MUST generate comprehensive technical and soft skills based on:
+    - The work experience and roles held
+    - The job description requirements
+    - Industry standards for similar positions
+    - Skills that would logically be needed for the accomplishments described
     
     Resume Text:
     ${resumeText}
@@ -110,6 +145,18 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
     
     Return the optimized resume in plain text format, maintaining professional formatting.
     Also return a JSON object with the structured data for each section.
+    For the JSON structure, use this format:
+    {
+      "summary": "professional summary...",
+      "skills": {
+        "technical_skills": ["skill1", "skill2", ...],
+        "soft_skills": ["skill1", "skill2", ...]
+      },
+      "work_experience": [...],
+      "education": [...],
+      "certifications": [...],
+      "projects": [...]
+    }
     `;
     
     // Enhanced response with the more powerful model

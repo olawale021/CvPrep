@@ -100,10 +100,16 @@ export async function structure_resume(text: string): Promise<StructuredResume> 
     Convert this resume into a structured JSON format with the following fields:
     - Summary: A brief professional summary
     - Work Experience: Array of work experiences, each with {company, role, date_range, accomplishments}
-    - Technical Skills: Array of professional skills
+    - Technical Skills: Array of professional skills (DO NOT include licenses, certifications, or credentials here)
     - Education: Array of education entries, each with {institution, degree, graduation_date}
-    - Certifications: Array of certifications or licenses
+    - Certifications: Array of certifications, licenses, or credentials (include all licenses here)
     - Projects: Array of project descriptions
+    
+    IMPORTANT INSTRUCTIONS:
+    - Skills should ONLY include actual abilities, tools, technologies, programming languages, and methodologies
+    - Licenses (Professional License, Driver's License, etc.) should go in Certifications, NOT Skills
+    - Certifications and credentials should go in Certifications, NOT Skills
+    - Do NOT mix licenses/certifications with skills
     
     Parse from these resume sections:
     ${JSON.stringify(sections, null, 2)}
@@ -131,7 +137,7 @@ export async function structure_resume(text: string): Promise<StructuredResume> 
         }
       ],
       
-      "Certifications": ["Certification 1", "Certification 2", "..."],
+      "Certifications": ["Certification 1", "License 1", "Credential 1", "..."],
       
       "Projects": ["Project 1", "Project 2", "..."]
     }
@@ -217,6 +223,20 @@ export async function extract_skills_from_text(text: string): Promise<string[]> 
     
     const prompt = `
     Extract all professional skills from this resume text. Include both hard skills (technical) and soft skills.
+    
+    IMPORTANT: Only extract actual SKILLS, not licenses, certifications, or credentials.
+    
+    Include:
+    - Technical skills (programming languages, software, tools, technologies)
+    - Methodologies and frameworks  
+    - Soft skills (communication, leadership, problem-solving)
+    - Professional abilities and competencies
+    
+    Exclude:
+    - Licenses (Professional License, Driver's License, etc.)
+    - Certifications (Certified X, PMP, etc.)
+    - Credentials and degrees
+    - Awards and recognitions
     
     For each skill:
     1. Convert to professional resume format (e.g., "make time for others" → "supportiveness" or "active listening")

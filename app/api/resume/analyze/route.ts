@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { extractContactDetails } from '../../../../lib/resume/extractContactDetails';
 import { extractTextFromFile } from '../../../../lib/resume/fileParser';
-import { segment_resume_sections, structure_resume } from '../../../../lib/resume/resumeParser';
+import { structure_resume } from '../../../../lib/resume/resumeParser';
 
 export const config = {
   api: {
@@ -9,21 +9,67 @@ export const config = {
   },
 };
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const formData = await req.formData();
+    const formData = await request.formData();
     const file = formData.get('file') as File;
-    if (!file) throw new Error('No file uploaded');
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const mimetype = file.type;
-    const text = await extractTextFromFile(buffer, mimetype);
-    const structured_resume = await structure_resume(text);
-    const contact_details = await extractContactDetails(text);
-    const segments = await segment_resume_sections(text);
-    return NextResponse.json({ text, structured_resume, contact_details, segments });
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: errorMessage }, { status: 400 });
+    const jobDescription = formData.get('job') as string;
+
+    if (!file) {
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    if (!jobDescription) {
+      return NextResponse.json({ error: 'No job description provided' }, { status: 400 });
+    }
+
+    // Convert file to buffer
+    const buffer = Buffer.from(await file.arrayBuffer());
+    
+    // Extract text from the file
+    const resumeText = await extractTextFromFile(buffer, file.type);
+    
+    // Structure the resume (analyze without optimization)
+    const structuredResume = await structure_resume(resumeText);
+    
+    // Extract contact details
+    const contactDetails = await extractContactDetails(resumeText);
+    
+    // Use only the skills that were actually found in the resume (no generation during analysis)
+    const technicalSkills = structuredResume["Technical Skills"] || [];
+    
+    // Convert to the format expected by the frontend
+    const analyzedResume = {
+      summary: structuredResume.Summary || "",
+      contact_details: contactDetails,
+      work_experience: structuredResume["Work Experience"]?.map(exp => ({
+        company: exp.company,
+        title: exp.role,
+        dates: exp.date_range,
+        accomplishments: exp.accomplishments
+      })) || [],
+      skills: {
+        technical_skills: technicalSkills
+      },
+      education: structuredResume.Education?.map(edu => ({
+        degree: edu.degree,
+        school: edu.institution,
+        dates: edu.graduation_date
+      })) || [],
+      certifications: structuredResume.Certifications || [],
+      projects: structuredResume.Projects?.map(project => ({
+        name: project,
+        description: project
+      })) || []
+    };
+    
+    return NextResponse.json(analyzedResume);
+    
+  } catch (error) {
+    console.error('ANALYZE API Error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to analyze resume' },
+      { status: 500 }
+    );
   }
 } 

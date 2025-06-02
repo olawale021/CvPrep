@@ -14,6 +14,28 @@ import { usePdfGenerator } from "./hooks/usePdfGenerator";
 import { useResumeOptimizer } from "./hooks/useResumeOptimizer";
 import { ResumeData } from "./types";
 
+interface UpdatedResumeData {
+  success: boolean;
+  message: string;
+  updatedResume: unknown;
+  addedExperience: unknown;
+  summary: string;
+  skills: {
+    technical_skills?: string[];
+    [key: string]: string[] | undefined;
+  };
+  work_experience: unknown[];
+  education: unknown[];
+  certifications: string[];
+  projects: unknown[];
+  contact_details: {
+    name: string;
+    email: string;
+    phone_number: string;
+    location: string;
+  };
+}
+
 export default function OptimizeResume() {
   const {
     file,
@@ -33,11 +55,10 @@ export default function OptimizeResume() {
     handleOptimize,
   } = useResumeOptimizer();
 
-  const { isPdfGenerating, downloadPdf, setIsPdfGenerating, error: pdfError } = usePdfGenerator();
+  const { isPdfGenerating, downloadPdf } = usePdfGenerator();
 
   const handleDownloadPdf = async (editableResume?: ResumeData) => {
     if (response && resumeResponse) {
-      setIsPdfGenerating(true);
       try {
         // Create a deep copy and ensure all required fields exist
         const safeResponse = {
@@ -64,10 +85,19 @@ export default function OptimizeResume() {
         await downloadPdf(mergedData, resumeResponse);
       } catch (error) {
         console.error("Error generating PDF:", error);
-      } finally {
-        setIsPdfGenerating(false);
       }
     }
+  };
+
+  const handleWorkExperienceAdded = (updatedResumeData: UpdatedResumeData) => {
+    // Clear the score result to allow re-scoring with updated resume
+    setScoreResult(null);
+    
+    // Show a success message
+    console.log('Work experience added successfully:', updatedResumeData.message);
+    
+    // Note: The user will need to re-upload and score the resume with the new experience
+    // The AddWorkExperienceForm component will handle showing the success state and instructions
   };
 
   return (
@@ -116,6 +146,9 @@ export default function OptimizeResume() {
                       handleOptimize={handleOptimize}
                       loading={loading}
                       setScoreResult={setScoreResult}
+                      file={file}
+                      jobDescription={jobDescription}
+                      onWorkExperienceAdded={handleWorkExperienceAdded}
                     />
                   </ErrorBoundary>
                 </div>
@@ -161,7 +194,6 @@ export default function OptimizeResume() {
           </div>
           
           {error && <ErrorMessage message={error} className="mt-4" />}
-          {pdfError && <ErrorMessage message={pdfError} className="mt-4" />}
         </div>
       </div>
     </div>
