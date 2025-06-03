@@ -185,9 +185,16 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
         { role: 'user', content: prompt }
       ],
       temperature: 0.3,
+    }, {
+      timeout: 90000, // 90 seconds timeout for Vercel
     });
     
     const content = response.choices[0].message.content || '';
+    
+    // Validate that we got actual content
+    if (!content || content.trim().length < 100) {
+      throw new Error('OpenAI returned insufficient content for optimization');
+    }
     
     // Extract structured data if available (JSON content)
     let structuredData = {};

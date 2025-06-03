@@ -33,13 +33,24 @@ export const config = {
 };
 
 export async function POST(req: NextRequest) {
+  const startTime = Date.now();
+  
   try {
+      console.log('Optimize API: Request started');
+      
       const formData = await req.formData();
       const file = formData.get('file') as File;
       if (!file) throw new Error('No file uploaded');
       
       const job = formData.get('job') as string || '';
       if (!job) throw new Error('No job description provided');
+      
+      console.log('Optimize API: File and job validation passed', {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        jobLength: job.length
+      });
       
       // Validate file type
       const allowedTypes = ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
@@ -59,6 +70,8 @@ export async function POST(req: NextRequest) {
       const buffer = Buffer.from(arrayBuffer);
       const mimetype = file.type;
       
+      console.log('Optimize API: File processing started');
+      
       // Extract text from the resume file
       const text = await extractTextFromFile(buffer, mimetype);
 
@@ -66,15 +79,37 @@ export async function POST(req: NextRequest) {
         throw new Error('Could not extract sufficient text from the file. Please ensure the file contains readable text.');
       }
       
+      console.log('Optimize API: Text extraction completed', {
+        textLength: text.length,
+        elapsedTime: Date.now() - startTime
+      });
+      
       // Structure the resume for better optimization
       const structuredResume = await structure_resume(text);
+      
+      console.log('Optimize API: Resume structuring completed', {
+        hasStructure: !!structuredResume,
+        elapsedTime: Date.now() - startTime
+      });
 
       
       // Optimize the resume using both text and structured data
+      console.log('Optimize API: Starting optimization');
       const optimized = await optimizeResume(text, job, structuredResume);
     
-    // Log the optimized resume data for debugging
+    console.log('Optimize API: Optimization completed', {
+      hasOptimized: !!optimized,
+      hasSummary: !!optimized?.summary,
+      hasSkills: !!optimized?.skills,
+      hasWorkExperience: !!optimized?.work_experience,
+      elapsedTime: Date.now() - startTime
+    });
 
+    
+    // Validate optimization result
+    if (!optimized || typeof optimized !== 'object') {
+      throw new Error('Optimization failed: Invalid response from AI service');
+    }
     
     // Typecast the optimized result to a more specific type
     const optimizedWithCapitalKeys = optimized as ExtendedOptimizedResume;
@@ -177,21 +212,33 @@ export async function POST(req: NextRequest) {
       projects: processedProjects
     };
     
-    // Sample of data returned from each section
-    if (responseData.skills) {
-
-    }
-    
-    if (responseData.work_experience && responseData.work_experience.length > 0) {
-
-    }
-    
+    console.log('Optimize API: Response data prepared', {
+      hasSummary: !!responseData.summary,
+      hasSkills: !!responseData.skills?.technical_skills?.length,
+      hasWorkExperience: !!responseData.work_experience?.length,
+      hasProjects: !!responseData.projects?.length,
+      summaryPreview: responseData.summary?.substring(0, 100),
+      elapsedTime: Date.now() - startTime
+    });
 
     
     return NextResponse.json(responseData);
   } catch (error: unknown) {
-    console.error('Optimize API error:', error);
+    console.error('Optimize API error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      elapsedTime: Date.now() - startTime
+    });
+    
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    return NextResponse.json({ error: errorMessage }, { status: 400 });
+    
+    // Return more specific error codes
+    const status = errorMessage.includes('timeout') || errorMessage.includes('OpenAI') ? 408 : 
+                  errorMessage.includes('Invalid') || errorMessage.includes('too large') ? 400 : 500;
+    
+    return NextResponse.json({ 
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
+    }, { status });
   }
 } 

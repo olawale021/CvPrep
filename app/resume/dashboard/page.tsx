@@ -86,20 +86,67 @@ export default function ResumeDashboard() {
   const optimizeOperation = useAsyncOperation(
     async (...args: unknown[]) => {
       const formData = args[0] as FormData;
-      const response = await fetch('/api/resume/optimize', {
-        method: 'POST',
-        body: formData
-      });
       
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to optimize resume');
+      // Add timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+      
+      try {
+        const response = await fetch('/api/resume/optimize', {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        const data = await response.json();
+        
+        // Enhanced error handling
+        if (!response.ok) {
+          if (response.status === 408) {
+            throw new Error('Resume optimization timed out. Please try again or use a shorter job description.');
+          } else if (response.status === 400) {
+            throw new Error(data.error || 'Invalid file or job description. Please check your inputs.');
+          } else if (response.status === 500) {
+            throw new Error('Server error during optimization. Please try again in a few moments.');
+          } else {
+            throw new Error(data.error || 'Failed to optimize resume');
+          }
+        }
+        
+        // Validate response data
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid response from optimization service');
+        }
+        
+        // Check if we got meaningful content
+        if (!data.summary && !data.skills && !data.work_experience) {
+          throw new Error('Optimization service returned empty data. Please try again.');
+        }
+        
+        console.log('Optimization successful:', {
+          hasSummary: !!data.summary,
+          hasSkills: !!data.skills?.technical_skills?.length,
+          hasWorkExperience: !!data.work_experience?.length
+        });
+        
+        return data;
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError instanceof Error) {
+          if (fetchError.name === 'AbortError') {
+            throw new Error('Resume optimization timed out. Please try again with a shorter job description.');
+          }
+          throw fetchError;
+        }
+        throw new Error('Network error during optimization. Please check your connection and try again.');
       }
-      
-      return data;
     },
     {
       onSuccess: (data) => {
+        console.log('Optimize operation success:', data);
         setOptimizedResume(data);
         setShowOptimized(true);
         
@@ -107,6 +154,7 @@ export default function ResumeDashboard() {
         scoreOptimizedResume(data);
       },
       onError: (error) => {
+        console.error('Optimize operation error:', error);
         setError(error.message);
       }
     }

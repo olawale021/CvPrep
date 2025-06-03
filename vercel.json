@@ -1,0 +1,20 @@
+{
+  "functions": {
+    "app/api/resume/optimize/route.ts": {
+      "maxDuration": 120
+    },
+    "app/api/resume/analyze/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/resume/score/route.ts": {
+      "maxDuration": 60
+    }
+  },
+  "regions": ["iad1"],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/$1"
+    }
+  ]
+} 
