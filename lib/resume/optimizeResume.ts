@@ -205,11 +205,38 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
                         content.match(/{[\s\S]*}/);
       
       if (jsonMatch) {
-        const jsonContent = jsonMatch[0].replace(/```json\n|```\n|```/g, '');
-        structuredData = JSON.parse(jsonContent);
+        let jsonContent = jsonMatch[0].replace(/```json\n|```\n|```/g, '');
+        
+        // Clean the JSON content before parsing
+        jsonContent = jsonContent.trim();
+        
+        // Try to fix common JSON issues
+        jsonContent = jsonContent.replace(/\n/g, '\\n');
+        jsonContent = jsonContent.replace(/\r/g, '\\r');
+        jsonContent = jsonContent.replace(/\t/g, '\\t');
+        
+        // Validate JSON content before parsing
+        if (!jsonContent || jsonContent.length < 10) {
+          console.warn("JSON content too short or empty:", jsonContent.length);
+        } else {
+          const parsed = JSON.parse(jsonContent);
+          
+          // Validate the parsed result
+          if (typeof parsed === 'object' && parsed !== null) {
+            structuredData = parsed;
+          } else {
+            console.warn("Parsed JSON is not a valid object:", typeof parsed);
+          }
+        }
+      } else {
+        console.warn("No JSON content found in OpenAI response");
       }
     } catch (parseError) {
-      console.error("Failed to parse structured data:", parseError);
+      console.error("Failed to parse structured data:", {
+        error: parseError instanceof Error ? parseError.message : 'Unknown parse error',
+        position: parseError instanceof SyntaxError && 'position' in parseError ? parseError.position : 'unknown',
+        contentPreview: content.substring(0, 1000) + '...' // First 1000 chars for debugging
+      });
     }
     
     // Extract the plain text resume content

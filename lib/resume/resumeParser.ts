@@ -33,11 +33,16 @@ export interface StructuredResume {
  */
 export async function segment_resume_sections(text: string): Promise<Record<string, string>> {
   if (!openai) {
-
     return { "Full Resume": text };
   }
   
   try {
+    // Truncate extremely long text to prevent JSON parsing issues
+    const maxLength = 15000; // 15k characters should be sufficient for most resumes
+    const truncatedText = text.length > maxLength 
+      ? text.substring(0, maxLength) + "...\n[Text truncated for processing]"
+      : text;
+    
     const prompt = `
     Identify all distinct sections in this resume and extract each section's content.
     
@@ -46,32 +51,63 @@ export async function segment_resume_sections(text: string): Promise<Record<stri
     2. Extract the entire section's content
     
     Return as JSON with section titles as keys and section content as values.
+    Make sure to properly escape all JSON strings and avoid unterminated strings.
     
     Resume:
-    ${text}
+    ${truncatedText}
     `;
 
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
-        { role: 'system', content: 'You are a resume section extractor.' },
+        { role: 'system', content: 'You are a resume section extractor. Always return valid JSON with properly escaped strings.' },
         { role: 'user', content: prompt }
       ],
       temperature: 0.1,
       response_format: { type: "json_object" }
     });
 
-    // Try to parse the result
+    // Try to parse the result with better error handling
     try {
       const content = response.choices[0].message.content || '';
-      return JSON.parse(content);
+      
+      // Validate that we have content
+      if (!content.trim()) {
+        console.warn("Empty response from OpenAI for resume segmentation");
+        return { "Full Resume": text };
+      }
+      
+      // Clean the content before parsing
+      let cleanContent = content.trim();
+      
+      // Remove any potential markdown formatting
+      cleanContent = cleanContent.replace(/```json\n?|```\n?/g, '');
+      
+      // Try to fix common JSON issues
+      cleanContent = cleanContent.replace(/\n/g, '\\n');
+      cleanContent = cleanContent.replace(/\r/g, '\\r');
+      cleanContent = cleanContent.replace(/\t/g, '\\t');
+      
+      // Attempt to parse
+      const parsed = JSON.parse(cleanContent);
+      
+      // Validate the result is an object
+      if (typeof parsed !== 'object' || parsed === null) {
+        console.warn("Invalid parsed result from OpenAI:", typeof parsed);
+        return { "Full Resume": text };
+      }
+      
+      return parsed;
     } catch (parseError) {
-      console.error("Failed to parse resume segmentation:", parseError);
+      console.error("Failed to parse resume segmentation:", {
+        error: parseError instanceof Error ? parseError.message : 'Unknown parse error',
+        content: response.choices[0].message.content?.substring(0, 500) + '...' // First 500 chars for debugging
+      });
       // Return a basic object with the full text
       return { "Full Resume": text };
     }
   } catch (e) {
-    console.error("Resume segmentation error:", e);
+    console.error("Resume segmentation error:", e instanceof Error ? e.message : 'Unknown error');
     return { "Full Resume": text };
   }
 }
@@ -96,6 +132,16 @@ export async function structure_resume(text: string): Promise<StructuredResume> 
     // First segment the resume into sections
     const sections = await segment_resume_sections(text);
     
+    // Ensure we have valid sections data and truncate if necessary
+    let sectionsData = sections;
+    const sectionsString = JSON.stringify(sections, null, 2);
+    const maxSectionsLength = 10000;
+    
+    if (sectionsString.length > maxSectionsLength) {
+      console.warn("Sections data too large, using full resume text instead");
+      sectionsData = { "Full Resume": text.substring(0, 8000) + "...\n[Text truncated for processing]" };
+    }
+    
     const prompt = `
     Convert this resume into a structured JSON format with the following fields:
     - Summary: A brief professional summary
@@ -112,7 +158,7 @@ export async function structure_resume(text: string): Promise<StructuredResume> 
     - Do NOT mix licenses/certifications with skills
     
     Parse from these resume sections:
-    ${JSON.stringify(sections, null, 2)}
+    ${JSON.stringify(sectionsData, null, 2)}
     
     Follow this exact structure:
     {
@@ -161,9 +207,61 @@ export async function structure_resume(text: string): Promise<StructuredResume> 
 
     try {
       const content = response.choices[0].message.content || '';
-      return JSON.parse(content);
+      
+      // Validate that we have content
+      if (!content.trim()) {
+        console.warn("Empty response from OpenAI for resume structuring");
+        return { 
+          Summary: "",
+          "Work Experience": [],
+          "Technical Skills": [],
+          Education: [],
+          Certifications: [],
+          Projects: []
+        };
+      }
+      
+      // Clean the content before parsing
+      let cleanContent = content.trim();
+      
+      // Remove any potential markdown formatting
+      cleanContent = cleanContent.replace(/```json\n?|```\n?/g, '');
+      
+      // Try to fix common JSON issues
+      cleanContent = cleanContent.replace(/\n/g, '\\n');
+      cleanContent = cleanContent.replace(/\r/g, '\\r');
+      cleanContent = cleanContent.replace(/\t/g, '\\t');
+      
+      // Attempt to parse
+      const parsed = JSON.parse(cleanContent);
+      
+      // Validate the result has the expected structure
+      if (typeof parsed !== 'object' || parsed === null) {
+        console.warn("Invalid parsed result from OpenAI:", typeof parsed);
+        return { 
+          Summary: "",
+          "Work Experience": [],
+          "Technical Skills": [],
+          Education: [],
+          Certifications: [],
+          Projects: []
+        };
+      }
+      
+      // Ensure all required fields exist with proper defaults
+      return {
+        Summary: parsed.Summary || "",
+        "Work Experience": Array.isArray(parsed["Work Experience"]) ? parsed["Work Experience"] : [],
+        "Technical Skills": Array.isArray(parsed["Technical Skills"]) ? parsed["Technical Skills"] : [],
+        Education: Array.isArray(parsed.Education) ? parsed.Education : [],
+        Certifications: Array.isArray(parsed.Certifications) ? parsed.Certifications : [],
+        Projects: Array.isArray(parsed.Projects) ? parsed.Projects : []
+      };
     } catch (parseError) {
-      console.error("Failed to parse structured resume:", parseError);
+      console.error("Failed to parse structured resume:", {
+        error: parseError instanceof Error ? parseError.message : 'Unknown parse error',
+        content: response.choices[0].message.content?.substring(0, 500) + '...' // First 500 chars for debugging
+      });
       return { 
         Summary: "",
         "Work Experience": [],

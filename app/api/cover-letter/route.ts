@@ -1,23 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-import { extractTextFromFile } from '../../../lib/resume/fileParser';
-import { extract_job_requirements } from '../../../lib/resume/jobParser';
-import { structure_resume } from '../../../lib/resume/resumeParser';
-
-// Initialize OpenAI client
-const openaiApiKey = process.env.OPENAI_API_KEY;
-let openai: OpenAI | null = null;
-if (openaiApiKey) {
-  openai = new OpenAI({ apiKey: openaiApiKey });
-}
-
-export interface CoverLetterResponse {
-  cover_letter: string;
-  created_at: string;
-  word_count: number;
-  is_tailored: boolean;
-  user_id?: string;
-}
+import { generateCoverLetter } from '../../../lib/resume/coverLetterService';
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,117 +9,36 @@ export async function POST(req: NextRequest) {
     const resumeFile = formData.get('resumeFile') as File | null;
     const userId = formData.get('userId') as string | null;
 
-    if (!jobDescription) {
+    // Validate required fields
+    if (!jobDescription || jobDescription.trim().length === 0) {
       return NextResponse.json(
         { error: 'Job description is required' },
         { status: 400 }
       );
     }
 
-    if (!openai) {
+    if (!resumeText && !resumeFile) {
       return NextResponse.json(
-        { error: 'OpenAI API not configured' },
-        { status: 500 }
-      );
-    }
-
-    // Get resume text either from provided text or by parsing file
-    let resumeData: string;
-    if (resumeText) {
-      resumeData = resumeText;
-    } else if (resumeFile) {
-      const fileBuffer = Buffer.from(await resumeFile.arrayBuffer());
-      resumeData = await extractTextFromFile(fileBuffer, resumeFile.type);
-    } else {
-      return NextResponse.json(
-        { error: 'No resume data provided' },
+        { error: 'Resume data is required (either text or file)' },
         { status: 400 }
       );
     }
 
-    // Extract job requirements for better tailoring
-    const jobRequirements = await extract_job_requirements(jobDescription);
-    
-    // Structure the resume data
-    const structuredResume = await structure_resume(resumeData);
+    // Generate cover letter using the service
+    const result = await generateCoverLetter(
+      jobDescription.trim(),
+      resumeText,
+      resumeFile,
+      userId
+    );
 
-    const prompt = `
-    Create a professional cover letter based on the candidate's resume and the job description.
-    
-    The cover letter should:
-    1. Start with a proper greeting and introduction that mentions the specific position
-    2. Include 2-3 paragraphs highlighting relevant skills and experiences from the resume
-    3. Explain why the candidate is a good fit for this specific role and company
-    4. Include a strong closing paragraph with a call to action
-    5. End with a professional sign-off
-    
-    Make the letter:
-    - Personalized to both the candidate's background and the job requirements
-    - Concise (285-320 words)
-    - Professional in tone
-    - Highlight the candidate's most relevant achievements
-    - Address specific requirements from the job description
-    
-    Resume Data:
-    ${JSON.stringify(structuredResume, null, 2)}
-    
-    Job Description:
-    ${jobDescription}
-    
-    Job Requirements:
-    ${JSON.stringify(jobRequirements, null, 2)}
-    `;
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content: `
-You are an expert cover letter writer. 
-Write cover letters that are:
-- Clear and easy to understand. Use short sentences and simple words.
-- Direct and concise. Get to the point and remove unnecessary words.
-- Honest and real. Don't force friendliness or use hype.
-- Conversational and natural. It's okay to start sentences with "and" or "but."
-- Avoid marketing language, clichés, and AI-giveaway phrases.
-- Use active voice and address the reader directly with "you" and "your."
-- Vary sentence length for rhythm.
-- Don't stress about perfect grammar; lowercase "i" is fine if it fits the style.
-- Focus on what matters for the job and the candidate.
-
-Example:
-Instead of: "This revolutionary product will transform your life."
-Use: "This product can help you."
-
-Instead of: "Let's dive into this game-changing solution."
-Use: "Here's how it works."
-      `.trim()
-        },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0.4
-    });
-
-    // Extract the cover letter text
-    const coverLetterText = response.choices[0].message.content?.trim() || '';
-
-    // Create a structured response
-    const coverLetterResponse: CoverLetterResponse = {
-      cover_letter: coverLetterText,
-      created_at: new Date().toISOString(),
-      word_count: coverLetterText.split(/\s+/).length,
-      is_tailored: true,
-      user_id: userId || undefined
-    };
-
-    return NextResponse.json(coverLetterResponse);
+    return NextResponse.json(result);
   } catch (error) {
-    console.error('Cover Letter Generation Error:', error);
+    console.error('Cover Letter API Error:', error);
     return NextResponse.json(
       {
         error: 'Cover letter generation error',
-        message: 'An error occurred during cover letter generation. Please try again.'
+        message: error instanceof Error ? error.message : 'An error occurred during cover letter generation. Please try again.'
       },
       { status: 500 }
     );
