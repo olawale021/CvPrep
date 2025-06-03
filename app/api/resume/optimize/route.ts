@@ -41,6 +41,17 @@ export async function POST(req: NextRequest) {
       const job = formData.get('job') as string || '';
       if (!job) throw new Error('No job description provided');
       
+      // Validate file type
+      const allowedTypes = ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Invalid file type. Please upload a PDF, DOC, DOCX, or TXT file.');
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File too large. Please upload a file smaller than 5MB.');
+      }
+      
       // Get this from form but don't use it
       formData.get('useOpenAI');
       
@@ -51,6 +62,9 @@ export async function POST(req: NextRequest) {
       // Extract text from the resume file
       const text = await extractTextFromFile(buffer, mimetype);
 
+      if (!text || text.trim().length < 50) {
+        throw new Error('Could not extract sufficient text from the file. Please ensure the file contains readable text.');
+      }
       
       // Structure the resume for better optimization
       const structuredResume = await structure_resume(text);
@@ -117,21 +131,27 @@ export async function POST(req: NextRequest) {
         if (skills.technical_skills) {
           const processedSkills: string[] = [];
           skills.technical_skills.forEach(skill => {
-            // Check if skill contains parentheses with grouped skills
-            const parenthesesMatch = skill.match(/^(.+?)\s*\((.+)\)$/);
-            if (parenthesesMatch) {
-              // Extract individual skills from parentheses
-              const groupedSkills = parenthesesMatch[2];
-              const individualSkills = groupedSkills.split(/[,\s]+/).filter(s => s.trim().length > 0);
-              processedSkills.push(...individualSkills);
-            } else {
-              // Check if skill contains comma-separated values
-              const commaSeparated = skill.split(',').map(s => s.trim()).filter(s => s.length > 0);
-              if (commaSeparated.length > 1) {
-                processedSkills.push(...commaSeparated);
+            try {
+              // Check if skill contains parentheses with grouped skills
+              const parenthesesMatch = skill.match(/^(.+?)\s*\((.+)\)$/);
+              if (parenthesesMatch && parenthesesMatch[2]) {
+                // Extract individual skills from parentheses
+                const groupedSkills = parenthesesMatch[2];
+                const individualSkills = groupedSkills.split(/[,\s]+/).filter(s => s.trim().length > 0);
+                processedSkills.push(...individualSkills);
               } else {
-                processedSkills.push(skill.trim());
+                // Check if skill contains comma-separated values
+                const commaSeparated = skill.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                if (commaSeparated.length > 1) {
+                  processedSkills.push(...commaSeparated);
+                } else {
+                  processedSkills.push(skill.trim());
+                }
               }
+            } catch (regexError) {
+              console.warn('Regex error processing skill:', skill, regexError);
+              // Fallback: just add the skill as-is
+              processedSkills.push(skill.trim());
             }
           });
           
