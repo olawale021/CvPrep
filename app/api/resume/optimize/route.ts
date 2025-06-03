@@ -19,11 +19,11 @@ interface ExtendedOptimizedResume extends OptimizedResume {
     graduation_date: string;
   }>;
   Certifications?: string[];
-  Projects?: string[] | Array<{
-    title?: string;
+  Projects?: Array<{
+    title: string;
     description: string;
     technologies?: string[];
-  }>;
+  }> | string[];
 }
 
 export const config = {
@@ -65,20 +65,96 @@ export async function POST(req: NextRequest) {
     // Typecast the optimized result to a more specific type
     const optimizedWithCapitalKeys = optimized as ExtendedOptimizedResume;
     
+    // Process projects to ensure correct structure
+    let processedProjects: Array<{
+      title: string;
+      name: string; // For backward compatibility
+      description: string;
+      technologies: string[];
+    }> = [];
+    
+    if (optimized.projects) {
+      processedProjects = optimized.projects.map((project, index) => ({
+        title: project.title || `Project ${index + 1}`,
+        name: project.title || `Project ${index + 1}`, // For backward compatibility
+        description: project.description || '',
+        technologies: project.technologies || []
+      }));
+    } else if (optimizedWithCapitalKeys["Projects"]) {
+      // Handle case where Projects might be a string array (from old structure)
+      const projects = optimizedWithCapitalKeys["Projects"];
+      if (Array.isArray(projects)) {
+        processedProjects = projects.map((project, index) => {
+          if (typeof project === 'string') {
+            return {
+              title: `Project ${index + 1}`,
+              name: `Project ${index + 1}`,
+              description: project,
+              technologies: []
+            };
+          } else {
+            return {
+              title: project.title || `Project ${index + 1}`,
+              name: project.title || `Project ${index + 1}`,
+              description: project.description || '',
+              technologies: project.technologies || []
+            };
+          }
+        });
+      }
+    }
+    
     // Create a properly structured response that matches frontend expectations
     const responseData = {
       ...optimized,
-      // Map Technical Skills to skills if needed
-      skills: optimized.skills || (optimizedWithCapitalKeys["Technical Skills"] ? {
-        technical_skills: optimizedWithCapitalKeys["Technical Skills"]
-      } : {}),
+      // Map Technical Skills to skills if needed and process them to ensure individual skills
+      skills: (() => {
+        let skills = optimized.skills || (optimizedWithCapitalKeys["Technical Skills"] ? {
+          technical_skills: optimizedWithCapitalKeys["Technical Skills"]
+        } : {});
+        
+        // Process technical skills to ensure individual skills
+        if (skills.technical_skills) {
+          const processedSkills: string[] = [];
+          skills.technical_skills.forEach(skill => {
+            // Check if skill contains parentheses with grouped skills
+            const parenthesesMatch = skill.match(/^(.+?)\s*\((.+)\)$/);
+            if (parenthesesMatch) {
+              // Extract individual skills from parentheses
+              const groupedSkills = parenthesesMatch[2];
+              const individualSkills = groupedSkills.split(/[,\s]+/).filter(s => s.trim().length > 0);
+              processedSkills.push(...individualSkills);
+            } else {
+              // Check if skill contains comma-separated values
+              const commaSeparated = skill.split(',').map(s => s.trim()).filter(s => s.length > 0);
+              if (commaSeparated.length > 1) {
+                processedSkills.push(...commaSeparated);
+              } else {
+                processedSkills.push(skill.trim());
+              }
+            }
+          });
+          
+          // Remove duplicates and filter out empty/invalid skills
+          const uniqueSkills = [...new Set(processedSkills)]
+            .filter(skill => skill && skill.length > 1 && skill.length < 50)
+            .map(skill => skill.trim());
+            
+          skills = {
+            ...skills,
+            technical_skills: uniqueSkills
+          };
+        }
+        
+        return skills;
+      })(),
       // Ensure work_experience is mapped correctly
       work_experience: optimized.work_experience || optimizedWithCapitalKeys["Work Experience"] || [],
       // Map remaining fields
       summary: optimized.summary || optimizedWithCapitalKeys["Summary"] || "",
       education: optimized.education || optimizedWithCapitalKeys["Education"] || [],
       certifications: optimized.certifications || optimizedWithCapitalKeys["Certifications"] || [],
-      projects: optimized.projects || optimizedWithCapitalKeys["Projects"] || []
+      projects: processedProjects
     };
     
     // Sample of data returned from each section

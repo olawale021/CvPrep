@@ -1,26 +1,25 @@
 "use client";
 
 import {
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    ChevronUp,
-    Download,
-    FileText,
-    FolderClosed,
-    GraduationCap,
-    HelpCircle,
-    Home,
-    LogOut,
-    Menu,
-    MoreVertical,
-    Plus,
-    Settings,
-    Sparkles,
-    Star,
-    Trash2,
-    Users,
-    X
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Download,
+  FileText,
+  FolderClosed,
+  GraduationCap,
+  HelpCircle,
+  Home,
+  LogOut,
+  Menu,
+  MoreVertical,
+  Plus,
+  Settings,
+  Star,
+  Trash2,
+  Users,
+  X
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,11 +28,11 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Resume, deleteResume, getUserResumes, setPrimaryResume } from "../../lib/resumeService";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "./DropdownMenu";
 import { ResumeUploadDialog } from "./ResumeUploadDialog";
 
@@ -106,8 +105,8 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   
   const navLinks = [
     { href: "/dashboard", label: "Home", icon: <Home className="h-5 w-5" /> },
-    { href: "/resume/dashboard", label: "Resume Dashboard", icon: <Sparkles className="h-5 w-5" /> },
-    { href: "/resume/optimize", label: "Resume Optimizer", icon: <FolderClosed className="h-5 w-5" /> },
+    // { href: "/resume/dashboard", label: "Resume Dashboard", icon: <Sparkles className="h-5 w-5" /> },
+    { href: "/resume/dashboard", label: "Resume Optimizer", icon: <FolderClosed className="h-5 w-5" /> },
     { href: "/interview-prep", label: "Interview Prep", icon: <GraduationCap className="h-5 w-5" /> },
     { href: "/cover-letter", label: "Cover Letter", icon: <FileText className="h-5 w-5" /> },
     { href: "/community", label: "Community", icon: <Users className="h-5 w-5" /> },

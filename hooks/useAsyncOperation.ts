@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useOperationLoading } from '../context/LoadingContext';
 
-interface AsyncOperationOptions {
-  onSuccess?: (result: any) => void;
+interface AsyncOperationOptions<T = unknown> {
+  onSuccess?: (result: T) => void;
   onError?: (error: Error) => void;
   showGlobalLoading?: boolean;
   operationKey?: string;
@@ -17,16 +17,15 @@ interface AsyncOperationState<T> {
   progress?: number;
 }
 
-export function useAsyncOperation<T = any>(
-  operation: (...args: any[]) => Promise<T>,
-  options: AsyncOperationOptions = {}
+export function useAsyncOperation<T = unknown>(
+  operation: (...args: unknown[]) => Promise<T>,
+  options: AsyncOperationOptions<T> = {}
 ) {
   const {
     onSuccess,
     onError,
     showGlobalLoading = false,
     operationKey = 'default',
-    successMessage,
     errorMessage
   } = options;
 
@@ -43,7 +42,7 @@ export function useAsyncOperation<T = any>(
     setError: setLoadingError
   } = useOperationLoading(showGlobalLoading ? 'critical' : operationKey);
 
-  const execute = useCallback(async (...args: any[]) => {
+  const execute = useCallback(async (...args: unknown[]) => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       startLoading();
@@ -91,9 +90,9 @@ export function useAsyncOperation<T = any>(
 }
 
 // Specialized hooks for common operations
-export function useApiCall<T = any>(
-  apiCall: (...args: any[]) => Promise<T>,
-  options: AsyncOperationOptions = {}
+export function useApiCall<T = unknown>(
+  apiCall: (...args: unknown[]) => Promise<T>,
+  options: AsyncOperationOptions<T> = {}
 ) {
   return useAsyncOperation(apiCall, {
     ...options,
@@ -102,20 +101,25 @@ export function useApiCall<T = any>(
 }
 
 export function useFileUpload(
-  uploadFunction: (file: File, ...args: any[]) => Promise<any>,
+  uploadFunction: (file: File, ...args: unknown[]) => Promise<unknown>,
   options: AsyncOperationOptions = {}
 ) {
-  return useAsyncOperation(uploadFunction, {
+  const wrappedUploadFunction = (...args: unknown[]) => {
+    const [file, ...restArgs] = args;
+    return uploadFunction(file as File, ...restArgs);
+  };
+
+  return useAsyncOperation(wrappedUploadFunction, {
     ...options,
     operationKey: options.operationKey || 'file-upload',
     showGlobalLoading: true
   });
 }
 
-export function useResumeOperation<T = any>(
-  operation: (...args: any[]) => Promise<T>,
+export function useResumeOperation<T = unknown>(
+  operation: (...args: unknown[]) => Promise<T>,
   operationType: 'scoring' | 'optimizing' | 'generating' | 'analyzing',
-  options: AsyncOperationOptions = {}
+  options: AsyncOperationOptions<T> = {}
 ) {
   return useAsyncOperation(operation, {
     ...options,

@@ -4,6 +4,7 @@ import { FileText, Sparkles } from "lucide-react";
 import React, { FormEvent, useState } from "react";
 import { ErrorBoundary } from "../../../components/ui/ErrorBoundary";
 import Sidebar from "../../../components/ui/Sidebar";
+import { useAsyncOperation } from "../../../hooks/useAsyncOperation";
 import { ResumeScore } from "../../../lib/resume/scoreResume";
 import ErrorMessage from "../optimize/components/ErrorMessage";
 import LoadingState from "../optimize/components/LoadingState";
@@ -17,16 +18,99 @@ import DashboardScoreResult from "./components/DashboardScoreResult";
 export default function ResumeDashboard() {
   const [file, setFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [originalResumeData, setOriginalResumeData] = useState<ResumeData | null>(null);
   const [scoreResult, setScoreResult] = useState<ResumeScore | null>(null);
   const [resumeResponse, setResumeResponse] = useState<ResumeResponse | null>(null);
   const [showOptimized, setShowOptimized] = useState(false);
   const [optimizedResume, setOptimizedResume] = useState<ResumeData | null>(null);
+  const [isScoring, setIsScoring] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const { isPdfGenerating, downloadPdf } = usePdfGenerator();
+
+  // Separate async operations for better UX
+  const analyzeOperation = useAsyncOperation(
+    async (...args: unknown[]) => {
+      const formData = args[0] as FormData;
+      const response = await fetch('/api/resume/analyze', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to analyze resume');
+      }
+      
+      return data;
+    },
+    {
+      onSuccess: (data) => {
+        setOriginalResumeData(data);
+        setResumeResponse(data);
+      },
+      onError: (error) => {
+        setError(error.message);
+      }
+    }
+  );
+
+  const scoreOperation = useAsyncOperation(
+    async (...args: unknown[]) => {
+      const formData = args[0] as FormData;
+      const response = await fetch('/api/resume/score', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to score resume');
+      }
+      
+      return data;
+    },
+    {
+      onSuccess: (data) => {
+        setScoreResult(data);
+        setIsScoring(false);
+      },
+      onError: (error) => {
+        setError(error.message);
+        setIsScoring(false);
+      }
+    }
+  );
+
+  const optimizeOperation = useAsyncOperation(
+    async (...args: unknown[]) => {
+      const formData = args[0] as FormData;
+      const response = await fetch('/api/resume/optimize', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to optimize resume');
+      }
+      
+      return data;
+    },
+    {
+      onSuccess: (data) => {
+        setOptimizedResume(data);
+        setShowOptimized(true);
+        
+        // Score the optimized resume in background
+        scoreOptimizedResume(data);
+      },
+      onError: (error) => {
+        setError(error.message);
+      }
+    }
+  );
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -36,52 +120,52 @@ export default function ResumeDashboard() {
       return;
     }
 
-    setLoading(true);
     setError(null);
     setOriginalResumeData(null);
     setScoreResult(null);
     setShowOptimized(false);
     setOptimizedResume(null);
+    setIsScoring(true);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('job', jobDescription.trim());
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('job', jobDescription.trim());
-
-      // First, analyze the original resume (extract data without optimization)
-      const analyzeResponse = await fetch('/api/resume/analyze', {
-        method: 'POST',
-        body: formData
-      });
-
-      const analyzeData = await analyzeResponse.json();
-
-      if (!analyzeResponse.ok) {
-        throw new Error(analyzeData.error || 'Failed to analyze resume');
-      }
-
-      setOriginalResumeData(analyzeData);
-      setResumeResponse(analyzeData);
-
-      // Then, score the original resume
-      const scoreResponse = await fetch('/api/resume/score', {
-        method: 'POST',
-        body: formData
-      });
-
-      const scoreData = await scoreResponse.json();
-
-      if (!scoreResponse.ok) {
-        throw new Error(scoreData.error || 'Failed to score resume');
-      }
-
-      setScoreResult(scoreData);
-
+      // First, analyze the resume - this shows immediately
+      await analyzeOperation.execute(formData);
+      
+      // Then, score the resume in background - this can load while user sees analyzed resume
+      scoreOperation.execute(formData);
+      
     } catch (err) {
-      console.error('Error processing resume:', err);
+      console.error('Error analyzing resume:', err);
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
-    } finally {
-      setLoading(false);
+      setIsScoring(false);
+    }
+  };
+
+  const scoreOptimizedResume = async (optimizedData: ResumeData) => {
+    if (!jobDescription.trim()) return;
+    
+    setIsScoring(true);
+    setScoreResult(null);
+
+    try {
+      // Create text representation of optimized resume
+      const optimizedResumeText = createResumeText(optimizedData);
+      const optimizedResumeBlob = new Blob([optimizedResumeText], { type: 'text/plain' });
+      const optimizedResumeFile = new File([optimizedResumeBlob], 'optimized_resume.txt', { type: 'text/plain' });
+      
+      const scoreFormData = new FormData();
+      scoreFormData.append('file', optimizedResumeFile);
+      scoreFormData.append('job', jobDescription.trim());
+
+      await scoreOperation.execute(scoreFormData);
+    } catch (err) {
+      console.error('Error scoring optimized resume:', err);
+      setError(err instanceof Error ? err.message : 'Failed to score optimized resume');
+      setIsScoring(false);
     }
   };
 
@@ -91,57 +175,13 @@ export default function ResumeDashboard() {
       return;
     }
 
-    setLoading(true);
     setError(null);
 
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('job', jobDescription.trim());
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('job', jobDescription.trim());
 
-      // Optimize the resume
-      const optimizeResponse = await fetch('/api/resume/optimize', {
-        method: 'POST',
-        body: formData
-      });
-
-      const optimizeData = await optimizeResponse.json();
-
-      if (!optimizeResponse.ok) {
-        throw new Error(optimizeData.error || 'Failed to optimize resume');
-      }
-
-      setOptimizedResume(optimizeData);
-      setShowOptimized(true);
-
-      // Score the optimized resume
-      const optimizedResumeText = createResumeText(optimizeData);
-      const optimizedResumeBlob = new Blob([optimizedResumeText], { type: 'text/plain' });
-      const optimizedResumeFile = new File([optimizedResumeBlob], 'optimized_resume.txt', { type: 'text/plain' });
-      
-      const scoreFormData = new FormData();
-      scoreFormData.append('file', optimizedResumeFile);
-      scoreFormData.append('job', jobDescription.trim());
-
-      const scoreResponse = await fetch('/api/resume/score', {
-        method: 'POST',
-        body: scoreFormData
-      });
-
-      const scoreData = await scoreResponse.json();
-
-      if (!scoreResponse.ok) {
-        throw new Error(scoreData.error || 'Failed to score optimized resume');
-      }
-
-      setScoreResult(scoreData);
-
-    } catch (err) {
-      console.error('Error optimizing resume:', err);
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
-    } finally {
-      setLoading(false);
-    }
+    await optimizeOperation.execute(formData);
   };
 
   const handleDownloadPdf = async (editableResume?: ResumeData) => {
@@ -183,12 +223,17 @@ export default function ResumeDashboard() {
     setScoreResult(null);
     setShowOptimized(false);
     setError(null);
+    setIsScoring(false);
+    analyzeOperation.reset();
+    scoreOperation.reset();
+    optimizeOperation.reset();
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
   const currentResumeData = showOptimized ? optimizedResume : originalResumeData;
+  const isLoading = analyzeOperation.isLoading || optimizeOperation.isLoading;
 
   // Helper function to create resume text from optimized data
   const createResumeText = (resumeData: ResumeData): string => {
@@ -294,7 +339,7 @@ export default function ResumeDashboard() {
           </div>
           
           {/* Upload Form */}
-          {!currentResumeData && !loading && (
+          {!currentResumeData && !isLoading && (
             <div className="max-w-2xl mx-auto mb-8">
               <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="p-6">
@@ -320,15 +365,15 @@ export default function ResumeDashboard() {
             </div>
           )}
 
-          {/* Loading State */}
-          {loading && (
+          {/* Loading State - Only show when analyzing */}
+          {isLoading && !currentResumeData && (
             <div className="max-w-4xl mx-auto">
               <LoadingState type="optimizing" />
             </div>
           )}
 
           {/* Analysis Results Layout */}
-          {currentResumeData && scoreResult && !loading && (
+          {currentResumeData && (
             <div className="flex flex-col lg:flex-row lg:gap-6 min-h-[calc(100vh-200px)]">
               {/* Left Column - Resume Data */}
               <div className="w-full lg:w-[60%] mb-6 lg:mb-0">
@@ -339,16 +384,38 @@ export default function ResumeDashboard() {
                       <h2 className="text-lg font-semibold text-black">
                         {showOptimized ? "Optimized Resume" : "Current Resume Analysis"}
                       </h2>
+                      {showOptimized && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                          ✨ Optimized
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center space-x-2">
+                      {optimizedResume && originalResumeData && (
+                        <button
+                          onClick={() => setShowOptimized(!showOptimized)}
+                          className="text-sm text-blue-600 hover:text-blue-800 transition-colors border border-blue-200 px-3 py-1 rounded-md hover:bg-blue-50"
+                        >
+                          {showOptimized ? "View Original" : "View Optimized"}
+                        </button>
+                      )}
                       {!showOptimized && (
                         <button
                           onClick={handleOptimizeResume}
-                          disabled={loading}
+                          disabled={optimizeOperation.isLoading}
                           className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors disabled:bg-blue-300"
                         >
-                          <Sparkles className="h-4 w-4 mr-1 inline" />
-                          Optimize Resume
+                          {optimizeOperation.isLoading ? (
+                            <>
+                              <div className="h-4 w-4 mr-1 inline animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                              Optimizing...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-4 w-4 mr-1 inline" />
+                              Optimize Resume
+                            </>
+                          )}
                         </button>
                       )}
                       <button
@@ -359,13 +426,21 @@ export default function ResumeDashboard() {
                       </button>
                     </div>
                   </div>
+                  {optimizeOperation.isLoading && (
+                    <div className="p-4 bg-blue-50 border-b">
+                      <div className="flex items-center justify-center space-x-3">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                        <span className="text-blue-800 text-sm">Optimizing your resume...</span>
+                      </div>
+                    </div>
+                  )}
                   <div className="p-6 overflow-y-auto max-h-[calc(100vh-300px)]">
                     <ErrorBoundary fallback={
                       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                         <p className="text-red-800">Error displaying resume. Please try again.</p>
                       </div>
                     }>
-                      <ResumeEditProvider initialData={currentResumeData}>
+                      <ResumeEditProvider key={showOptimized ? 'optimized' : 'analyzed'} initialData={currentResumeData}>
                         <OptimizedResume
                           response={currentResumeData}
                           handleDownloadPdf={handleDownloadPdf}
@@ -384,20 +459,40 @@ export default function ResumeDashboard() {
                     <p className="text-red-800">Error displaying score results.</p>
                   </div>
                 }>
-                  <DashboardScoreResult
-                    scoreResult={scoreResult}
-                    onStartOverAction={handleReset}
-                    showOptimizeButton={!showOptimized}
-                    onOptimize={handleOptimizeResume}
-                    isOptimizing={loading}
-                  />
+                  {isScoring && !scoreResult ? (
+                    <div className="bg-white rounded-xl shadow-sm p-6">
+                      <div className="flex items-center justify-center space-x-3 mb-4">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                        <span className="text-gray-600">Scoring your resume...</span>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
+                      </div>
+                    </div>
+                  ) : scoreResult ? (
+                    <DashboardScoreResult
+                      scoreResult={scoreResult}
+                      onStartOverAction={handleReset}
+                      showOptimizeButton={!showOptimized}
+                      onOptimize={handleOptimizeResume}
+                      isOptimizing={optimizeOperation.isLoading}
+                    />
+                  ) : (
+                    <div className="bg-white rounded-xl shadow-sm p-6">
+                      <div className="text-center text-gray-500">
+                        Score will appear here once analysis is complete
+                      </div>
+                    </div>
+                  )}
                 </ErrorBoundary>
               </div>
             </div>
           )}
 
           {/* Empty State */}
-          {!currentResumeData && !loading && (
+          {!currentResumeData && !isLoading && (
             <div className="max-w-2xl mx-auto text-center py-12">
               <div className="p-4 bg-blue-50 rounded-full mb-6 w-fit mx-auto">
                 <Sparkles className="h-8 w-8 text-blue-500" />

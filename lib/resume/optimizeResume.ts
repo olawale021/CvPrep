@@ -71,14 +71,14 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
           - Examples of what should NEVER be in technical skills: "Driver's License", "Professional Engineer License", "CPA", "AWS Certified Solutions Architect", "PMP Certified", "CDL License", "Medical License"
           - WARNING: If you see "License", "Certified", "Certification", or "Credential" anywhere in the text, it does NOT belong in skills
           - Driver's License specifically belongs in Certifications, NOT in technical skills
-          - Ensure ALL technical keywords from the job description are included
-          - IMPORTANT: Always include a well-populated list of 15-25 technical skills minimum
-          - Generate a complete list of technical skills NECESSARY for this job based on:
-            * Skills mentioned in the job description
-            * Skills that would be required for the work experience shown
-            * Industry-standard tools and technologies for this role
-          - Include software, tools, platforms, frameworks, and methodologies
-          - If the original resume has minimal skills, GENERATE relevant ones based on work experience and job requirements
+          - MAXIMUM 12 TECHNICAL SKILLS - Focus on the MOST RELEVANT skills for this specific job
+          - Prioritize skills in this order:
+            1. Skills explicitly mentioned in the job description
+            2. Skills from the candidate's work experience that match job requirements
+            3. Industry-standard tools and technologies critical for this specific role
+          - Quality over quantity - choose the 12 most impactful skills that make the candidate appear perfectly qualified
+          - Include software, tools, platforms, frameworks, and methodologies most relevant to the position
+          - If the original resume has skills, prioritize those that are relevant, then add job-specific ones to reach 12 maximum
        
        b) Soft Skills:
           - List 8-12 interpersonal and professional skills essential for success in this role
@@ -103,25 +103,40 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
        - For certifications: Include ALL licenses, certifications, and credentials in this section
        - Professional licenses (e.g., "Professional Engineer License", "CPA License", "Medical License") belong here
        - Technical certifications (e.g., "AWS Certified Solutions Architect", "Microsoft Azure Certified", "PMP Certification") belong here
-       - Driver's License MUST go here, NEVER in skills
+       - Driver's License: ONLY include if:
+         * It is explicitly mentioned in the job description as required/preferred, OR
+         * It is already present in the candidate's original resume
+         * Do NOT add Driver's License if it's not job-relevant and not in the original resume
        - Industry certifications and credentials belong in this section
        - Any other licenses and professional qualifications belong here
        - IMPORTANT: These should NEVER appear in the skills sections
     
-    5. PROJECTS (if any):
-       - For each project, return an object with:
-         - title: string
-         - description: string
-         - technologies: string[] (if available)
+    5. PROJECTS (IMPORTANT - always include if present in original resume):
+       - MANDATORY: If the original resume contains ANY projects, they MUST be included in the optimized version
+       - For each project, enhance and optimize the content:
+         - title: Keep original project title or improve it to be more descriptive
+         - description: Rewrite description to highlight relevant skills and achievements for the target job
+         - technologies: List all technologies used, ensuring they align with job requirements
+       - Add metrics and quantifiable results where possible
+       - Make project descriptions job-relevant by emphasizing skills that match the job posting
+       - Return projects in this JSON format:
+         [
+           {
+             "title": "enhanced project title",
+             "description": "enhanced description with job-relevant details and achievements",
+             "technologies": ["tech1", "tech2", "tech3"]
+           }
+         ]
     
     CRITICAL CATEGORIZATION RULES - FOLLOW THESE STRICTLY:
-    - TECHNICAL SKILLS = ONLY abilities, tools, technologies, software, programming languages, frameworks, methodologies
+    - TECHNICAL SKILLS = ONLY abilities, tools, technologies, software, programming languages, frameworks, methodologies (MAXIMUM 12 MOST RELEVANT)
     - SOFT SKILLS = ONLY interpersonal and professional abilities like communication, leadership, problem-solving
     - CERTIFICATIONS = ALL licenses, certifications, credentials, professional qualifications, any "Certified X" or "Licensed X"
-    - MANDATORY RULE: Driver's License ALWAYS goes in Certifications, NEVER in Skills
+    - MANDATORY RULE: Driver's License ONLY if explicitly required by job OR already in original resume
     - MANDATORY RULE: If something contains "License", "Certified", "Certification", or "Credential", it goes in Certifications, NOT Skills
     - MANDATORY RULE: Technical skills should be the actual technology/tool name (e.g., "AWS", "Python") not the certification (e.g., "AWS Certified")
     - DOUBLE CHECK: Before adding anything to technical skills, ask "Is this a license or certification?" If yes, put it in Certifications
+    - SKILL PRIORITIZATION: Choose only the 12 most job-relevant technical skills that make the strongest impact
     
     IMPORTANT FOR SKILLS: If the original resume has few or no skills listed, you MUST generate comprehensive technical and soft skills based on:
     - The work experience and roles held

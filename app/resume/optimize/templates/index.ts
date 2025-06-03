@@ -3,11 +3,13 @@ import { ResumeTemplate } from '../hooks/usePdfGenerator';
 import { ResumeData, ResumeResponse } from "../types";
 import { generateClassicTemplate } from './classicTemplate';
 import { generateModernTemplate } from './modernTemplate';
+import { generateProfessionalTemplate } from './professionalTemplate';
 
 // Template registry - mapping template names to their generator functions
 const templateRegistry: Record<ResumeTemplate, (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => Promise<jsPDF>> = {
   classic: generateClassicTemplate,
-  modern: generateModernTemplate
+  modern: generateModernTemplate,
+  professional: generateProfessionalTemplate
 };
 
 /**

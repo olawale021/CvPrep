@@ -26,6 +26,11 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
       name: 'Modern',
       description: 'Contemporary design with side column',
     },
+    {
+      id: 'professional',
+      name: 'Professional',
+      description: 'Clean format with horizontal dividers',
+    },
   ];
 
   // const { user } = useUser();
@@ -43,7 +48,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   return (
     <div className="mt-4 mb-6">
       <h3 className="text-base font-medium text-gray-800 mb-3">Template Style</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {templates.map((template) => {
           const isModern = template.id === "modern";
           const locked = isModern && !isPremium;

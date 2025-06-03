@@ -5,7 +5,7 @@ import { ResumeData, ResumeResponse } from "../types";
 import { isTemplateAllowed } from "../utils/templateGuards";
 
 // Type definition for available templates
-export type ResumeTemplate = "classic" | "modern";
+export type ResumeTemplate = "classic" | "modern" | "professional";
 
 /**
  * Hook for PDF generation functionality

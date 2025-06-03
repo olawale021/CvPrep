@@ -6,11 +6,66 @@ import { ResumeData, ResumeResponse } from "../types";
  */
 export const generateClassicTemplate = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => {
   // Extract contact details from the full response
-  const contactDetails = resumeResponse?.contact_details || {};
+  const contactDetails = resumeResponse?.contact_details || 
+                         resumeResponse?.data?.contact_details || 
+                         {};
   const userName = contactDetails.name || "";
   const userEmail = contactDetails.email || "";
-  const userPhone = contactDetails.phone_number || "";
+  const contactDetailsExtended = contactDetails as typeof contactDetails & { phone_number?: string; phone?: string };
+  const userPhone = contactDetailsExtended.phone_number || contactDetailsExtended.phone || "";
   const userLocation = contactDetails.location || "";
+  
+  // Debug logging to understand the data structure
+  // console.log("=== CLASSIC TEMPLATE DEBUG ===");
+  // console.log("resumeResponse:", resumeResponse);
+  // console.log("resumeResponse.data:", resumeResponse?.data);
+  // console.log("resumeResponse.data.contact_details:", resumeResponse?.data?.contact_details);
+  // console.log("contactDetails:", contactDetails);
+  // console.log("userName:", userName);
+  // console.log("resumeData:", resumeData);
+  // console.log("resumeData.contact_details:", resumeData.contact_details);
+  
+  // Try to extract contact info from optimized_text if structured data is missing
+  let extractedName = "";
+  let extractedEmail = "";
+  let extractedPhone = "";
+  let extractedLocation = "";
+  
+  const resumeDataWithText = resumeData as ResumeData & { optimized_text?: string };
+  if (resumeDataWithText.optimized_text && (!userName || !userEmail)) {
+    const text = resumeDataWithText.optimized_text;
+    // console.log("Extracting from optimized_text...");
+    
+    // Extract name (first line in bold)
+    const nameMatch = text.match(/\*\*(.*?)\*\*/);
+    if (nameMatch) {
+      extractedName = nameMatch[1].trim();
+      // console.log("Extracted name:", extractedName);
+    }
+    
+    // Extract email
+    const emailMatch = text.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    if (emailMatch) {
+      extractedEmail = emailMatch[1];
+      // console.log("Extracted email:", extractedEmail);
+    }
+    
+    // Extract phone (UK format or general format)
+    const phoneMatch = text.match(/(\+?\d{2,3}[\s-]?\d{3,4}[\s-]?\d{3,4}[\s-]?\d{3,4}|\d{5}\s?\d{6})/);
+    if (phoneMatch) {
+      extractedPhone = phoneMatch[1];
+      // console.log("Extracted phone:", extractedPhone);
+    }
+    
+    // Extract location (between name and email, before |)
+    const locationMatch = text.match(/\*\*.*?\*\*\s*\n(.*?)\s*\|/);
+    if (locationMatch) {
+      extractedLocation = locationMatch[1].trim();
+      // console.log("Extracted location:", extractedLocation);
+    }
+  }
+  
+  // console.log("===============================");
   
   // Create PDF document
   const pdf = new jsPDF({
@@ -102,41 +157,55 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   const hasEducation = resumeData.education && resumeData.education.length > 0;
   
   // HEADER SECTION - always on first page
-  yPos = 20; // Start with some top margin
+  yPos = 18; // Reduced from 20 to 18 for more space
   
   // Header with name
   pdf.setFontSize(24);
   pdf.setTextColor(26, 86, 219); // Blue color for headers
   pdf.setFont(mainFont, 'bold');
-  pdf.text(userName || "Resume", pageWidth / 2, yPos, { align: 'center' });
   
-  yPos += 10;
+  // Ensure we have a name to display - use extracted name if available
+  const displayName = extractedName || 
+                     userName || 
+                     (resumeData.contact_details?.name) || 
+                     "Professional Resume";
+  
+  pdf.text(displayName, pageWidth / 2, yPos, { align: 'center' });
+  
+  yPos += 8; // Reduced from 10 to 8
   
   // Contact details
   pdf.setFontSize(10);
   pdf.setTextColor(74, 85, 104);
   pdf.setFont(mainFont, 'normal');
   
+  // Try multiple sources for contact info - use extracted values first
+  const email = extractedEmail || userEmail || resumeData.contact_details?.email || "";
+  const phone = extractedPhone || userPhone || resumeData.contact_details?.phone || "";
+  const location = extractedLocation || userLocation || resumeData.contact_details?.location || "";
+  
   const contactElements = [];
-  if (userEmail) contactElements.push({ label: "Email:", value: userEmail });
-  if (userPhone) contactElements.push({ label: "Phone:", value: userPhone });
-  if (userLocation) contactElements.push({ label: "Location:", value: userLocation.replace(/\n/g, ' ').trim() });
+  if (email) contactElements.push({ label: "Email:", value: email });
+  if (phone) contactElements.push({ label: "Phone:", value: phone });
+  if (location) contactElements.push({ label: "Location:", value: location.replace(/\n/g, ' ').trim() });
   
-  // Display contact info in lines
+  // Display contact info in lines only if we have contact details
+  if (contactElements.length > 0) {
   contactElements.forEach((element, index) => {
-    const elementText = `${element.label} ${element.value}`;
-    pdf.text(elementText, pageWidth / 2, yPos, { align: 'center' });
-    if (index < contactElements.length - 1) yPos += 4;
-  });
+      const elementText = `${element.label} ${element.value}`;
+      pdf.text(elementText, pageWidth / 2, yPos, { align: 'center' });
+      if (index < contactElements.length - 1) yPos += 4;
+    });
+  }
   
-  yPos += 8;
+  yPos += 6; // Reduced from 8 to 6
   
   // Horizontal line
   pdf.setDrawColor(26, 86, 219);
   pdf.setLineWidth(0.5);
   pdf.line(margin, yPos, pageWidth - margin, yPos);
   
-  yPos += 8;
+  yPos += 5; // Reduced from 6 to 5
   
   // SECTION: PROFESSIONAL SUMMARY
   if (resumeData.summary) {
@@ -158,7 +227,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
     pdf.text(summaryLines, margin, yPos);
     yPos += summaryLines.length * 4;
     
-    yPos += 10; // Section spacing
+    yPos += 6; // Reduced from 10 to 6
   }
   
   // SECTION: SKILLS
@@ -194,7 +263,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
       pdf.setFont(mainFont, 'bold');
       pdf.text(formattedCategory, margin, yPos);
       
-      yPos += 6;
+      yPos += 5; // Reduced from 6 to 5
       
       // Create pill-style skills
       pdf.setFontSize(9);
@@ -230,10 +299,10 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         xOffset += skillWidth + pillMargin;
       });
       
-      yPos += pillHeight + 6;
+      yPos += pillHeight + 4; // Reduced from 6 to 4
     });
     
-    yPos += 10; // Section spacing
+    yPos += 6; // Reduced from 10 to 6
   }
   
   // SECTION: WORK EXPERIENCE
@@ -276,7 +345,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         pdf.text(`${exp.company}${exp.location ? ` • ${exp.location}` : ''}`, margin, yPos);
       }
       
-      yPos += 6;
+      yPos += 5; // Reduced from 6 to 5
       
       // Bullet points
       const bulletPoints = exp.bullets || exp.accomplishments || [];
@@ -307,14 +376,14 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
             yPos += lines.length * 4;
           }
           
-          yPos += 2; // Small spacing between bullets
+          yPos += 1; // Reduced from 2 to 1
         });
       }
       
-      yPos += 8; // Spacing between jobs
+      yPos += 5; // Reduced from 8 to 5
     });
     
-    yPos += 10; // Section spacing
+    yPos += 6; // Reduced from 10 to 6
   }
   
   // SECTION: PROJECTS
@@ -341,7 +410,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         pdf.text(project.title, margin, yPos);
       }
       
-      yPos += 6;
+      yPos += 5; // Reduced from 6 to 5
       
       // Project description
       if (project.description) {
@@ -358,8 +427,8 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         pdf.setTextColor(44, 82, 130);
         pdf.setFont(mainFont, 'italic');
         
-        const validTechs = project.technologies.filter(tech => tech && typeof tech === 'string');
-        if (validTechs.length > 0) {
+          const validTechs = project.technologies.filter(tech => tech && typeof tech === 'string');
+          if (validTechs.length > 0) {
           const techText = "Technologies: " + validTechs.join(', ');
           const techLines = pdf.splitTextToSize(techText, contentWidth);
           pdf.text(techLines, margin, yPos);
@@ -367,10 +436,10 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         }
       }
       
-      yPos += 8; // Spacing between projects
+      yPos += 5; // Reduced from 8 to 5
     });
     
-    yPos += 10; // Section spacing
+    yPos += 6; // Reduced from 10 to 6
   }
   
   // SECTION: EDUCATION
@@ -411,10 +480,10 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         pdf.text(edu.school, margin, yPos);
       }
       
-      yPos += 8; // Spacing between education entries
+      yPos += 5; // Reduced from 8 to 5
     });
     
-    yPos += 10; // Section spacing
+    yPos += 6; // Reduced from 10 to 6
   }
   
   // SECTION: CERTIFICATIONS
@@ -427,7 +496,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
     pdf.setFont(mainFont, 'bold');
     pdf.text("CERTIFICATIONS", margin, yPos);
     
-    yPos += 8;
+    yPos += 6; // Reduced from 8 to 6
     
     pdf.setFontSize(10);
     pdf.setTextColor(45, 55, 72);
@@ -449,7 +518,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         yPos += lines.length * 4;
       }
       
-      yPos += 2; // Small spacing between certifications
+      yPos += 1; // Reduced from 2 to 1
     });
   }
   
@@ -462,11 +531,11 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
     // Footer with generation date and page number
     pdf.setFontSize(8);
     pdf.setTextColor(150, 150, 150);
-    pdf.setFont(mainFont, 'italic');
-    
-    const currentDate = new Date().toLocaleDateString();
-    const footerText = `Resume generated on ${currentDate} · CareerPal.ai`;
-    
+      pdf.setFont(mainFont, 'italic');
+      
+      const currentDate = new Date().toLocaleDateString();
+      const footerText = `Resume generated on ${currentDate} · CareerPal.ai`;
+      
     pdf.text(footerText, margin, pageHeight - 10);
     
     if (currentPage > 1) {
