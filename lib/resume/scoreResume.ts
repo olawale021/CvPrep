@@ -243,6 +243,8 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
       ],
       temperature: 0.2,
       response_format: { type: "json_object" }
+    }, {
+      timeout: 59000, // 59 seconds timeout to prevent Vercel 504 errors
     });
     
     try {

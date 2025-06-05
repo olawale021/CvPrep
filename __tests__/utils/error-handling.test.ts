@@ -471,6 +471,115 @@ describe('Error Handling - Cross-Cutting Concerns', () => {
       }
     })
 
+    it('should handle 504 timeout errors with proper JSON responses', async () => {
+      // Arrange - Simulate the exact 504 timeout scenario that was happening in production
+      mockScorePOST.mockImplementation(async () => {
+        // Simulate a 504 timeout returning HTML instead of JSON
+        return new Response(
+          `<!DOCTYPE html>
+<html>
+<head><title>504 Gateway Timeout</title></head>
+<body>
+<h1>504 Gateway Timeout</h1>
+<p>An error occurred</p>
+</body>
+</html>`, 
+          { 
+            status: 504, 
+            headers: { 'content-type': 'text/html' }
+          }
+        )
+      })
+
+      const formData = new FormData()
+      formData.append('file', createMockPDFFile())
+      formData.append('job_description', SAMPLE_JOB_DESCRIPTION)
+      const request = createNextRequestWithFormData(formData)
+
+      // Act
+      const response = await mockScorePOST(request)
+      
+      // Assert - The frontend should handle this gracefully now
+      expect(response.status).toBe(504)
+      expect(response.headers.get('content-type')).toContain('text/html')
+      
+      // Frontend should detect this is not JSON and handle it properly
+      const contentType = response.headers.get('content-type')
+      expect(contentType).not.toContain('application/json')
+      
+      // This would previously cause "Unexpected token 'A'" but now should be handled
+      const textResponse = await response.text()
+      expect(textResponse).toContain('504 Gateway Timeout')
+      expect(textResponse).toContain('An error occurred')
+    })
+
+    it('should handle JSON parsing errors from malformed API responses', async () => {
+      // Arrange - Simulate API returning malformed JSON
+      mockScorePOST.mockImplementation(async () => {
+        // Return content that starts with valid JSON but is truncated/malformed
+        return new Response(
+          '{"match_score": 85, "matched_skills": ["Python", "React"], "missing_sk',
+          { 
+            status: 200, 
+            headers: { 'content-type': 'application/json' }
+          }
+        )
+      })
+
+      const formData = new FormData()
+      formData.append('file', createMockPDFFile())
+      formData.append('job_description', SAMPLE_JOB_DESCRIPTION)
+      const request = createNextRequestWithFormData(formData)
+
+      // Act
+      const response = await mockScorePOST(request)
+      
+      // Assert - Response claims to be JSON but is malformed
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toContain('application/json')
+      
+      // Frontend should detect this JSON parsing error and handle gracefully
+      const responseText = await response.text()
+      expect(responseText).toBe('{"match_score": 85, "matched_skills": ["Python", "React"], "missing_sk')
+      
+      // This would previously cause JSON parsing errors but should now be handled
+      expect(() => JSON.parse(responseText)).toThrow()
+    })
+
+    it('should handle timeout with proper error structure', async () => {
+      // Arrange - Simulate API timeout with proper error structure
+      mockScorePOST.mockImplementation(async () => {
+        return NextResponse.json({
+          error: 'Scoring timeout',
+          message: 'Resume scoring is taking longer than expected. Please try again.',
+          matched_skills: [],
+          missing_skills: [],
+          recommendations: ['The resume is quite complex. Try simplifying it or check back in a moment.'],
+          match_percentage: 0,
+          match_score: 0
+        }, { status: 408 })
+      })
+
+      const formData = new FormData()
+      formData.append('file', createMockPDFFile())
+      formData.append('job_description', SAMPLE_JOB_DESCRIPTION)
+      const request = createNextRequestWithFormData(formData)
+
+      // Act
+      const response = await mockScorePOST(request)
+      const result = await response.json()
+
+      // Assert - Should return proper error structure that frontend can handle
+      expect(response.status).toBe(408)
+      expect(result.error).toBe('Scoring timeout')
+      expect(result.message).toContain('taking longer than expected')
+      expect(result.matched_skills).toEqual([])
+      expect(result.missing_skills).toEqual([])
+      expect(result.recommendations).toHaveLength(1)
+      expect(result.match_percentage).toBe(0)
+      expect(result.match_score).toBe(0)
+    })
+
     it('should handle database constraint violations', async () => {
       // Arrange
       const constraintError = new Error('duplicate key value violates unique constraint')

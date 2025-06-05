@@ -59,17 +59,92 @@ export default function ResumeDashboard() {
   const scoreOperation = useAsyncOperation(
     async (...args: unknown[]) => {
       const formData = args[0] as FormData;
-      const response = await fetch('/api/resume/score', {
-        method: 'POST',
-        body: formData
-      });
       
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to score resume');
+      // Add timeout handling for scoring
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 seconds timeout
+      
+      try {
+        const response = await fetch('/api/resume/score', {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        // Handle non-JSON responses (like 504 errors that return HTML)
+        const contentType = response.headers.get('content-type');
+        let data;
+        
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            data = await response.json();
+          } catch (jsonError) {
+            console.error('JSON parsing error:', jsonError);
+            throw new Error('Invalid response format from scoring service. Please try again.');
+          }
+        } else {
+          // Non-JSON response (likely HTML error page)
+          const textResponse = await response.text();
+          console.error('Non-JSON response:', response.status, textResponse.substring(0, 200));
+          
+          if (response.status === 504) {
+            throw new Error('Resume scoring timed out. The resume is complex and needs more time to process. Please try again.');
+          } else {
+            throw new Error('Scoring service temporarily unavailable. Please try again in a moment.');
+          }
+        }
+        
+        // Enhanced error handling based on status
+        if (!response.ok) {
+          if (response.status === 408 || response.status === 504) {
+            throw new Error('Resume scoring timed out. Please try again or use a shorter resume/job description.');
+          } else if (response.status === 400) {
+            throw new Error(data.message || data.error || 'Invalid file or job description. Please check your inputs.');
+          } else if (response.status === 422) {
+            throw new Error(data.message || 'Unable to process the resume file. Please try a different format.');
+          } else if (response.status === 500) {
+            throw new Error('Server error during scoring. Please try again in a few moments.');
+          } else {
+            throw new Error(data.message || data.error || 'Failed to score resume');
+          }
+        }
+        
+        // Validate response data structure
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid response from scoring service');
+        }
+        
+        // Ensure required fields exist with defaults
+        const validatedData = {
+          matched_skills: data.matched_skills || [],
+          missing_skills: data.missing_skills || [],
+          recommendations: data.recommendations || ['Unable to generate recommendations'],
+          match_percentage: typeof data.match_percentage === 'number' ? data.match_percentage : 0,
+          match_score: typeof data.match_score === 'number' ? data.match_score : 0,
+          category_scores: data.category_scores || {
+            skills_match: 0,
+            experience_relevance: 0,
+            education_certifications: 0,
+            additional_factors: 0
+          },
+          alternative_positions: data.alternative_positions
+        };
+        
+        return validatedData;
+        
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError instanceof Error) {
+          if (fetchError.name === 'AbortError') {
+            throw new Error('Resume scoring timed out. Please try again with a shorter resume or job description.');
+          }
+          throw fetchError;
+        }
+        throw new Error('Network error during scoring. Please check your connection and try again.');
       }
-      
-      return data;
     },
     {
       onSuccess: (data) => {
@@ -77,6 +152,7 @@ export default function ResumeDashboard() {
         setIsScoring(false);
       },
       onError: (error) => {
+        console.error('Score operation error:', error);
         setError(error.message);
         setIsScoring(false);
       }
