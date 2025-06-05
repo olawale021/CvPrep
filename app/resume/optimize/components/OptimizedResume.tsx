@@ -92,73 +92,77 @@ function OptimizedResumeContent({
 
   return (
     <>
-      <div className={`bg-white rounded-xl shadow-sm overflow-hidden h-full flex flex-col ${isEditMode ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}>
-        {/* Global edit mode indicator banner */}
+      <div className={`bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden h-full flex flex-col ${isEditMode ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}>
+        {/* Global edit mode indicator banner - Mobile Optimized */}
         {isEditMode && (
-          <div className="bg-blue-50 border-b border-blue-200 p-6 text-sm text-blue-800 flex items-center justify-center">
-            <Edit className="h-4 w-4 mr-2" />
-            Edit mode is active — make changes to your resume
+          <div className="bg-blue-50 border-b border-blue-200 p-3 sm:p-6 text-xs sm:text-sm text-blue-800 flex items-center justify-center">
+            <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Edit mode is active — make changes to your resume</span>
+            <span className="sm:hidden">Edit mode active</span>
           </div>
         )}
         
-        {/* Header Section */}
-        <div className={`p-6 bg-white border-b ${isEditMode ? 'bg-blue-50/30' : ''}`}>
-          <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center space-x-2">
-              <FileText className="h-5 w-5 text-gray-600" />
-              <h2 className="text-lg font-semibold">Optimized Resume</h2>
+        {/* Header Section - Mobile Optimized */}
+        <div className={`p-3 sm:p-6 bg-white border-b ${isEditMode ? 'bg-blue-50/30' : ''}`}>
+          <div className="flex flex-col space-y-2 sm:space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
+              <h2 className="text-base sm:text-lg font-semibold">Optimized Resume</h2>
             </div>
             
-            {/* Action Buttons - Keep horizontal layout but ensure visibility on mobile */}
-            <div className="w-full flex justify-start gap-2 overflow-x-auto pb-2">
+            {/* Action Buttons - Mobile Optimized */}
+            <div className="w-full md:w-auto flex justify-start gap-1 sm:gap-2 overflow-x-auto pb-1 sm:pb-2">
               <Button
                 variant={isEditMode ? "default" : "outline"}
-                size="default"
-                className={`whitespace-nowrap items-center ${isEditMode ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                size="sm"
+                className={`whitespace-nowrap items-center text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 ${isEditMode ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
                 onClick={() => setIsEditMode(!isEditMode)}
               >
-                <Edit className="h-4 w-4 mr-2" />
-                {isEditMode ? "Done Editing" : "Edit Resume"}
+                <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{isEditMode ? "Done Editing" : "Edit Resume"}</span>
+                <span className="sm:hidden">{isEditMode ? "Done" : "Edit"}</span>
               </Button>
               <Button
                 variant="outline"
-                size="default"
-                className="whitespace-nowrap items-center"
+                size="sm"
+                className="whitespace-nowrap items-center text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2"
                 onClick={handlePreview}
                 disabled={isPreviewLoading}
               >
-                <Expand className="h-4 w-4 mr-2" />
-                {isPreviewLoading ? "Loading Preview..." : "Preview"}
+                <Expand className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{isPreviewLoading ? "Loading Preview..." : "Preview"}</span>
+                <span className="sm:hidden">{isPreviewLoading ? "Loading..." : "Preview"}</span>
               </Button>
               <Button
                 variant="default"
-                size="default"
-                className="whitespace-nowrap items-center"
+                size="sm"
+                className="whitespace-nowrap items-center text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2"
                 onClick={() => handleDownloadPdf(editableResume)}
                 disabled={isPdfGenerating}
               >
-                <Download className="h-4 w-4 mr-2" />
-                {isPdfGenerating ? "Generating..." : "Download PDF"}
+                <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{isPdfGenerating ? "Generating..." : "Download PDF"}</span>
+                <span className="sm:hidden">{isPdfGenerating ? "..." : "PDF"}</span>
               </Button>
             </div>
           </div>
         </div>
         
-        {/* Add Template Selector */}
-        <div className="px-6 py-4">
+        {/* Template Selector - Mobile Optimized */}
+        <div className="px-3 sm:px-6 py-2 sm:py-4">
           <TemplateSelector 
             selectedTemplate={selectedTemplate}
             setSelectedTemplate={setSelectedTemplate}
           />
         </div>
         
-        {/* Tabs Section */}
+        {/* Tabs Section - Mobile Optimized */}
         <div ref={resumeContentRef} className="flex-1 flex flex-col">
-          {/* Simple Tabs Navigation */}
+          {/* Simple Tabs Navigation - Mobile Optimized */}
           <div className={`border-b ${isEditMode ? 'bg-blue-50/30' : ''}`}>
-            <div className="flex overflow-x-auto px-6">
+            <div className="flex overflow-x-auto px-3 sm:px-6 scrollbar-hide">
               <button
-                className={`px-4 py-3 text-sm font-medium ${
+                className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
                   activeTab === "summary" 
                     ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
                     : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
@@ -170,7 +174,7 @@ function OptimizedResumeContent({
               
               {(editableResume.skills && Object.keys(editableResume.skills).length > 0) && (
                 <button
-                  className={`px-4 py-3 text-sm font-medium ${
+                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
                     activeTab === "skills" 
                       ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
                       : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
@@ -183,7 +187,7 @@ function OptimizedResumeContent({
               
               {(editableResume.work_experience && editableResume.work_experience.length > 0) && (
                 <button
-                  className={`px-4 py-3 text-sm font-medium ${
+                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
                     activeTab === "experience" 
                       ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
                       : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
@@ -196,7 +200,7 @@ function OptimizedResumeContent({
               
               {(editableResume.education && editableResume.education.length > 0) && (
                 <button
-                  className={`px-4 py-3 text-sm font-medium ${
+                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
                     activeTab === "education" 
                       ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
                       : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
@@ -207,22 +211,9 @@ function OptimizedResumeContent({
                 </button>
               )}
               
-              {(editableResume.certifications && editableResume.certifications.length > 0) && (
-                <button
-                  className={`px-4 py-3 text-sm font-medium ${
-                    activeTab === "certifications" 
-                      ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
-                      : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
-                  }`}
-                  onClick={() => setActiveTab("certifications")}
-                >
-                  Certificates
-                </button>
-              )}
-              
               {(editableResume.projects && editableResume.projects.length > 0) && (
                 <button
-                  className={`px-4 py-3 text-sm font-medium ${
+                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
                     activeTab === "projects" 
                       ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
                       : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
@@ -232,115 +223,47 @@ function OptimizedResumeContent({
                   Projects
                 </button>
               )}
+              
+              {(editableResume.certifications && editableResume.certifications.length > 0) && (
+                <button
+                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
+                    activeTab === "certifications" 
+                      ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
+                      : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
+                  }`}
+                  onClick={() => setActiveTab("certifications")}
+                >
+                  Certifications
+                </button>
+              )}
             </div>
           </div>
-            
-          {/* Tab Content Section */}
-          <div className={`p-3 sm:p-6 border border-gray-200 rounded-md bg-white shadow-sm flex-1 overflow-y-auto ${isEditMode ? 'bg-blue-50/10' : ''}`}>
-            {activeTab === "summary" && (
-              <div className="space-y-4">
-                <Summary summary={editableResume.summary} isEditMode={isEditMode} />
-              </div>
-            )}
-            
-            {activeTab === "skills" && editableResume.skills && Object.keys(editableResume.skills).length > 0 && (
-              <div className="space-y-4">
-                <Skills skills={editableResume.skills} isEditMode={isEditMode} />
-              </div>
-            )}
-            
-            {activeTab === "experience" && editableResume.work_experience && editableResume.work_experience.length > 0 && (
-              <div className="space-y-4 h-full flex flex-col">
-                <h3 className="text-xl font-semibold flex-shrink-0">Work Experience</h3>
-                <div className="flex-1 overflow-y-auto pr-2 min-h-0">
-                  <WorkExperience work_experience={editableResume.work_experience} isEditMode={isEditMode} />
-                </div>
-              </div>
-            )}
-            
-            {activeTab === "education" && editableResume.education && editableResume.education.length > 0 && (
-              <div className="space-y-4">
-                <Education education={editableResume.education} isEditMode={isEditMode} />
-              </div>
-            )}
-            
-            {activeTab === "certifications" && editableResume.certifications && editableResume.certifications.length > 0 && (
-              <div className="space-y-4">
-                <Certifications certifications={editableResume.certifications} isEditMode={isEditMode} />
-              </div>
-            )}
-            
-            {activeTab === "projects" && editableResume.projects && editableResume.projects.length > 0 && (
-              <div className="space-y-4">
-                <Projects projects={editableResume.projects} isEditMode={isEditMode} />
-              </div>
-            )}
+          
+          {/* Tab Content - Mobile Optimized */}
+          <div className={`flex-1 overflow-y-auto p-3 sm:p-6 ${isEditMode ? 'bg-blue-50/10' : ''}`}>
+            {activeTab === "summary" && <Summary />}
+            {activeTab === "skills" && <Skills />}
+            {activeTab === "experience" && <WorkExperience />}
+            {activeTab === "education" && <Education />}
+            {activeTab === "projects" && <Projects />}
+            {activeTab === "certifications" && <Certifications />}
           </div>
         </div>
       </div>
 
+      {/* Preview Dialog - Mobile Optimized */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-6xl w-full max-h-[90vh] p-2">
-          <DialogTitle>Resume Preview</DialogTitle>
-          <DialogDescription className="mb-2">
-            Preview how your resume will look when downloaded
+        <DialogContent className="max-w-xs sm:max-w-4xl h-[90vh] p-3 sm:p-6">
+          <DialogTitle className="text-base sm:text-lg font-semibold mb-2 sm:mb-4">Resume Preview</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+            Preview your resume before downloading
           </DialogDescription>
-          {isPreviewLoading ? (
-            <div className="w-full h-[calc(100%-4rem)] flex items-center justify-center bg-gray-50 rounded-md">
-              <div className="flex flex-col items-center gap-3">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
-                <p className="text-sm text-gray-600">Generating preview...</p>
-              </div>
-            </div>
-          ) : previewUrl ? (
-            <div className="w-full h-[calc(100%-4rem)] overflow-hidden border border-gray-200 rounded-md flex flex-col items-center bg-gray-50 relative">
-              <div className="absolute top-2 right-2 z-10 flex gap-2">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="bg-white"
-                  onClick={() => window.open(previewUrl, '_blank')}
-                >
-                  <Expand className="h-4 w-4 mr-1" /> Open in New Tab
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="bg-white"
-                  onClick={() => {
-                    const link = document.createElement('a');
-                    link.href = previewUrl;
-                    link.download = "resume.pdf";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }}
-                >
-                  <Download className="h-4 w-4 mr-1" /> Download
-                </Button>
-              </div>
-              
-              {/* Direct iframe with simple fallback strategy */}
-              <div className="w-full h-full">
-                <iframe
-                  src={previewUrl}
-                  className="w-full h-full border-0"
-                  style={{backgroundColor: 'white'}}
-                  aria-label="PDF Resume Preview"
-                />
-              </div>
-              
-              {/* Fallback message that appears beneath iframe */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gray-100 p-2 text-center text-sm">
-                <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                  If the preview doesn&apos;t appear, click here to open in a new tab
-                </a>
-              </div>
-            </div>
-          ) : (
-            <div className="w-full h-[calc(100%-4rem)] flex items-center justify-center bg-gray-50 rounded-md">
-              <p className="text-sm text-gray-600">Could not generate preview</p>
-            </div>
+          {previewUrl && (
+            <iframe
+              src={previewUrl}
+              className="w-full h-full border-0 rounded"
+              title="Resume Preview"
+            />
           )}
         </DialogContent>
       </Dialog>

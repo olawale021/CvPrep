@@ -455,21 +455,22 @@ export default function ResumeDashboard() {
       <Sidebar />
       
       {/* Main Content */}
-      <div className="flex-1 p-4 md:p-6 pt-16 md:pt-6 overflow-x-hidden">
+      <div className="flex-1 p-2 sm:p-4 md:p-6 pt-16 md:pt-6 overflow-x-hidden">
         <div className="w-full max-w-7xl mx-auto">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl sm:text-3xl text-black font-bold mb-2">Resume Dashboard</h1>
-            <p className="text-gray-600">Upload your resume and job description to get an optimized resume with instant scoring</p>
+          {/* Header - Mobile Optimized */}
+          <div className="text-center mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl md:text-3xl text-black font-bold mb-1 sm:mb-2">Resume Dashboard</h1>
+            <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">Upload your resume and job description to get an optimized resume with instant scoring</p>
           </div>
           
-          {/* Upload Form */}
+          {/* Upload Form - Mobile Optimized */}
           {!currentResumeData && !isLoading && (
-            <div className="max-w-2xl mx-auto mb-8">
-              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div className="p-6">
+            <div className="max-w-2xl mx-auto mb-6 sm:mb-8">
+              <div className="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden">
+                <div className="p-4 sm:p-6">
                   <ErrorBoundary fallback={
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                      <p className="text-red-800">Error loading upload form. Please refresh the page.</p>
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
+                      <p className="text-red-800 text-sm">Error loading upload form. Please refresh the page.</p>
                     </div>
                   }>
                     <ResumeUploadForm
@@ -481,7 +482,7 @@ export default function ResumeDashboard() {
                       fileInputRef={fileInputRef}
                       onSubmit={handleSubmit}
                       submitButtonText="Analyze & Score Resume"
-                      submitButtonIcon={<Sparkles className="h-4 w-4 mr-2" />}
+                      submitButtonIcon={<Sparkles className="h-4 w-4 mr-1 sm:mr-2" />}
                     />
                   </ErrorBoundary>
                 </div>
@@ -489,79 +490,91 @@ export default function ResumeDashboard() {
             </div>
           )}
 
-          {/* Loading State - Only show when analyzing */}
+          {/* Loading State - Mobile Optimized */}
           {isLoading && !currentResumeData && (
             <div className="max-w-4xl mx-auto">
               <LoadingState type="optimizing" />
             </div>
           )}
 
-          {/* Analysis Results Layout */}
+          {/* Analysis Results Layout - Mobile Optimized */}
           {currentResumeData && (
             <div className="flex flex-col lg:flex-row lg:gap-6 min-h-[calc(100vh-200px)]">
               {/* Left Column - Resume Data */}
-              <div className="w-full lg:w-[60%] mb-6 lg:mb-0">
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden h-full">
-                  <div className="p-4 bg-white border-b flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <FileText className="h-5 w-5 text-gray-600" />
-                      <h2 className="text-lg font-semibold text-black">
-                        {showOptimized ? "Optimized Resume" : "Current Resume Analysis"}
-                      </h2>
-                      {showOptimized && (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                          ✨ Optimized
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      {optimizedResume && originalResumeData && (
+              <div className="w-full lg:w-[60%] mb-4 sm:mb-6 lg:mb-0">
+                <div className="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden h-full">
+                  {/* Header - Mobile Optimized */}
+                  <div className="p-3 sm:p-4 bg-white border-b">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center space-x-1 sm:space-x-2 min-w-0">
+                        <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 flex-shrink-0" />
+                        <h2 className="text-sm sm:text-lg font-semibold text-black truncate">
+                          {showOptimized ? "Optimized Resume" : "Current Resume Analysis"}
+                        </h2>
+                        {showOptimized && (
+                          <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full whitespace-nowrap">
+                            ✨ Optimized
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Action Buttons - Mobile Optimized */}
+                      <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                        {optimizedResume && originalResumeData && (
+                          <button
+                            onClick={() => setShowOptimized(!showOptimized)}
+                            className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 transition-colors border border-blue-200 px-2 sm:px-3 py-1 rounded-md hover:bg-blue-50 whitespace-nowrap"
+                          >
+                            {showOptimized ? "View Original" : "View Optimized"}
+                          </button>
+                        )}
+                        {!showOptimized && (
+                          <button
+                            onClick={handleOptimizeResume}
+                            disabled={optimizeOperation.isLoading}
+                            className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 px-2 sm:px-4 rounded-lg transition-colors disabled:bg-blue-300 whitespace-nowrap"
+                          >
+                            {optimizeOperation.isLoading ? (
+                              <>
+                                <div className="h-3 w-3 sm:h-4 sm:w-4 mr-1 inline animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                                <span className="hidden sm:inline">Optimizing...</span>
+                                <span className="sm:hidden">...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1 inline" />
+                                <span className="hidden sm:inline">Optimize Resume</span>
+                                <span className="sm:hidden">Optimize</span>
+                              </>
+                            )}
+                          </button>
+                        )}
                         <button
-                          onClick={() => setShowOptimized(!showOptimized)}
-                          className="text-sm text-blue-600 hover:text-blue-800 transition-colors border border-blue-200 px-3 py-1 rounded-md hover:bg-blue-50"
+                          onClick={handleReset}
+                          className="text-xs sm:text-sm text-gray-500 hover:text-gray-700 transition-colors whitespace-nowrap"
                         >
-                          {showOptimized ? "View Original" : "View Optimized"}
+                          <span className="hidden sm:inline">Start Over</span>
+                          <span className="sm:hidden">Reset</span>
                         </button>
-                      )}
-                      {!showOptimized && (
-                        <button
-                          onClick={handleOptimizeResume}
-                          disabled={optimizeOperation.isLoading}
-                          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors disabled:bg-blue-300"
-                        >
-                          {optimizeOperation.isLoading ? (
-                            <>
-                              <div className="h-4 w-4 mr-1 inline animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                              Optimizing...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="h-4 w-4 mr-1 inline" />
-                              Optimize Resume
-                            </>
-                          )}
-                        </button>
-                      )}
-                      <button
-                        onClick={handleReset}
-                        className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-                      >
-                        Start Over
-                      </button>
+                      </div>
                     </div>
                   </div>
+                  
+                  {/* Optimization Status - Mobile Optimized */}
                   {optimizeOperation.isLoading && (
-                    <div className="p-4 bg-blue-50 border-b">
-                      <div className="flex items-center justify-center space-x-3">
+                    <div className="p-3 sm:p-4 bg-blue-50 border-b">
+                      <div className="flex items-center justify-center space-x-2 sm:space-x-3">
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-                        <span className="text-blue-800 text-sm">Optimizing your resume...</span>
+                        <span className="text-blue-800 text-xs sm:text-sm">Optimizing your resume...</span>
                       </div>
                     </div>
                   )}
-                  <div className="p-6 overflow-y-auto max-h-[calc(100vh-300px)]">
+                  
+                  {/* Resume Content - Mobile Optimized */}
+                  <div className="p-3 sm:p-6 overflow-y-auto max-h-[calc(100vh-300px)]">
                     <ErrorBoundary fallback={
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <p className="text-red-800">Error displaying resume. Please try again.</p>
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
+                        <p className="text-red-800 text-sm">Error displaying resume. Please try again.</p>
                       </div>
                     }>
                       <ResumeEditProvider key={showOptimized ? 'optimized' : 'analyzed'} initialData={currentResumeData}>
@@ -576,23 +589,23 @@ export default function ResumeDashboard() {
                 </div>
               </div>
 
-              {/* Right Column - Score Result */}
+              {/* Right Column - Score Result - Mobile Optimized */}
               <div className="w-full lg:w-[40%]">
                 <ErrorBoundary fallback={
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <p className="text-red-800">Error displaying score results.</p>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
+                    <p className="text-red-800 text-sm">Error displaying score results.</p>
                   </div>
                 }>
                   {isScoring && !scoreResult ? (
-                    <div className="bg-white rounded-xl shadow-sm p-6">
-                      <div className="flex items-center justify-center space-x-3 mb-4">
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-                        <span className="text-gray-600">Scoring your resume...</span>
+                    <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
+                      <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
+                        <div className="h-4 w-4 sm:h-5 sm:w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                        <span className="text-gray-600 text-sm sm:text-base">Scoring your resume...</span>
                       </div>
-                      <div className="space-y-4">
-                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
-                        <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
+                      <div className="space-y-3 sm:space-y-4">
+                        <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                        <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
                       </div>
                     </div>
                   ) : scoreResult ? (
@@ -604,8 +617,8 @@ export default function ResumeDashboard() {
                       isOptimizing={optimizeOperation.isLoading}
                     />
                   ) : (
-                    <div className="bg-white rounded-xl shadow-sm p-6">
-                      <div className="text-center text-gray-500">
+                    <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
+                      <div className="text-center text-gray-500 text-sm sm:text-base">
                         Score will appear here once analysis is complete
                       </div>
                     </div>
@@ -615,36 +628,36 @@ export default function ResumeDashboard() {
             </div>
           )}
 
-          {/* Empty State */}
+          {/* Empty State - Mobile Optimized */}
           {!currentResumeData && !isLoading && (
-            <div className="max-w-2xl mx-auto text-center py-12">
-              <div className="p-4 bg-blue-50 rounded-full mb-6 w-fit mx-auto">
-                <Sparkles className="h-8 w-8 text-blue-500" />
+            <div className="max-w-2xl mx-auto text-center py-8 sm:py-12 px-4 sm:px-0">
+              <div className="p-3 sm:p-4 bg-blue-50 rounded-full mb-4 sm:mb-6 w-fit mx-auto">
+                <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Ready to Analyze Your Resume?</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">Ready to Analyze Your Resume?</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
                 Upload your resume and job description above to get an analysis of your current resume performance.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-                <div className="bg-white p-4 rounded-lg border">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left">
+                <div className="bg-white p-3 sm:p-4 rounded-lg border">
                   <div className="flex items-center mb-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    <span className="font-medium text-gray-900">Instant Analysis</span>
+                    <span className="font-medium text-gray-900 text-sm sm:text-base">Instant Analysis</span>
                   </div>
-                  <p className="text-sm text-gray-600">AI-powered resume analysis tailored to your target job</p>
+                  <p className="text-xs sm:text-sm text-gray-600">AI-powered resume analysis tailored to your target job</p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border">
+                <div className="bg-white p-3 sm:p-4 rounded-lg border">
                   <div className="flex items-center mb-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                    <span className="font-medium text-gray-900">Detailed Scoring</span>
+                    <span className="font-medium text-gray-900 text-sm sm:text-base">Detailed Scoring</span>
                   </div>
-                  <p className="text-sm text-gray-600">Get match percentage and missing skills analysis</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Get match percentage and missing skills analysis</p>
                 </div>
               </div>
             </div>
           )}
           
-          {error && <ErrorMessage message={error} className="mt-4 max-w-2xl mx-auto" />}
+          {error && <ErrorMessage message={error} className="mt-3 sm:mt-4 max-w-2xl mx-auto" />}
         </div>
       </div>
     </div>
