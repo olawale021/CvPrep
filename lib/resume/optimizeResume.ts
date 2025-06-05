@@ -207,18 +207,20 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
       if (jsonMatch) {
         let jsonContent = jsonMatch[0].replace(/```json\n|```\n|```/g, '');
         
-        // Clean the JSON content before parsing
+        // Clean the JSON content before parsing - ONLY remove markdown formatting
         jsonContent = jsonContent.trim();
         
-        // Try to fix common JSON issues
-        jsonContent = jsonContent.replace(/\n/g, '\\n');
-        jsonContent = jsonContent.replace(/\r/g, '\\r');
-        jsonContent = jsonContent.replace(/\t/g, '\\t');
+        // DON'T manually escape characters - this causes double-escaping issues
+        // The following lines were causing JSON parsing failures:
+        // jsonContent = jsonContent.replace(/\n/g, '\\n');
+        // jsonContent = jsonContent.replace(/\r/g, '\\r');
+        // jsonContent = jsonContent.replace(/\t/g, '\\t');
         
         // Validate JSON content before parsing
         if (!jsonContent || jsonContent.length < 10) {
           console.warn("JSON content too short or empty:", jsonContent.length);
         } else {
+          // Attempt to parse the JSON content directly
           const parsed = JSON.parse(jsonContent);
           
           // Validate the parsed result

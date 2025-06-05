@@ -44,23 +44,53 @@ export async function segment_resume_sections(text: string): Promise<Record<stri
       : text;
     
     const prompt = `
-    Identify all distinct sections in this resume and extract each section's content.
+    You are an expert resume parser that can handle ANY resume format and style.
     
-    For each section:
-    1. Identify the section title (e.g., "Work Experience", "Skills", "Education")
-    2. Extract the entire section's content
+    Your task: Identify ALL distinct sections in this resume and extract each section's complete content.
     
-    Return as JSON with section titles as keys and section content as values.
-    Make sure to properly escape all JSON strings and avoid unterminated strings.
+    IMPORTANT - Handle ALL resume formats:
+    - Traditional chronological resumes
+    - Modern functional resumes  
+    - Creative resumes with unique formatting
+    - Resumes with bullet points, dashes, or other markers
+    - Resumes with headers like "**SECTION**", "SECTION:", "--- SECTION ---", etc.
+    - Multi-column layouts
+    - Resumes with mixed formatting styles
     
-    Resume:
+    Section Detection Rules:
+    1. Look for ANY text that acts as a section header (could be bold, caps, underlined, or separated)
+    2. Common section patterns to recognize:
+       - SUMMARY / PROFESSIONAL SUMMARY / OBJECTIVE / PROFILE
+       - WORK EXPERIENCE / EXPERIENCE / EMPLOYMENT / PROFESSIONAL EXPERIENCE / CAREER HISTORY
+       - EDUCATION / ACADEMIC BACKGROUND / QUALIFICATIONS
+       - SKILLS / TECHNICAL SKILLS / CORE COMPETENCIES / AREAS OF EXPERTISE
+       - CERTIFICATIONS / LICENSES / CREDENTIALS
+       - PROJECTS / KEY PROJECTS / NOTABLE PROJECTS
+       - ACHIEVEMENTS / ACCOMPLISHMENTS / AWARDS
+       - VOLUNTEER EXPERIENCE / COMMUNITY INVOLVEMENT
+       - ADDITIONAL INFORMATION / OTHER / MISCELLANEOUS
+    
+    3. Extract the COMPLETE content under each section until the next section begins
+    4. Include ALL text, bullet points, formatting, and details for each section
+    5. Don't worry about perfect categorization - capture everything
+    
+    For each section found:
+    - Use the section title as the JSON key (clean and standardized)
+    - Include ALL content under that section as the value
+    - Preserve important formatting cues and details
+    
+    Return as JSON with section titles as keys and complete section content as values.
+    If you can't identify clear sections, put everything under "Full Resume".
+    Always return valid JSON with properly escaped strings.
+    
+    Resume Text:
     ${truncatedText}
     `;
 
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
-        { role: 'system', content: 'You are a resume section extractor. Always return valid JSON with properly escaped strings.' },
+        { role: 'system', content: 'You are an expert resume section extractor that can parse any resume format or style. Always return valid JSON with properly escaped strings.' },
         { role: 'user', content: prompt }
       ],
       temperature: 0.1,
@@ -77,18 +107,19 @@ export async function segment_resume_sections(text: string): Promise<Record<stri
         return { "Full Resume": text };
       }
       
-      // Clean the content before parsing
+      // Clean the content before parsing - ONLY remove markdown formatting
       let cleanContent = content.trim();
       
       // Remove any potential markdown formatting
       cleanContent = cleanContent.replace(/```json\n?|```\n?/g, '');
       
-      // Try to fix common JSON issues
-      cleanContent = cleanContent.replace(/\n/g, '\\n');
-      cleanContent = cleanContent.replace(/\r/g, '\\r');
-      cleanContent = cleanContent.replace(/\t/g, '\\t');
+      // DON'T manually escape characters - OpenAI json_object format already returns valid JSON
+      // The following lines were causing double-escaping issues:
+      // cleanContent = cleanContent.replace(/\n/g, '\\n');
+      // cleanContent = cleanContent.replace(/\r/g, '\\r');
+      // cleanContent = cleanContent.replace(/\t/g, '\\t');
       
-      // Attempt to parse
+      // Attempt to parse the already-valid JSON
       const parsed = JSON.parse(cleanContent);
       
       // Validate the result is an object
@@ -143,53 +174,103 @@ export async function structure_resume(text: string): Promise<StructuredResume> 
     }
     
     const prompt = `
-    Convert this resume into a structured JSON format with the following fields:
-    - Summary: A brief professional summary
-    - Work Experience: Array of work experiences, each with {company, role, date_range, accomplishments}
-    - Technical Skills: Array of professional skills (DO NOT include licenses, certifications, or credentials here)
-    - Education: Array of education entries, each with {institution, degree, graduation_date}
-    - Certifications: Array of certifications, licenses, or credentials (include all licenses here)
-    - Projects: Array of project descriptions
+    You are an expert resume parser that can extract structured information from ANY resume format or style.
     
-    IMPORTANT INSTRUCTIONS:
-    - Skills should ONLY include actual abilities, tools, technologies, programming languages, and methodologies
-    - Licenses (Professional License, Driver's License, etc.) should go in Certifications, NOT Skills
-    - Certifications and credentials should go in Certifications, NOT Skills
-    - Do NOT mix licenses/certifications with skills
+    Your task: Convert this resume into a comprehensive structured JSON format.
+    
+    IMPORTANT - Handle ALL resume types and formats:
+    - Traditional chronological resumes
+    - Modern functional resumes
+    - Creative/designer resumes with unique layouts
+    - Technical resumes with extensive project details
+    - Academic resumes with research focus
+    - Executive resumes with leadership emphasis
+    - Career-change resumes with transferable skills
+    - Entry-level resumes with limited experience
+    - International resumes with varying formats
+    
+    EXTRACTION RULES:
+    
+    1. SUMMARY/OBJECTIVE:
+       - Look for: Summary, Objective, Profile, Professional Summary, Career Objective, About Me
+       - Extract the complete professional summary or objective statement
+       - If multiple summary-like sections exist, combine them intelligently
+    
+    2. WORK EXPERIENCE:
+       - Look for: Work Experience, Experience, Employment, Professional Experience, Career History, Employment History
+       - Extract ALL jobs/positions with complete details
+       - Include: Company name, job title, date range, and ALL accomplishments/responsibilities
+       - Handle various date formats (2020-2023, Jan 2020 - Dec 2023, 2020-Present, etc.)
+       - Capture bullet points, achievements, metrics, and responsibilities
+    
+    3. TECHNICAL SKILLS:
+       - Look for: Skills, Technical Skills, Core Competencies, Areas of Expertise, Proficiencies, Technologies
+       - Extract ONLY actual skills, tools, technologies, programming languages, software, and methodologies
+       - EXCLUDE: Licenses, certifications, credentials, degrees
+       - Include: Programming languages, frameworks, tools, software, methodologies, platforms
+       - Examples: "Python", "React", "AWS", "Machine Learning", "Project Management", "SQL"
+    
+    4. EDUCATION:
+       - Look for: Education, Academic Background, Qualifications, Academic Credentials
+       - Extract degrees, institutions, graduation dates, relevant coursework
+       - Handle various education formats and international degrees
+    
+    5. CERTIFICATIONS/LICENSES:
+       - Look for: Certifications, Licenses, Credentials, Professional Development, Training
+       - Include ALL certifications, licenses, professional credentials
+       - Examples: "AWS Certified", "PMP", "Driver's License", "Professional Engineer License"
+    
+    6. PROJECTS:
+       - Look for: Projects, Key Projects, Notable Projects, Portfolio, Personal Projects
+       - Extract project names and descriptions
+       - Include technologies used, outcomes, and impact
+    
+    CRITICAL PARSING INSTRUCTIONS:
+    - Be comprehensive - don't miss any information
+    - Handle inconsistent formatting gracefully
+    - If information spans multiple sections, consolidate appropriately
+    - Preserve all important details and metrics
+    - Convert informal language to professional terminology
+    - Handle resumes with non-standard section names
+    - Extract information even from poorly formatted resumes
     
     Parse from these resume sections:
     ${JSON.stringify(sectionsData, null, 2)}
     
-    Follow this exact structure:
+    Return this EXACT JSON structure:
     {
-      "Summary": "Professional summary text...",
+      "Summary": "Complete professional summary or objective...",
       
       "Work Experience": [
         {
           "company": "Company Name",
-          "role": "Job Title",
+          "role": "Job Title", 
           "date_range": "Start Date - End Date",
-          "accomplishments": ["Achievement 1", "Achievement 2", "..."]
+          "accomplishments": ["Achievement 1", "Achievement 2", "Achievement 3", "..."]
         }
       ],
       
-      "Technical Skills": ["Skill 1", "Skill 2", "..."],
+      "Technical Skills": ["Skill1", "Skill2", "Technology1", "Tool1", "..."],
       
       "Education": [
         {
-          "institution": "University Name",
-          "degree": "Degree Name",
-          "graduation_date": "Date"
+          "institution": "University/School Name",
+          "degree": "Degree Type and Major",
+          "graduation_date": "Date or Year"
         }
       ],
       
       "Certifications": ["Certification 1", "License 1", "Credential 1", "..."],
       
-      "Projects": ["Project 1", "Project 2", "..."]
+      "Projects": ["Project 1 description", "Project 2 description", "..."]
     }
     
-    If any information is missing, include the field but leave it as an empty string or empty array.
-    Return only the JSON object without any explanations.
+    IMPORTANT:
+    - If any section is missing information, use empty string ("") or empty array ([])
+    - Ensure ALL fields are present in the response
+    - Extract maximum possible information from the available text
+    - Handle edge cases gracefully
+    - Return only the JSON object without explanations
     `;
 
     const response = await openai.chat.completions.create({
@@ -221,18 +302,19 @@ export async function structure_resume(text: string): Promise<StructuredResume> 
         };
       }
       
-      // Clean the content before parsing
+      // Clean the content before parsing - ONLY remove markdown formatting
       let cleanContent = content.trim();
       
       // Remove any potential markdown formatting
       cleanContent = cleanContent.replace(/```json\n?|```\n?/g, '');
       
-      // Try to fix common JSON issues
-      cleanContent = cleanContent.replace(/\n/g, '\\n');
-      cleanContent = cleanContent.replace(/\r/g, '\\r');
-      cleanContent = cleanContent.replace(/\t/g, '\\t');
+      // DON'T manually escape characters - OpenAI json_object format already returns valid JSON
+      // The following lines were causing double-escaping issues:
+      // cleanContent = cleanContent.replace(/\n/g, '\\n');
+      // cleanContent = cleanContent.replace(/\r/g, '\\r');
+      // cleanContent = cleanContent.replace(/\t/g, '\\t');
       
-      // Attempt to parse
+      // Attempt to parse the already-valid JSON
       const parsed = JSON.parse(cleanContent);
       
       // Validate the result has the expected structure
