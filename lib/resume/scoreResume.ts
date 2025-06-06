@@ -18,6 +18,110 @@ export interface ResumeScore {
   alternative_positions?: string[];
 }
 
+// Constants for text optimization
+const MAX_RESUME_CHARS = 3500;
+const MAX_JOB_DESCRIPTION_CHARS = 2000;
+const MAX_SUMMARY_CHARS = 800;
+const MAX_EXPERIENCE_CHARS = 1500;
+const MAX_SKILLS_CHARS = 1000;
+
+/**
+ * Preprocesses and cleans text to remove noise and optimize for OpenAI processing
+ */
+function preprocessText(text: string, maxLength: number): string {
+  if (!text) return '';
+  
+  return text
+    // Remove excessive whitespace
+    .replace(/\s+/g, ' ')
+    // Remove multiple consecutive newlines
+    .replace(/\n{3,}/g, '\n\n')
+    // Remove special characters that add noise
+    .replace(/[^\w\s\-.,;:()\n\[\]]/g, ' ')
+    // Remove email addresses (privacy + noise reduction)
+    .replace(/\S+@\S+\.\S+/g, '[EMAIL]')
+    // Remove phone numbers (privacy + noise reduction)
+    .replace(/(\+?1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/g, '[PHONE]')
+    // Remove URLs
+    .replace(/https?:\/\/[^\s]+/g, '[URL]')
+    // Trim and limit length
+    .trim()
+    .substring(0, maxLength);
+}
+
+/**
+ * Extracts and optimizes the most relevant parts of resume text
+ */
+function optimizeResumeText(resumeText: string): string {
+  if (!resumeText) return '';
+  
+  // First, preprocess the entire text
+  const cleaned = preprocessText(resumeText, MAX_RESUME_CHARS * 2);
+  
+  // Extract key sections with priority
+  const sections = [];
+  const lowerText = cleaned.toLowerCase();
+  
+  // Extract summary/objective (high priority)
+  const summaryMatch = lowerText.match(/(summary|objective|profile)([^]*?)(?=\n\s*[a-z\s]+:|\n\s*education|\n\s*experience|\n\s*skills|$)/i);
+  if (summaryMatch) {
+    sections.push(summaryMatch[0].substring(0, MAX_SUMMARY_CHARS));
+  }
+  
+  // Extract skills (high priority)
+  const skillsMatch = lowerText.match(/(skills|technical skills|core competencies)([^]*?)(?=\n\s*[a-z\s]+:|\n\s*education|\n\s*experience|$)/i);
+  if (skillsMatch) {
+    sections.push(skillsMatch[0].substring(0, MAX_SKILLS_CHARS));
+  }
+  
+  // Extract work experience (medium priority)
+  const experienceMatch = lowerText.match(/(experience|work experience|employment)([^]*?)(?=\n\s*[a-z\s]+:|\n\s*education|$)/i);
+  if (experienceMatch) {
+    sections.push(experienceMatch[0].substring(0, MAX_EXPERIENCE_CHARS));
+  }
+  
+  // If sections are too short, include more of the original text
+  const combinedSections = sections.join('\n\n');
+  if (combinedSections.length < MAX_RESUME_CHARS * 0.3) {
+    return cleaned.substring(0, MAX_RESUME_CHARS);
+  }
+  
+  return combinedSections.substring(0, MAX_RESUME_CHARS);
+}
+
+/**
+ * Optimizes job description text for faster processing
+ */
+function optimizeJobDescription(jobDescription: string): string {
+  if (!jobDescription) return '';
+  
+  const cleaned = preprocessText(jobDescription, MAX_JOB_DESCRIPTION_CHARS * 1.5);
+  
+  // Extract key sections with priority
+  const sections = [];
+  const lowerText = cleaned.toLowerCase();
+  
+  // Extract requirements (highest priority)
+  const requirementsMatch = lowerText.match(/(requirements?|qualifications?|skills?)([^]*?)(?=\n\s*[a-z\s]+:|\n\s*responsibilities|\n\s*duties|$)/i);
+  if (requirementsMatch) {
+    sections.push(requirementsMatch[0]);
+  }
+  
+  // Extract responsibilities (medium priority)
+  const responsibilitiesMatch = lowerText.match(/(responsibilities?|duties|role)([^]*?)(?=\n\s*[a-z\s]+:|\n\s*requirements|$)/i);
+  if (responsibilitiesMatch) {
+    sections.push(responsibilitiesMatch[0]);
+  }
+  
+  // If sections are too short, include more of the original text
+  const combinedSections = sections.join('\n\n');
+  if (combinedSections.length < MAX_JOB_DESCRIPTION_CHARS * 0.4) {
+    return cleaned.substring(0, MAX_JOB_DESCRIPTION_CHARS);
+  }
+  
+  return combinedSections.substring(0, MAX_JOB_DESCRIPTION_CHARS);
+}
+
 const openaiApiKey = process.env.OPENAI_API_KEY;
 let openai: OpenAI | null = null;
 if (openaiApiKey) {
@@ -25,9 +129,8 @@ if (openaiApiKey) {
 }
 
 export async function scoreResume(resumeText: string, jobDescription: string): Promise<ResumeScore> {
-  // Verify job description has sufficient length
+  // Early validation
   if (jobDescription.trim().length < 20) {
-
     return {
       matched_skills: [],
       missing_skills: [],
@@ -38,8 +141,6 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
   }
 
   if (!openai) {
-
-    // Return a basic error-state response instead of using the removed fallback method
     return {
       matched_skills: [],
       missing_skills: [],
@@ -50,288 +151,209 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
   }
 
   try {
-    // Extract structured resume information using the new structure
-    const structuredResume = await structure_resume(resumeText);
-    const segments = await segment_resume_sections(resumeText);
+    // OPTIMIZATION: Preprocess and truncate texts early
+    const optimizedResumeText = optimizeResumeText(resumeText);
+    const optimizedJobDescription = optimizeJobDescription(jobDescription);
     
-    // Prepare the resume data - fix linter errors by using const
+    // Early fallback for very large texts that couldn't be optimized effectively
+    if (optimizedResumeText.length < 100) {
+      return {
+        matched_skills: [],
+        missing_skills: [],
+        recommendations: ["Resume text too short or couldn't be processed. Please try a different format."],
+        match_percentage: 0,
+        match_score: 0
+      };
+    }
+
+    // Extract structured resume information using the optimized text
+    const structuredResume = await structure_resume(optimizedResumeText);
+    const segments = await segment_resume_sections(optimizedResumeText);
+    
+    // Prepare the resume data with optimization
     const candidate_skills: string[] = [];
     const candidate_experience: string[] = [];
     const candidate_roles: string[] = [];
     
-    // Extract skills information from the structured resume
+    // Extract skills information from the structured resume (optimized)
     let skills_info = "";
     if (structuredResume["Technical Skills"].length > 0) {
-      skills_info = structuredResume["Technical Skills"].join("\n");
-      // Add skills to candidate_skills
-      structuredResume["Technical Skills"].forEach(skill => {
-        if (skill.trim().length > 3) {
+      const skillsText = structuredResume["Technical Skills"].join(", ");
+      skills_info = preprocessText(skillsText, MAX_SKILLS_CHARS);
+      
+      structuredResume["Technical Skills"].slice(0, 20).forEach(skill => { // Limit to top 20 skills
+        if (skill.trim().length > 2) {
           candidate_skills.push(skill.trim());
         }
       });
     } else {
-      // Fallback to using segments if structured resume didn't work well
-      for (const key of ["Skills", "Technical Skills", "Areas of Expertise", "Additional Skills"]) {
+      // Fallback with optimization
+      for (const key of ["Skills", "Technical Skills", "Areas of Expertise"]) {
         const segment = segments[key] || "";
-        if (typeof segment === 'string') {
-          skills_info += segment + "\n\n";
-          // Extract individual skills from these sections
-          for (const line of segment.split('\n')) {
-            if (line.trim() && line.trim().length > 3) { // Avoid empty lines and short items
+        if (typeof segment === 'string' && segment.length > 0) {
+          const optimizedSegment = preprocessText(segment, 400);
+          skills_info += optimizedSegment + " ";
+          
+          // Extract individual skills (limited)
+          const skillLines = optimizedSegment.split(/[,\n]/).slice(0, 15);
+          for (const line of skillLines) {
+            if (line.trim() && line.trim().length > 2) {
               candidate_skills.push(line.trim());
             }
           }
         }
       }
+      skills_info = skills_info.substring(0, MAX_SKILLS_CHARS);
     }
     
-    // Extract experience information from structured resume
+    // Extract experience information (optimized)
     let experience_info = "";
     if (structuredResume["Work Experience"].length > 0) {
-      // Format the work experience from structured data
-      structuredResume["Work Experience"].forEach(job => {
-        experience_info += `${job.role} at ${job.company} (${job.date_range})\n`;
-        job.accomplishments.forEach(accomplishment => {
-          experience_info += `- ${accomplishment}\n`;
+      // Limit to most recent 3 jobs
+      const recentJobs = structuredResume["Work Experience"].slice(0, 3);
+      recentJobs.forEach(job => {
+        experience_info += `${job.role} at ${job.company}\n`;
+        // Limit accomplishments to top 3
+        job.accomplishments.slice(0, 3).forEach(accomplishment => {
+          experience_info += `- ${accomplishment.substring(0, 150)}\n`;
         });
-        experience_info += "\n";
         
-        // Add to candidate roles
         candidate_roles.push(job.role);
-        
-        // Add accomplishments to experience
-        job.accomplishments.forEach(item => {
-          candidate_experience.push(item);
-        });
+        candidate_experience.push(...job.accomplishments.slice(0, 2));
       });
     } else {
-      // Fallback to segments
+      // Fallback with optimization
       for (const key of ["Professional Experience", "Experience", "Work Experience"]) {
         const segment = segments[key] || "";
-        if (typeof segment === 'string') {
-          experience_info += segment + "\n\n";
-          // Extract job titles and experience details
-          const lines = segment.split('\n');
-          for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            // Look for job titles/roles
-            if (/manager|director|specialist|engineer|developer|analyst|coordinator|assistant|designer|consultant|lead|head|chief/i.test(line)) {
-              candidate_roles.push(line.trim());
-            }
-            // Add lines after a role as experience details
-            if (i > 0 && candidate_roles.includes(lines[i-1].trim()) && line.trim()) {
-              candidate_experience.push(line.trim());
-            }
+        if (typeof segment === 'string' && segment.length > 0) {
+          const optimizedSegment = preprocessText(segment, 600);
+          experience_info += optimizedSegment + "\n";
+          
+          // Extract roles efficiently
+          const roleMatches = optimizedSegment.match(/\b(manager|director|specialist|engineer|developer|analyst|coordinator|designer|consultant|lead)\b/gi);
+          if (roleMatches) {
+            candidate_roles.push(...roleMatches.slice(0, 3));
           }
         }
       }
+      experience_info = experience_info.substring(0, MAX_EXPERIENCE_CHARS);
     }
     
-    // Extract summary from structured resume
-    let summary = structuredResume.Summary || "";
+    // Extract summary (optimized)
+    let summary = preprocessText(structuredResume.Summary || "", MAX_SUMMARY_CHARS);
     if (!summary) {
-      // Fallback to segments
       for (const key of ["Summary", "Professional Summary", "Profile"]) {
         const segment = segments[key] || "";
-        if (typeof segment === 'string') {
-          summary += segment + "\n";
+        if (typeof segment === 'string' && segment.length > 0) {
+          summary = preprocessText(segment, MAX_SUMMARY_CHARS);
+          break;
         }
       }
     }
     
-    // Use the new AI functions to extract better structured data
-    const resumeSkills = await extract_skills_from_text(resumeText);
-    const jobRequirements = await extract_job_requirements(jobDescription);
-    const jobTerms = await extract_key_job_terms(jobDescription);
+    // Use optimized functions with reduced token usage
+    const resumeSkills = await extract_skills_from_text(optimizedResumeText);
+    const jobRequirements = await extract_job_requirements(optimizedJobDescription);
+    const jobTerms = await extract_key_job_terms(optimizedJobDescription);
     
-    // Use AI to do the scoring with structured data
-    const prompt = `
-    Evaluate this resume against the job description using these scoring criteria:
-    
-    1. Skills Match (40%):
-        - Technical skills alignment
-        - Soft skills alignment
-        - Experience level match
-        - Domain knowledge
-    
-    2. Experience Relevance (30%):
-       - Years of relevant experience
-       - Similar role responsibilities
-       - Industry alignment
-       - Project relevance
-    
-    3. Education & Certifications (10%):
-       - Required qualifications
-       - Relevant certifications
-       - Specialized training
-    
-    4. Additional Factors (20%):
-       - Keyword match
-       - Achievement metrics
-       - Leadership experience
-       - Location/arrangement compatibility
-    
-    IMPORTANT:
-    - When matching required skills, licenses, or certifications, treat "certifications", "certificates", and "licenses" as equivalent. 
-    - If a required license or certificate (e.g., "Door Supervisor License") is present in the candidate's certifications, certificates, or licenses section, do NOT mark it as missing.
-    - Only list a skill, license, or certificate as missing if it is truly not present anywhere in the resume, including certifications, certificates, or licenses sections.
-    
-    Return JSON with:
-    - "match_score": overall percentage (0-100)
-    - "category_scores": detailed breakdown by category
-    - "missing_skills": an array of concise, ATS-friendly skill terms from the job description that are not found in the resume (e.g., "Java", "CI/CD", "AWS","conflict management", "teamwork", "leadership")
-    - "matched_skills": an array of concise, ATS-friendly skill terms found in both the job description and the resume (e.g., "Git", "Software Architecture", "Azure", "teamwork" ,"conflict management", "leadership")
-    - "recommendations": specific improvements (3-5 items)
-    - "alternative_positions": [CRITICAL] For low match scores, suggest 2-3 positions based ONLY on the candidate's skills and experience from their resume. IGNORE the job description completely when suggesting alternative positions.
-    
-    Resume Summary:
-    ${summary}
-    
-    Candidate Experience:
-    ${experience_info}
-    
-    Candidate Skills:
-    ${skills_info}
-    
-    Structured Resume:
-    ${JSON.stringify(structuredResume, null, 2)}
-    
-    Extracted Resume Skills:
-    ${JSON.stringify(resumeSkills)}
-    
-    Job Requirements:
-    ${JSON.stringify(jobRequirements)}
-    
-    Job Terms:
-    ${JSON.stringify(jobTerms)}
-    
-    Full Resume Text:
-    ${resumeText.substring(0, 3000)}  // Limit to first 3000 chars for token reasons
-    
-    Job Description:
-    ${jobDescription}
-    `;
-    
+         // Limit extracted data to prevent token overflow
+     const limitedResumeSkills = resumeSkills.slice(0, 25);
+     const limitedRequiredSkills = jobRequirements.required_skills.slice(0, 15);
+     const limitedPreferredSkills = jobRequirements.preferred_skills.slice(0, 10);
+     const limitedKeywords = jobTerms.keywords.slice(0, 15);
+     
+     // OPTIMIZED PROMPT: Shorter and more focused
+     const prompt = `
+Evaluate resume vs job match. Score 0-100 across these criteria:
 
+SCORING:
+- Skills Match (40%): Technical + soft skills alignment
+- Experience (30%): Relevant experience + achievements  
+- Education (10%): Required qualifications
+- Keywords (20%): ATS terms + industry buzzwords
+
+RESUME SUMMARY: ${summary.substring(0, 400)}
+
+RESUME SKILLS: ${skills_info.substring(0, 500)}
+
+KEY SKILLS: ${limitedResumeSkills.join(", ").substring(0, 600)}
+
+RECENT EXPERIENCE: ${experience_info.substring(0, 800)}
+
+REQUIRED SKILLS: ${limitedRequiredSkills.join(", ")}
+PREFERRED SKILLS: ${limitedPreferredSkills.join(", ")}
+JOB KEYWORDS: ${limitedKeywords.join(", ")}
+EXPERIENCE LEVEL: ${jobRequirements.experience_level}
+
+Return JSON with:
+- "match_score": 0-100 percentage
+- "matched_skills": skills found in both (max 15)
+- "missing_skills": skills missing from resume (max 10)  
+- "recommendations": 3 specific improvements
+- "alternative_positions": 2 job titles if score < 40
+`;
+
+    // OPTIMIZED OpenAI call: Faster model, lower timeout, limited tokens
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-3.5-turbo', // Faster than gpt-4o-mini
       messages: [
         {
           role: 'system',
-          content: `You are an expert resume analyst that evaluates resumes against job descriptions.
-          Be specific, accurate, and actionable in your feedback.
-          
-          CRITICAL INSTRUCTIONS FOR ALTERNATIVE POSITIONS:
-          
-          When suggesting alternative positions for low-scoring matches:
-          1. Look ONLY at the candidate's skills and experience from their RESUME
-          2. COMPLETELY IGNORE the job description when suggesting alternative positions
-          3. Suggest jobs they ARE qualified for based on their resume, not jobs they COULD be qualified for
-          4. Base recommendations on their strongest demonstrated skills and most recent roles
-          5. Match the seniority level of their previous roles
-          6. Focus on their actual expertise, not what they're missing for the current job
-          7. YOU MUST PROVIDE AT LEAST 2 SPECIFIC JOB TITLES they are qualified for
-          
-          Convert all skill terms to professional resume format:
-          - "make time for others" → "supportiveness" or "active listening"
-          - "follow instructions" → "instruction adherence"
-          - "maintain positive attitude" → "positive mindset"
-          
-          Only return properly formatted JSON with complete fields.`
+          content: 'You are a resume scorer. Provide accurate, concise analysis in JSON format. Be specific but brief.'
         },
         { role: 'user', content: prompt }
       ],
-      temperature: 0.2,
+      temperature: 0.1, // Lower for faster processing
+      max_tokens: 2000, // Reduced from 10000
       response_format: { type: "json_object" }
     }, {
-      timeout: 59000, // 59 seconds timeout to prevent Vercel 504 errors
+      timeout: 40000, // Reduced to 40 seconds
     });
     
     try {
-      // Extract and clean the response
       const content = response.choices[0].message.content || '';
       const score_data = JSON.parse(content);
       
-      // Validate the result with defaults if fields are missing
+      // Validate with optimized defaults
       const validated_data: ResumeScore = {
-        matched_skills: score_data.matched_skills || [],
-        missing_skills: score_data.missing_skills || [], 
-        recommendations: score_data.recommendations || ["Enhance resume with more specific skills and experience"],
-        match_percentage: Math.min(100, Math.max(0, score_data.match_score || 50)),
-        match_score: Math.min(100, Math.max(0, score_data.match_score || 50)),
+        matched_skills: (score_data.matched_skills || []).slice(0, 15),
+        missing_skills: (score_data.missing_skills || []).slice(0, 10), 
+        recommendations: (score_data.recommendations || ["Enhance resume with relevant skills"]).slice(0, 3),
+        match_percentage: Math.min(100, Math.max(0, score_data.match_score || 25)),
+        match_score: Math.min(100, Math.max(0, score_data.match_score || 25)),
         category_scores: score_data.category_scores || {
-          skills_match: 20,
-          experience_relevance: 15,
-          education_certifications: 7,
+          skills_match: 15,
+          experience_relevance: 12,
+          education_certifications: 5,
           additional_factors: 8
         },
         alternative_positions: undefined
       };
       
-      // For low scores, ensure we have alternative positions
+      // Simplified alternative positions logic
       if (validated_data.match_percentage < 40) {
         let alternative_positions = score_data.alternative_positions || [];
         
-        // If no positions provided, generate defaults based on resume data only
         if (!alternative_positions || alternative_positions.length === 0) {
-          // Use extracted candidate roles if available
-          if (candidate_roles.length > 0) {
-            // Select the most promising roles based on candidate's skills
-            alternative_positions = candidate_roles.slice(0, 2);
+          // Quick fallback based on key skills
+          const skillsLower = limitedResumeSkills.join(" ").toLowerCase();
+          
+          if (skillsLower.includes("software") || skillsLower.includes("developer")) {
+            alternative_positions = ["Software Developer", "Technical Specialist"];
+          } else if (skillsLower.includes("design")) {
+            alternative_positions = ["Designer", "Creative Specialist"];
+          } else if (skillsLower.includes("manage")) {
+            alternative_positions = ["Project Manager", "Team Lead"];
+          } else if (skillsLower.includes("market")) {
+            alternative_positions = ["Marketing Specialist", "Digital Marketing"];
           } else {
-            // Generate positions based on extracted skills
-            const skills_text = resumeSkills.join(" ").toLowerCase();
-            
-            if (skills_text.includes("programming") || skills_text.includes("software") || 
-                skills_text.includes("developer") || skills_text.includes("python")) {
-              alternative_positions = ["Software Developer", "Application Engineer"];
-            } else if (skills_text.includes("design") || skills_text.includes("photoshop") ||
-                       skills_text.includes("ux") || skills_text.includes("ui")) {
-              alternative_positions = ["Graphic Designer", "UX/UI Designer"];
-            } else if (skills_text.includes("teach") || skills_text.includes("education") ||
-                       skills_text.includes("curriculum") || skills_text.includes("classroom")) {
-              alternative_positions = ["Educational Consultant", "Curriculum Developer"];
-            } else if (skills_text.includes("care") || skills_text.includes("nurse") ||
-                       skills_text.includes("patient") || skills_text.includes("health")) {
-              alternative_positions = ["Healthcare Specialist", "Patient Care Coordinator"];
-            } else if (skills_text.includes("marketing") || skills_text.includes("social media") ||
-                       skills_text.includes("branding")) {
-              alternative_positions = ["Marketing Specialist", "Digital Marketing Coordinator"];
-            } else if (skills_text.includes("manage") || skills_text.includes("leadership") ||
-                       skills_text.includes("strategy") || skills_text.includes("team")) {
-              alternative_positions = ["Project Manager", "Team Lead"];
-            } else if (resumeText.toLowerCase().includes("software") || 
-                       resumeText.toLowerCase().includes("developer")) {
-              alternative_positions = ["Software Developer", "Application Engineer"];
-            } else if (resumeText.toLowerCase().includes("marketing")) {
-              alternative_positions = ["Marketing Specialist", "Digital Marketing Coordinator"];
-            } else if (resumeText.toLowerCase().includes("teach") || 
-                       resumeText.toLowerCase().includes("education")) {
-              alternative_positions = ["Educational Consultant", "Curriculum Developer"];
-            } else if (resumeText.toLowerCase().includes("care") || 
-                       resumeText.toLowerCase().includes("health")) {
-              alternative_positions = ["Healthcare Specialist", "Patient Care Coordinator"];
-            } else {
-              alternative_positions = ["Professional aligned with your skills", "Specialist in your field"];
-            }
+            alternative_positions = ["Professional role in your field", "Specialist position"];
           }
-          
-          // Add the positions to the recommendations
-          const position_list = alternative_positions.join(", ");
-          if (!validated_data.recommendations.some(r => r.includes("Consider applying for"))) {
-            validated_data.recommendations.unshift(
-              `Consider applying for positions that better match your experience, such as: ${position_list}`
-            );
-          }
-          
-          // Ensure alternative_positions is in the response
-          validated_data.alternative_positions = alternative_positions;
-        } else {
-          validated_data.alternative_positions = alternative_positions;
         }
+        
+        validated_data.alternative_positions = alternative_positions.slice(0, 2);
       }
       
-  
       return validated_data;
       
     } catch (parseError) {
@@ -339,7 +361,7 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
       return {
         matched_skills: [],
         missing_skills: [],
-        recommendations: ["Error analyzing resume match. Please try again."],
+        recommendations: ["Error analyzing resume. Please try again."],
         match_percentage: 0,
         match_score: 0
       };
@@ -349,7 +371,7 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
     return {
       matched_skills: [],
       missing_skills: [],
-      recommendations: ["Error analyzing resume match. Please try again."],
+      recommendations: ["Error analyzing resume. Please try again."],
       match_percentage: 0,
       match_score: 0
     };
