@@ -295,7 +295,7 @@ Return JSON with:
 
     // OPTIMIZED OpenAI call: Faster model, lower timeout, limited tokens
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo', // Faster than gpt-4o-mini
+      model: 'gpt-4o-mini', // Faster than gpt-4o-mini
       messages: [
         {
           role: 'system',

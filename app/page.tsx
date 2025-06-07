@@ -98,7 +98,7 @@ export default function Home() {
                   
                   {/* Demo Image */}
                   <Image 
-                    src="/search-job.png"
+                    src="/dash.png"
                     alt="CvPrep Live Demo - Resume Scoring"
                     width={800}
                     height={500}
@@ -131,7 +131,7 @@ export default function Home() {
               Everything You Need to Land Your Dream Job
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                                   Our AI-powered platform provides all the tools you need to stand out in today&apos;s competitive job market
+                                  Our AI-powered platform provides all the tools you need to stand out in today&apos;s competitive job market
             </p>
           </div>
 
@@ -208,7 +208,7 @@ export default function Home() {
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl transform rotate-3"></div>
                     <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 transform transition-transform duration-300 hover:scale-105 cursor-pointer" onClick={() => goToFeature('/dashboard')}>
                       <Image
-                        src="/resume.png"
+                        src="/ed.png"
                         alt="CV Optimization Dashboard"
                         width={600}
                         height={400}
@@ -259,7 +259,7 @@ export default function Home() {
                     <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl transform -rotate-3"></div>
                     <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 transform transition-transform duration-300 hover:scale-105 cursor-pointer" onClick={() => goToFeature('/dashboard')}>
                       <Image
-                        src="/search-job.png"
+                        src="/score.png"
                         alt="ATS Scoring System"
                         width={600}
                         height={400}
@@ -350,79 +350,188 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Feature 3 - Professional Templates */}
+            
+
+            {/* Feature 4 - Cover Letter Generator */}
             <div className="relative">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                {/* Content */}
+                {/* Image */}
                 <div className="lg:order-1">
-                  <div className="inline-flex items-center rounded-full bg-purple-100 px-4 py-2 text-sm font-medium text-purple-800 mb-6">
-                    🎨 Professional Design
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl transform -rotate-3"></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 transform transition-transform duration-300 hover:scale-105 cursor-pointer" onClick={() => goToFeature('/cover-letter')}>
+                      <Image
+                        src="/cover.png"
+                        alt="Cover Letter Generator"
+                        width={600}
+                        height={400}
+                        className="w-full h-auto"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Content */}
+                <div className="lg:order-2">
+                  <div className="inline-flex items-center rounded-full bg-orange-100 px-4 py-2 text-sm font-medium text-orange-800 mb-6">
+                    ✍️ Cover Letter Generator
                   </div>
                   <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                    Beautiful, ATS-Friendly Templates
+                    Create Compelling Cover Letters in Minutes
                   </h3>
                   <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                    Choose from our collection of professionally designed templates that look great and 
-                    pass through ATS systems seamlessly. Download as PDF instantly.
+                    Generate personalized, persuasive cover letters tailored to each job application. 
+                    Our AI crafts compelling narratives that highlight your unique value proposition.
                   </p>
                   
-                  {/* Template Stats */}
-                  <div className="grid grid-cols-3 gap-4 mb-8">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600 mb-1">15+</div>
-                      <div className="text-sm text-gray-600">Templates</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600 mb-1">100%</div>
-                      <div className="text-sm text-gray-600">ATS Compatible</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600 mb-1">1-Click</div>
-                      <div className="text-sm text-gray-600">PDF Export</div>
-                    </div>
-                  </div>
-                  
-                  {/* Features */}
+                  {/* Features List */}
                   <div className="space-y-4 mb-8">
                     <div className="flex items-start space-x-3">
-                      <CheckCircle className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-semibold text-gray-900">Industry-Specific Designs</h4>
-                        <p className="text-sm text-gray-600">Templates tailored for tech, finance, creative, and more</p>
+                        <h4 className="font-semibold text-gray-900">Job-Specific Customization</h4>
+                        <p className="text-sm text-gray-600">Tailored content for each role and company</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
-                      <CheckCircle className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-semibold text-gray-900">Instant PDF Generation</h4>
-                        <p className="text-sm text-gray-600">Download your optimized CV as a professional PDF</p>
+                        <h4 className="font-semibold text-gray-900">Professional Tone</h4>
+                        <p className="text-sm text-gray-600">Perfectly balanced formal yet engaging language</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
-                      <CheckCircle className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-semibold text-gray-900">Mobile Responsive</h4>
-                        <p className="text-sm text-gray-600">Edit and optimize your CV on any device</p>
+                        <h4 className="font-semibold text-gray-900">Multiple Formats</h4>
+                        <p className="text-sm text-gray-600">Various templates for different industries</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <CheckCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Instant Generation</h4>
+                        <p className="text-sm text-gray-600">Create professional letters in under 2 minutes</p>
                       </div>
                     </div>
                   </div>
                   
                   <Button 
-                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
-                    onClick={() => goToFeature('/dashboard')}
+                    className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                    onClick={() => goToFeature('/cover-letter')}
                   >
-                    Choose Template <ArrowRight className="ml-2 h-5 w-5" />
+                    Generate Cover Letter <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Client Testimonial */}
+              <div className="mt-12 max-w-4xl mx-auto">
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+                  <div className="flex items-center mb-6">
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                      ))}
+                    </div>
+                    <span className="ml-3 text-sm font-medium text-gray-900">5.0 out of 5</span>
+                  </div>
+                  <blockquote className="text-xl text-gray-700 font-medium mb-6 leading-relaxed">
+                    &ldquo;The cover letter generator saved me hours of writing time. Each letter feels personal and professional, 
+                    and I&apos;ve noticed a significant increase in response rates from employers.&rdquo;
+                  </blockquote>
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        D
+                      </div>
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-lg font-semibold text-gray-900">David Park</p>
+                      <p className="text-gray-600">Marketing Director at Tesla</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 5 - Interview Prep */}
+            <div className="relative">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                {/* Content */}
+                <div className="lg:order-1">
+                  <div className="inline-flex items-center rounded-full bg-indigo-100 px-4 py-2 text-sm font-medium text-indigo-800 mb-6">
+                    🎤 Interview Preparation
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    Master Your Interview Skills with AI
+                  </h3>
+                  <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                    Practice with our AI interview simulator that provides real-time feedback and personalized coaching. 
+                    Build confidence and nail your next interview.
+                  </p>
+                  
+                  {/* Interview Stats */}
+                  <div className="grid grid-cols-2 gap-6 mb-8">
+                    <div className="text-center p-4 bg-indigo-50 rounded-xl border border-indigo-200">
+                      <div className="text-3xl font-bold text-indigo-600 mb-1">500+</div>
+                      <div className="text-sm text-indigo-700 font-medium">Practice Questions</div>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-xl border border-green-200">
+                      <div className="text-3xl font-bold text-green-600 mb-1">85%</div>
+                      <div className="text-sm text-green-700 font-medium">Success Rate</div>
+                    </div>
+                  </div>
+                  
+                  {/* Features List */}
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-start space-x-3">
+                      <CheckCircle className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">AI-Powered Simulation</h4>
+                        <p className="text-sm text-gray-600">Realistic interview scenarios with instant feedback</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <CheckCircle className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Industry-Specific Questions</h4>
+                        <p className="text-sm text-gray-600">Targeted practice for your field and role level</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <CheckCircle className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Performance Analytics</h4>
+                        <p className="text-sm text-gray-600">Track your progress and improvement areas</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <CheckCircle className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Confidence Building</h4>
+                        <p className="text-sm text-gray-600">Reduce anxiety with unlimited practice sessions</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    className="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                    onClick={() => goToFeature('/interview-prep')}
+                  >
+                    Start Interview Practice <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
                 
                 {/* Image */}
                 <div className="lg:order-2">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl transform rotate-3"></div>
-                    <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 transform transition-transform duration-300 hover:scale-105 cursor-pointer" onClick={() => goToFeature('/dashboard')}>
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl transform rotate-3"></div>
+                    <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 transform transition-transform duration-300 hover:scale-105 cursor-pointer" onClick={() => goToFeature('/interview-prep')}>
                       <Image
-                        src="/cover-letter.png"
-                        alt="Professional CV Templates"
+                        src="/int.png"
+                        alt="Interview Preparation Platform"
                         width={600}
                         height={400}
                         className="w-full h-auto"
@@ -444,19 +553,19 @@ export default function Home() {
                     </div>
                     <span className="ml-3 text-sm font-medium text-gray-900">5.0 out of 5</span>
                   </div>
-                                     <blockquote className="text-xl text-gray-700 font-medium mb-6 leading-relaxed">
-                     &ldquo;The templates are stunning and professional. I&apos;ve never received so many compliments on my CV design. 
-                     Plus, the PDF export quality is perfect for any application.&rdquo;
-                   </blockquote>
+                  <blockquote className="text-xl text-gray-700 font-medium mb-6 leading-relaxed">
+                    &ldquo;The interview practice transformed my confidence completely. The AI feedback helped me identify 
+                    weak points I never noticed. I aced my final interview and got the job!&rdquo;
+                  </blockquote>
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        E
+                      <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        A
                       </div>
                     </div>
                     <div className="ml-4">
-                      <p className="text-lg font-semibold text-gray-900">Emily Rodriguez</p>
-                      <p className="text-gray-600">UX Designer at Adobe</p>
+                      <p className="text-lg font-semibold text-gray-900">Alex Thompson</p>
+                      <p className="text-gray-600">Data Scientist at Netflix</p>
                     </div>
                   </div>
                 </div>

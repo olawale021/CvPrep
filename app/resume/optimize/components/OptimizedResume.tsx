@@ -251,19 +251,38 @@ function OptimizedResumeContent({
         </div>
       </div>
 
-      {/* Preview Dialog - Mobile Optimized */}
+      {/* Preview Dialog - Enhanced Display */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-xs sm:max-w-4xl h-[90vh] p-3 sm:p-6">
-          <DialogTitle className="text-base sm:text-lg font-semibold mb-2 sm:mb-4">Resume Preview</DialogTitle>
-          <DialogDescription className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
-            Preview your resume before downloading
-          </DialogDescription>
-          {previewUrl && (
-            <iframe
-              src={previewUrl}
-              className="w-full h-full border-0 rounded"
-              title="Resume Preview"
-            />
+        <DialogContent className="max-w-[95vw] sm:max-w-[90vw] lg:max-w-6xl h-[95vh] p-4 sm:p-6 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">Resume Preview</DialogTitle>
+              <DialogDescription className="text-sm text-gray-600 mt-1">
+                Preview your resume before downloading
+              </DialogDescription>
+            </div>
+          </div>
+          
+          {previewUrl ? (
+            <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden shadow-inner">
+              <iframe
+                src={previewUrl}
+                className="w-full h-full border-0"
+                title="Resume Preview"
+                style={{ minHeight: '600px' }}
+              />
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center bg-gray-50 rounded-lg">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="text-gray-500 text-lg font-medium">Loading Preview...</p>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
