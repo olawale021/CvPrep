@@ -2,7 +2,7 @@
 
 import { LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "./Avatar";
 import { Button } from "./Button";
@@ -10,32 +10,88 @@ import { Button } from "./Button";
 export default function LandingHeader() {
   const { user, signOut, isLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const userName = user?.user_metadata?.full_name || user?.email || "User";
   const avatarUrl = user?.user_metadata?.avatar_url || "";
+
+  // Handle scroll detection for transparency effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg' 
+          : 'bg-white/10 backdrop-blur-sm'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-blue-600">CvPrep</span>
+          <Link href="/" className="flex items-center space-x-2 z-10">
+            <span className={`text-2xl font-bold transition-colors duration-300 ${
+              isScrolled ? 'text-blue-600' : 'text-gray-900 font-extrabold'
+            }`}>
+              CvPrep
+            </span>
           </Link>
 
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
-              About
+            <button
+              onClick={() => scrollToSection('features')}
+              className={`transition-colors duration-300 hover:text-blue-600 ${
+                isScrolled ? 'text-gray-600 hover:text-blue-600' : 'text-gray-700 hover:text-gray-900 font-medium'
+              }`}
+            >
+              Features
+            </button>
+            <Link 
+              href="/pricing" 
+              className={`transition-colors duration-300 hover:text-blue-600 ${
+                isScrolled ? 'text-gray-600 hover:text-blue-600' : 'text-gray-700 hover:text-gray-900 font-medium'
+              }`}
+            >
+              Pricing
             </Link>
-            <Link href="/help" className="text-gray-600 hover:text-gray-900 transition-colors">
-              Help
-            </Link>
-            <Link href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
-              Contact
+            <button
+              onClick={() => scrollToSection('testimonials')}
+              className={`transition-colors duration-300 hover:text-blue-600 ${
+                isScrolled ? 'text-gray-600 hover:text-blue-600' : 'text-gray-700 hover:text-gray-900 font-medium'
+              }`}
+            >
+              Testimonials
+            </button>
+            <Link 
+              href="/blog" 
+              className={`transition-colors duration-300 hover:text-blue-600 ${
+                isScrolled ? 'text-gray-600 hover:text-blue-600' : 'text-gray-700 hover:text-gray-900 font-medium'
+              }`}
+            >
+              Blog
             </Link>
           </nav>
 
@@ -45,14 +101,14 @@ export default function LandingHeader() {
               // Authenticated user
               <div className="flex items-center space-x-4">
                 <Link href="/dashboard">
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
                     Dashboard
                   </Button>
                 </Link>
                 <div className="flex items-center space-x-2">
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-8 w-8 ring-2 ring-blue-200/50">
                     <AvatarImage src={avatarUrl} alt={userName} />
-                    <AvatarFallback>
+                    <AvatarFallback className="bg-blue-100 text-blue-700">
                       {userName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -60,7 +116,11 @@ export default function LandingHeader() {
                     variant="ghost"
                     size="sm"
                     onClick={signOut}
-                    className="text-gray-600 hover:text-gray-900"
+                    className={`transition-colors duration-300 ${
+                      isScrolled 
+                        ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/20'
+                    }`}
                   >
                     <LogOut className="h-4 w-4" />
                   </Button>
@@ -70,12 +130,19 @@ export default function LandingHeader() {
               // Non-authenticated user
               <div className="flex items-center space-x-4">
                 <Link href="/login">
-                  <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+                  <Button 
+                    variant="ghost" 
+                    className={`transition-colors duration-300 ${
+                      isScrolled 
+                        ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/20'
+                    }`}
+                  >
                     Sign In
                   </Button>
                 </Link>
                 <Link href="/login">
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 ring-2 ring-blue-200/50">
                     Get Started
                   </Button>
                 </Link>
@@ -86,7 +153,11 @@ export default function LandingHeader() {
           {/* Mobile menu button */}
           <button
             onClick={toggleMobileMenu}
-            className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+            className={`md:hidden inline-flex items-center justify-center p-2 rounded-md transition-colors duration-300 ${
+              isScrolled
+                ? 'text-gray-400 hover:text-gray-500 hover:bg-gray-100'
+                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/20'
+            }`}
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6" />
@@ -98,34 +169,59 @@ export default function LandingHeader() {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
+          <div className={`md:hidden border-t py-4 transition-colors duration-300 ${
+            isScrolled ? 'border-gray-200 bg-white/95' : 'border-gray-200/50 bg-white/90 backdrop-blur-md'
+          }`}>
             <div className="flex flex-col space-y-4">
+              <button
+                onClick={() => scrollToSection('features')}
+                className={`text-left px-2 py-1 transition-colors duration-300 ${
+                  isScrolled 
+                    ? 'text-gray-600 hover:text-gray-900' 
+                    : 'text-white/90 hover:text-white'
+                }`}
+              >
+                Features
+              </button>
               <Link
-                href="/about"
-                className="text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
+                href="/pricing"
+                className={`px-2 py-1 transition-colors duration-300 ${
+                  isScrolled 
+                    ? 'text-gray-600 hover:text-gray-900' 
+                    : 'text-white/90 hover:text-white'
+                }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                About
+                Pricing
               </Link>
+              <button
+                onClick={() => scrollToSection('testimonials')}
+                className={`text-left px-2 py-1 transition-colors duration-300 ${
+                  isScrolled 
+                    ? 'text-gray-600 hover:text-gray-900' 
+                    : 'text-white/90 hover:text-white'
+                }`}
+              >
+                Testimonials
+              </button>
               <Link
-                href="/help"
-                className="text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
+                href="/blog"
+                className={`px-2 py-1 transition-colors duration-300 ${
+                  isScrolled 
+                    ? 'text-gray-600 hover:text-gray-900' 
+                    : 'text-white/90 hover:text-white'
+                }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Help
-              </Link>
-              <Link
-                href="/contact"
-                className="text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Contact
+                Blog
               </Link>
               
               {!isLoading && user ? (
-                <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
+                <div className={`flex flex-col space-y-2 pt-4 border-t ${
+                  isScrolled ? 'border-gray-200' : 'border-gray-200/50'
+                }`}>
                   <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg">
                       Dashboard
                     </Button>
                   </Link>
@@ -135,20 +231,33 @@ export default function LandingHeader() {
                       signOut();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full text-gray-600 hover:text-gray-900"
+                    className={`w-full transition-colors duration-300 ${
+                      isScrolled 
+                        ? 'text-gray-600 hover:text-gray-900' 
+                        : 'text-white/90 hover:text-white'
+                    }`}
                   >
                     Sign Out
                   </Button>
                 </div>
               ) : (
-                <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
+                <div className={`flex flex-col space-y-2 pt-4 border-t ${
+                  isScrolled ? 'border-gray-200' : 'border-gray-200/50'
+                }`}>
                   <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full text-gray-600 hover:text-gray-900">
+                    <Button 
+                      variant="ghost" 
+                      className={`w-full transition-colors duration-300 ${
+                        isScrolled 
+                          ? 'text-gray-600 hover:text-gray-900' 
+                          : 'text-white/90 hover:text-white'
+                      }`}
+                    >
                       Sign In
                     </Button>
                   </Link>
                   <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg">
                       Get Started
                     </Button>
                   </Link>
@@ -160,4 +269,4 @@ export default function LandingHeader() {
       </div>
     </header>
   );
-} 
+}
