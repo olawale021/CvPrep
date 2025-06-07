@@ -18,7 +18,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Sign in to CareerPal</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Sign in to CvPrep</h1>
         <Button
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg"
           onClick={() => signInWithGoogle()}

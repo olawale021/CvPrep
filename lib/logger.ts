@@ -1,5 +1,5 @@
 /**
- * Secure logging utility for the CareerPal application
+ * Secure logging utility for the CvPrep application
  * - Implements different logging levels
  * - Prevents sensitive data logging in production
  * - Provides consistent formatting

@@ -136,7 +136,7 @@ class ErrorReportingService {
     if (!this.config.enableLocalStorage || typeof window === 'undefined') return;
 
     try {
-      const key = 'careerpal_error_reports';
+      const key = 'cvprep_error_reports';
       const existing = JSON.parse(localStorage.getItem(key) || '[]');
       
       existing.push(report);
@@ -287,7 +287,7 @@ class ErrorReportingService {
     if (typeof window === 'undefined') return [];
     
     try {
-      const reports = localStorage.getItem('careerpal_error_reports');
+      const reports = localStorage.getItem('cvprep_error_reports');
       return reports ? JSON.parse(reports) : [];
     } catch {
       return [];
@@ -299,7 +299,7 @@ class ErrorReportingService {
     if (typeof window === 'undefined') return;
     
     try {
-      localStorage.removeItem('careerpal_error_reports');
+      localStorage.removeItem('cvprep_error_reports');
     } catch (error) {
       console.warn('Failed to clear stored reports:', error);
     }

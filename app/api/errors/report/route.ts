@@ -98,7 +98,7 @@ async function sendCriticalErrorNotification(
     // Examples: Slack, Discord, Email, SMS, etc.
     
     const notification = {
-      title: '🚨 Critical Error in CareerPal',
+      title: '🚨 Critical Error in CvPrep',
       message: `**Error:** ${errorReport.message}\n` +
                `**Category:** ${errorReport.category}\n` +
                `**User:** ${errorReport.context.userEmail || 'Anonymous'}\n` +

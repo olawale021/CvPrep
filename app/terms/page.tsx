@@ -13,7 +13,7 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Acceptance of Terms</h2>
             <p className="text-gray-700 mb-4">
-              By accessing and using CareerPal (&quot;Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. 
+              By accessing and using CvPrep (&quot;Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. 
               If you do not agree to abide by the above, please do not use this service.
             </p>
           </section>
@@ -21,7 +21,7 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">2. Description of Service</h2>
             <p className="text-gray-700 mb-4">
-              CareerPal is an AI-powered job search assistant that provides:
+              CvPrep is an AI-powered job search assistant that provides:
             </p>
             <ul className="list-disc pl-6 text-gray-700 mb-4">
               <li>Resume optimization and scoring services</li>
@@ -53,7 +53,7 @@ export default function TermsOfService() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. Subscription Plans and Payment</h2>
             <h3 className="text-xl font-medium text-gray-900 mb-3">4.1 Free and Premium Plans</h3>
             <p className="text-gray-700 mb-4">
-              CareerPal offers both free and premium subscription plans. Premium features include:
+              CvPrep offers both free and premium subscription plans. Premium features include:
             </p>
             <ul className="list-disc pl-6 text-gray-700 mb-4">
               <li>Advanced resume templates (Modern template)</li>
@@ -77,7 +77,7 @@ export default function TermsOfService() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. User Content and Data</h2>
             <h3 className="text-xl font-medium text-gray-900 mb-3">5.1 Your Content</h3>
             <p className="text-gray-700 mb-4">
-              You retain ownership of all content you upload to CareerPal, including resumes, cover letters, and personal information. 
+              You retain ownership of all content you upload to CvPrep, including resumes, cover letters, and personal information. 
               By using our Service, you grant us a limited license to process, analyze, and improve your content using AI technology.
             </p>
             
@@ -128,7 +128,7 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. Intellectual Property</h2>
             <p className="text-gray-700 mb-4">
-              The Service and its original content, features, and functionality are owned by CareerPal and are protected by 
+              The Service and its original content, features, and functionality are owned by CvPrep and are protected by 
               international copyright, trademark, patent, trade secret, and other intellectual property laws.
             </p>
           </section>
@@ -143,7 +143,7 @@ export default function TermsOfService() {
             
             <h3 className="text-xl font-medium text-gray-900 mb-3">10.2 Limitation of Liability</h3>
             <p className="text-gray-700 mb-4">
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, CAREERPAL SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, 
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, CVPREP SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, 
               SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, 
               USE, GOODWILL, OR OTHER INTANGIBLE LOSSES.
             </p>
@@ -152,7 +152,7 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">11. Indemnification</h2>
             <p className="text-gray-700 mb-4">
-              You agree to defend, indemnify, and hold harmless CareerPal and its affiliates from and against any 
+              You agree to defend, indemnify, and hold harmless CvPrep and its affiliates from and against any 
               claims, damages, obligations, losses, liabilities, costs, or debt arising from your use of the Service 
               or violation of these Terms.
             </p>
@@ -190,7 +190,7 @@ export default function TermsOfService() {
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-gray-700">
-                Email: legal@careerpal.ai<br />
+                Email: legal@cvprep.app<br />
                 Address: [Your Business Address]
               </p>
             </div>

@@ -609,7 +609,7 @@ export const generateModernTemplate = async (resumeData: ResumeData, resumeRespo
   // Add page number on first page
   pdf.text(`Page 1 of ${currentPage}`, pageWidth - margin - 15, pageHeight - 10);
   
-  const footerText = `Resume generated on ${currentDate} · CareerPal.ai`;
+  const footerText = `Resume generated on ${currentDate} · CvPrep.app`;
   const footerWidth = pdf.getTextWidth(footerText);
   pdf.text(footerText, (pageWidth - footerWidth) / 2, pageHeight - 10);
   

@@ -3,26 +3,13 @@ import { ArrowRight, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { Button } from "../components/ui/Button";
 import LandingHeader from "../components/ui/LandingHeader";
-import { useAuth } from "../context/AuthContext";
 
 export default function Home() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace("/login");
-    }
-  }, [user, isLoading, router]);
-
-  if (isLoading || !user) {
-    return <div>Loading...</div>;
-  }
-
-  // Handler for primary CTA button
+  // Handler for primary CTA button - go to login instead of requiring auth
   const handlePrimaryAction = () => {
     router.push('/login');
   };
@@ -70,7 +57,7 @@ export default function Home() {
           <div className="rounded-lg shadow-xl overflow-hidden border border-gray-200 bg-white cursor-pointer" onClick={handlePrimaryAction}>
             <Image 
               src="/search-job.png"
-              alt="CareerPal Dashboard"
+              alt="CvPrep Dashboard"
               width={1200}
               height={600}
               className="w-full h-auto"
@@ -125,17 +112,17 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
-                <h4 className="font-medium mb-2">Keyword optimization</h4>
+                <h4 className="font-medium mb-2 text-black">Keyword optimization</h4>
                 <p className="text-black">Get past ATS systems with optimized keywords</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
-                <h4 className="font-medium mb-2">Professional templates</h4>
+                <h4 className="font-medium mb-2 text-black">Professional templates</h4>
                 <p className="text-black">Choose from templates for any industry</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
-                <h4 className="font-medium mb-2">AI content suggestions</h4>
+                <h4 className="font-medium mb-2 text-black">AI content suggestions</h4>
                 <p className="text-black">Get smart suggestions to improve your resume</p>
               </div>
             </div>
@@ -208,17 +195,17 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
-                <h4 className="font-medium mb-2">Role-specific questions</h4>
+                <h4 className="font-medium mb-2 text-black">Role-specific questions</h4>
                 <p className="text-black">Practice with questions tailored to your target role</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
-                <h4 className="font-medium mb-2">Real-time feedback</h4>
+                <h4 className="font-medium mb-2 text-black">Real-time feedback</h4>
                 <p className="text-black">Get instant feedback on your interview answers</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
-                <h4 className="font-medium mb-2">Behavioral & technical</h4>
+                <h4 className="font-medium mb-2 text-black">Behavioral & technical</h4>
                 <p className="text-black">Practice both behavioral and technical interviews</p>
               </div>
             </div>
@@ -291,17 +278,17 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
-                <h4 className="font-medium mb-2">Customized for each job</h4>
+                <h4 className="font-medium mb-2 text-black">Customized for each job</h4>
                 <p className="text-black">Tailor your cover letter for each application</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
-                <h4 className="font-medium mb-2">Professional tone</h4>
+                <h4 className="font-medium mb-2 text-black">Professional tone</h4>
                 <p className="text-black">Perfect formatting and professional language</p>
               </div>
               <div className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-8 w-8 text-green-500 mb-3" />
-                <h4 className="font-medium mb-2">Highlight achievements</h4>
+                <h4 className="font-medium mb-2 text-black">Highlight achievements</h4>
                 <p className="text-black">Showcase your most relevant accomplishments</p>
               </div>
             </div>
@@ -333,7 +320,7 @@ export default function Home() {
                     <span className="text-sm text-gray-500">Marketing Director</span>
                   </div>
                   <p className="text-gray-600 italic">
-                    &ldquo;Creating customized cover letters used to take hours. With CareerPal, I can generate
+                    &ldquo;Creating customized cover letters used to take hours. With CvPrep, I can generate
                     compelling cover letters in minutes. It&apos;s been invaluable in my job search!&rdquo;
                   </p>
                 </div>
@@ -378,7 +365,7 @@ export default function Home() {
       <footer className="py-12 px-4" style={{ backgroundColor: '#252525' }}>
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">CareerPal</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">CvPrep</h3>
             <p className="text-gray-300 text-sm">The AI-powered job search assistant for modern professionals.</p>
           </div>
           <div>
@@ -406,7 +393,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-gray-600 text-center text-sm text-gray-300">
-          &copy; {new Date().getFullYear()} CareerPal. All rights reserved.
+          &copy; {new Date().getFullYear()} CvPrep. All rights reserved.
         </div>
       </footer>
     </div>

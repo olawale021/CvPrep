@@ -1,18 +1,18 @@
 "use client";
 
 import {
-    BookOpen,
-    CheckCircle,
-    ChevronRight,
-    Clock,
-    FileText,
-    GraduationCap,
-    HelpCircle,
-    MessageSquare,
-    Search,
-    Star,
-    Users,
-    Video
+  BookOpen,
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  FileText,
+  GraduationCap,
+  HelpCircle,
+  MessageSquare,
+  Search,
+  Star,
+  Users,
+  Video
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -24,8 +24,8 @@ import Sidebar from "../../components/ui/Sidebar";
 const helpCategories = [
   {
     id: "getting-started",
-    title: "Getting Started",
-    description: "Learn the basics of CareerPal and set up your account",
+    title: "Getting Started with CvPrep",
+    description: "Learn the basics of CvPrep and how to set up your account for success.",
     icon: <BookOpen className="h-6 w-6" />,
     color: "bg-blue-500",
     articles: [
@@ -138,7 +138,7 @@ export default function HelpCenter() {
               How can we help you?
             </h1>
             <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-              Find answers, learn new skills, and get the most out of CareerPal
+              Find answers, learn new skills, and get the most out of CvPrep
             </p>
             
             {/* Search Bar */}

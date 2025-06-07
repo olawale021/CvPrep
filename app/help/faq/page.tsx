@@ -1,13 +1,13 @@
 "use client";
 
 import {
-    ArrowLeft,
-    ChevronDown,
-    ChevronUp,
-    HelpCircle,
-    MessageSquare,
-    Search,
-    Star
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+  HelpCircle,
+  MessageSquare,
+  Search,
+  Star
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -23,8 +23,8 @@ const faqCategories = [
     icon: <HelpCircle className="h-5 w-5" />,
     questions: [
       {
-        question: "What is CareerPal?",
-        answer: "CareerPal is an AI-powered job search assistant that helps you optimize your resume, prepare for interviews, and create compelling cover letters. Our platform uses advanced algorithms to analyze job descriptions and provide personalized recommendations to improve your chances of landing your dream job."
+        question: "What is CvPrep?",
+        answer: "CvPrep is an AI-powered job search assistant that helps you optimize your resume, prepare for interviews, and create compelling cover letters. Our platform uses advanced algorithms to analyze job descriptions and match them with your skills and experience."
       },
       {
         question: "How does the AI scoring work?",
@@ -35,8 +35,8 @@ const faqCategories = [
         answer: "Yes, we take data security very seriously. All your personal information and documents are encrypted and stored securely. We never share your data with third parties without your explicit consent, and you can delete your account and data at any time."
       },
       {
-        question: "Can I use CareerPal for free?",
-        answer: "Yes! CareerPal offers a free tier that includes basic resume scoring and limited optimizations. For unlimited access to all features including advanced AI recommendations, interview prep, and priority support, you can upgrade to our premium plans."
+        question: "Can I use CvPrep for free?",
+        answer: "Yes! CvPrep offers a free tier that includes basic resume scoring and limited optimizations. For unlimited access to all features including advanced AI recommendations, interview prep, and priority support, consider upgrading to our premium plan."
       }
     ]
   },
@@ -109,7 +109,7 @@ const faqCategories = [
       },
       {
         question: "Which browsers are supported?",
-        answer: "CareerPal works best on modern browsers including Chrome (recommended), Firefox, Safari, and Edge. Make sure your browser is updated to the latest version for optimal performance."
+        answer: "CvPrep works best on modern browsers including Chrome (recommended), Firefox, Safari, and Edge. Make sure your browser is updated to the latest version for optimal performance."
       }
     ]
   },
@@ -186,7 +186,7 @@ export default function FAQ() {
             </Link>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Frequently Asked Questions</h1>
             <p className="text-lg text-gray-600">
-              Find quick answers to common questions about CareerPal
+              Find quick answers to common questions about CvPrep
             </p>
           </div>
 

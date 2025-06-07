@@ -13,11 +13,11 @@ export default function PrivacyPolicy() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Introduction</h2>
             <p className="text-gray-700 mb-4">
-              CareerPal (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) is committed to protecting your privacy. This Privacy Policy explains how we collect, 
+              CvPrep (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) is committed to protecting your privacy. This Privacy Policy explains how we collect, 
               use, disclose, and safeguard your information when you use our AI-powered job search assistant service.
             </p>
             <p className="text-gray-700 mb-4">
-              By using CareerPal, you consent to the data practices described in this policy.
+              By using CvPrep, you consent to the data practices described in this policy.
             </p>
           </section>
 
@@ -242,14 +242,14 @@ export default function PrivacyPolicy() {
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-gray-700">
-                <strong>Email:</strong> privacy@careerpal.ai<br />
-                <strong>Data Protection Officer:</strong> dpo@careerpal.ai<br />
+                <strong>Email:</strong> privacy@cvprep.app<br />
+                <strong>Data Protection Officer:</strong> dpo@cvprep.app<br />
                 <strong>Address:</strong> [Your Business Address]<br />
                 <strong>Phone:</strong> [Your Contact Number]
               </p>
             </div>
             <p className="text-gray-700 mt-4">
-              For GDPR-related inquiries, please contact our Data Protection Officer at dpo@careerpal.ai.
+              For GDPR-related inquiries, please contact our Data Protection Officer at dpo@cvprep.app.
             </p>
           </section>
         </div>

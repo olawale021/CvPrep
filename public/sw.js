@@ -3,21 +3,21 @@
  * Implements multiple caching strategies for optimal performance
  */
 
-const CACHE_NAME = 'careerpal-v1';
-const API_CACHE_NAME = 'careerpal-api-v1';
-const STATIC_CACHE_NAME = 'careerpal-static-v1';
+const CACHE_NAME = 'cvprep-v1';
+const API_CACHE_NAME = 'cvprep-api-v1';
+const STATIC_CACHE_NAME = 'cvprep-static-v1';
 
 // Cache strategies for different resource types
-const CACHE_STRATEGIES = {
-  // Static assets - cache first
-  STATIC: 'cache-first',
-  // API responses - network first with cache fallback
-  API: 'network-first',
-  // Images - stale while revalidate
-  IMAGES: 'stale-while-revalidate',
-  // Documents - network first
-  DOCUMENTS: 'network-first',
-};
+// const CACHE_STRATEGIES = {
+//   // Static assets - cache first
+//   STATIC: 'cache-first',
+//   // API responses - network first with cache fallback
+//   API: 'network-first',
+//   // Images - stale while revalidate
+//   IMAGES: 'stale-while-revalidate',
+//   // Documents - network first
+//   DOCUMENTS: 'network-first',
+// };
 
 // URLs to cache on install
 const STATIC_ASSETS = [
@@ -141,7 +141,7 @@ async function handleApiRequest(request) {
     
     return networkResponse;
   } catch (error) {
-    console.log('Network failed, trying cache for:', pathname);
+    console.log('Network failed, trying cache for:', pathname, error);
     
     // Network failed, try cache
     const cache = await caches.open(API_CACHE_NAME);
@@ -248,7 +248,7 @@ async function handleDocumentRequest(request) {
     
     return networkResponse;
   } catch (error) {
-    console.log('Network failed for document, trying cache:', request.url);
+    console.log('Network failed for document, trying cache:', request.url, error);
     
     // Network failed, try cache
     const cache = await caches.open(CACHE_NAME);
@@ -270,7 +270,7 @@ async function handleDocumentRequest(request) {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Offline - CareerPal</title>
+          <title>Offline - CvPrep</title>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <style>
@@ -402,7 +402,7 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   
   const data = event.notification.data;
-  const action = event.action;
+  // const action = event.action;
   
   event.waitUntil(
     clients.openWindow(data.url || '/')

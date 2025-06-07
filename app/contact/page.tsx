@@ -8,7 +8,7 @@ export default function Contact() {
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact Us</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Have questions about CareerPal? We&apos;re here to help! Reach out to our team and we&apos;ll get back to you as soon as possible.
+            Have questions about CvPrep? We&apos;re here to help! Reach out to our team and we&apos;ll get back to you as soon as possible.
           </p>
         </div>
 
@@ -94,32 +94,32 @@ export default function Contact() {
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">General Support</h3>
                   <p className="text-gray-600 mb-2">For general questions and support</p>
-                  <a href="mailto:support@careerpal.ai" className="text-blue-600 hover:text-blue-800">
-                    support@careerpal.ai
+                  <a href="mailto:support@cvprep.app" className="text-blue-600 hover:text-blue-800">
+                    support@cvprep.app
                   </a>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Privacy & Data</h3>
                   <p className="text-gray-600 mb-2">For privacy-related inquiries</p>
-                  <a href="mailto:privacy@careerpal.ai" className="text-blue-600 hover:text-blue-800">
-                    privacy@careerpal.ai
+                  <a href="mailto:privacy@cvprep.app" className="text-blue-600 hover:text-blue-800">
+                    privacy@cvprep.app
                   </a>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Business Inquiries</h3>
                   <p className="text-gray-600 mb-2">For partnerships and business opportunities</p>
-                  <a href="mailto:business@careerpal.ai" className="text-blue-600 hover:text-blue-800">
-                    business@careerpal.ai
+                  <a href="mailto:business@cvprep.app" className="text-blue-600 hover:text-blue-800">
+                    business@cvprep.app
                   </a>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Legal</h3>
                   <p className="text-gray-600 mb-2">For legal and compliance matters</p>
-                  <a href="mailto:legal@careerpal.ai" className="text-blue-600 hover:text-blue-800">
-                    legal@careerpal.ai
+                  <a href="mailto:legal@cvprep.app" className="text-blue-600 hover:text-blue-800">
+                    legal@cvprep.app
                   </a>
                 </div>
               </div>
@@ -165,7 +165,7 @@ export default function Contact() {
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <p className="text-sm text-gray-600">
                   Can&apos;t find what you&apos;re looking for? 
-                  <a href="mailto:support@careerpal.ai" className="text-blue-600 hover:text-blue-800 ml-1">
+                  <a href="mailto:support@cvprep.app" className="text-blue-600 hover:text-blue-800 ml-1">
                     Contact our support team
                   </a>
                 </p>

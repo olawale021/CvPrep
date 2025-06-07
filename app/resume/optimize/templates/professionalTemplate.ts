@@ -479,7 +479,7 @@ export const generateProfessionalTemplate = async (resumeData: ResumeData, resum
     pdf.setFont(mainFont, 'italic');
     
     const currentDate = new Date().toLocaleDateString();
-    const footerText = `Resume generated on ${currentDate} · CareerPal.ai`;
+    const footerText = `Resume generated on ${currentDate} · CvPrep.ai`;
     
     pdf.text(footerText, margin, pageHeight - 10);
     

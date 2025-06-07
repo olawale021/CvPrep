@@ -113,7 +113,7 @@ export default function DashboardHeader() {
             </button>
             
             <Link href="/dashboard" className="text-xl font-bold text-blue-600 ml-2 md:ml-0">
-              CareerPal
+              CvPrep
             </Link>
           </div>
           

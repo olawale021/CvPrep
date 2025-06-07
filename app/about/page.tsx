@@ -8,7 +8,7 @@ export default function About() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-blue-50 to-white">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            About CareerPal
+            About CvPrep
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
             We&apos;re on a mission to democratize career success by making AI-powered job search tools 
@@ -29,7 +29,7 @@ export default function About() {
                 afford expensive career coaches.
               </p>
               <p className="text-lg text-gray-600 mb-6">
-                CareerPal leverages cutting-edge AI technology to provide personalized career guidance, 
+                CvPrep leverages cutting-edge AI technology to provide personalized career guidance, 
                 resume optimization, and interview preparation - all at a fraction of the cost of 
                 traditional career services.
               </p>
@@ -115,7 +115,7 @@ export default function About() {
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Our Story</h2>
           <div className="prose prose-lg max-w-none">
             <p className="text-lg text-gray-600 mb-6">
-              CareerPal was born from a simple observation: job searching is broken. Despite living in 
+              CvPrep was born from a simple observation: job searching is broken. Despite living in 
               the age of AI, most job seekers still rely on outdated methods - generic resume templates, 
               one-size-fits-all cover letters, and expensive career coaches.
             </p>
@@ -125,13 +125,13 @@ export default function About() {
               realized there had to be a better way.
             </p>
             <p className="text-lg text-gray-600 mb-6">
-              That&apos;s when they decided to build CareerPal - an AI-powered platform that could provide 
+              That&apos;s when they decided to build CvPrep - an AI-powered platform that could provide 
               personalized career guidance at scale. By leveraging the latest advances in artificial 
               intelligence, we can analyze job descriptions, optimize resumes, and provide tailored 
               recommendations in seconds, not hours.
             </p>
             <p className="text-lg text-gray-600">
-              Today, CareerPal helps thousands of job seekers every month land interviews and advance 
+              Today, CvPrep helps thousands of job seekers every month land interviews and advance 
               their careers. We&apos;re just getting started.
             </p>
           </div>
@@ -146,7 +146,7 @@ export default function About() {
             <div>
               <h3 className="text-2xl font-semibold text-gray-900 mb-4">Cutting-Edge Technology</h3>
               <p className="text-lg text-gray-600 mb-6">
-                CareerPal is built on state-of-the-art AI technology, including large language models 
+                CvPrep is built on state-of-the-art AI technology, including large language models 
                 and machine learning algorithms that understand the nuances of modern hiring practices.
               </p>
               <ul className="space-y-3 text-gray-600">
@@ -216,7 +216,7 @@ export default function About() {
             Ready to accelerate your career?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of professionals who have already transformed their job search with CareerPal&apos;s AI-powered tools.
+            Join thousands of professionals who have already transformed their job search with CvPrep&apos;s AI-powered tools.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3">

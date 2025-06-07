@@ -19,7 +19,7 @@ const notoSerif = Noto_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "CareerPal - AI-Powered Job Search Assistant",
+  title: "CvPrep - AI-Powered Job Search Assistant",
   description: "Simplify your job search with AI-powered resume building, interview prep, and career guidance.",
 };
 
