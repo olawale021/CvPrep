@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Josefin_Sans, Noto_Serif } from "next/font/google";
 import ClientProviders from "../components/ClientProviders";
@@ -33,6 +34,7 @@ export default function RootLayout({
         className={`${josefinSans.variable} ${notoSerif.variable} font-noto-serif antialiased`}
       >
         <ClientProviders>{children}</ClientProviders>
+        <Analytics />
       </body>
     </html>
   );
