@@ -1,47 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CvPrep - AI-Powered Resume Optimization
 
-## Getting Started
+An intelligent resume optimization platform that helps job seekers improve their resumes using AI technology.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **AI Resume Analysis**: Advanced resume parsing and optimization using GPT models
+- **ATS Compatibility Scoring**: Real-time scoring against job descriptions
+- **Professional Templates**: Multiple resume templates optimized for ATS systems
+- **Cover Letter Generation**: AI-powered cover letter creation
+- **Interview Preparation**: Mock interview practice with AI feedback
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Quick Start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 18+ and npm
+- Supabase account (for authentication and database)
+- OpenAI API key (for AI features)
+- Google OAuth credentials (for authentication)
 
-## Learn More
+### Environment Setup
 
-To learn more about Next.js, take a look at the following resources:
+Create a `.env.local` file in the root directory:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Environment Variables for Supabase
-
-Create a `.env.local` file in the `client` directory with the following content:
-
-```
+```env
+# Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# AI Configuration
+OPENAI_API_KEY=your-openai-api-key
+
+# Application URLs  
+NEXTAUTH_URL=https://your-vercel-domain.vercel.app
 ```
 
-Replace the values with your actual Supabase project credentials.
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+```
+
+## Google OAuth Configuration for Vercel Deployment
+
+If you're experiencing redirect issues where Google OAuth redirects to localhost instead of your Vercel domain, follow these steps:
+
+### 1. Update Environment Variables
+
+Add this to your Vercel environment variables:
+
+```env
+NEXTAUTH_URL=https://your-app-name.vercel.app
+```
+
+### 2. Configure Google OAuth Console
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Navigate to "APIs & Services" > "Credentials"
+3. Edit your OAuth 2.0 Client ID
+4. Add your Vercel domain to "Authorized redirect URIs":
+   ```
+   https://your-app-name.vercel.app/auth/callback
+   ```
+
+### 3. Configure Supabase Auth
+
+1. Go to your Supabase dashboard
+2. Navigate to "Authentication" > "Settings"
+3. Add your Vercel domain to "Site URL":
+   ```
+   https://your-app-name.vercel.app
+   ```
+4. Add your Vercel domain to "Redirect URLs":
+   ```
+   https://your-app-name.vercel.app/auth/callback
+   https://your-app-name.vercel.app/dashboard
+   ```
+
+### 4. Deploy to Vercel
+
+```bash
+# Deploy to Vercel
+vercel --prod
+```
+
+After deployment, make sure to update all URLs to use your actual Vercel domain.
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+```
+
+## Architecture
+
+- **Frontend**: Next.js 14 with TypeScript
+- **Styling**: Tailwind CSS with custom components
+- **Authentication**: Supabase Auth with Google OAuth
+- **Database**: Supabase (PostgreSQL)
+- **AI Processing**: OpenAI GPT models
+- **PDF Generation**: jsPDF with custom templates
+- **Deployment**: Vercel
+
+## API Routes
+
+- `/api/resume/analyze` - Resume parsing and analysis
+- `/api/resume/score` - ATS compatibility scoring
+- `/api/resume/optimize` - AI-powered resume optimization
+- `/api/user` - User management operations
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

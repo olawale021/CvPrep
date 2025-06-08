@@ -142,13 +142,25 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
   const signInWithGoogle = async (redirectPath?: string) => {
     setAuthError(null);
     try {
-      // Always use a full URL for redirectTo, defaulting to dashboard
+      // Get the correct base URL based on environment
+      const getBaseUrl = () => {
+        // In production, use Vercel domain
+        if (process.env.NODE_ENV === 'production') {
+          return process.env.NEXTAUTH_URL || window.location.origin;
+        }
+        // In development, use localhost
+        return window.location.origin;
+      };
+
+      const baseUrl = getBaseUrl();
       const redirectTo = redirectPath 
-        ? `${window.location.origin}${redirectPath.startsWith('/') ? redirectPath : `/${redirectPath}`}` 
-        : `${window.location.origin}/dashboard`;
+        ? `${baseUrl}${redirectPath.startsWith('/') ? redirectPath : `/${redirectPath}`}` 
+        : `${baseUrl}/dashboard`;
 
       logger.debug('Initiating Google sign-in', {
         redirectTo,
+        baseUrl,
+        environment: process.env.NODE_ENV,
         context: 'AuthContext',
       });
       
