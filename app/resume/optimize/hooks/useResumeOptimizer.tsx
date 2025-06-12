@@ -81,21 +81,21 @@ export function useResumeOptimizer() {
           technical_skills: data.Skills
         } : {})),
         work_experience: Array.isArray(data.work_experience) ? data.work_experience.map((exp: ApiWorkExperienceItem) => ({
-                           company: exp.company,
-                           title: exp.role || exp.title || "",
-                           dates: exp.date_range || exp.dates || "",
-                           bullets: exp.accomplishments || exp.bullets || [],
-                           accomplishments: exp.accomplishments || exp.bullets || [],
-                           location: exp.location || ""
-                         })) : 
-                         Array.isArray(data["Work Experience"]) ? data["Work Experience"].map((exp: ApiWorkExperienceItem) => ({
-                           company: exp.company,
-                           title: exp.role || exp.title || "",
-                           dates: exp.date_range || exp.dates || "",
-                           bullets: exp.accomplishments || exp.bullets || [],
-                           accomplishments: exp.accomplishments || exp.bullets || [],
-                           location: exp.location || ""
-                         })) : [],
+                            company: exp.company,
+                            title: exp.role || exp.title || "",
+                            dates: exp.date_range || exp.dates || "",
+                            bullets: exp.accomplishments || exp.bullets || [],
+                            accomplishments: exp.accomplishments || exp.bullets || [],
+                            location: exp.location || ""
+                          })) : 
+                          Array.isArray(data["Work Experience"]) ? data["Work Experience"].map((exp: ApiWorkExperienceItem) => ({
+                            company: exp.company,
+                            title: exp.role || exp.title || "",
+                            dates: exp.date_range || exp.dates || "",
+                            bullets: exp.accomplishments || exp.bullets || [],
+                            accomplishments: exp.accomplishments || exp.bullets || [],
+                            location: exp.location || ""
+                          })) : [],
         education: (() => {
           // Verify if we have education data in either format
           const rawEducation = Array.isArray(data.education) ? data.education : 
