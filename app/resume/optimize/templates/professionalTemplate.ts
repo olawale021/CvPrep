@@ -65,7 +65,7 @@ export const generateProfessionalTemplate = async (resumeData: ResumeData, resum
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   const contentWidth = pageWidth - (margin * 2);
-  let yPos = margin + 5;
+  let yPos = margin;
   let currentPage = 1;
   
   // Page break function
@@ -112,7 +112,7 @@ export const generateProfessionalTemplate = async (resumeData: ResumeData, resum
   
   pdf.text(displayName, pageWidth / 2, yPos, { align: 'center' });
   
-  yPos += 8;
+  yPos += 6;
   
   // Contact details - single line, centered
   pdf.setFontSize(10);
@@ -133,7 +133,7 @@ export const generateProfessionalTemplate = async (resumeData: ResumeData, resum
     pdf.text(contactText, pageWidth / 2, yPos, { align: 'center' });
   }
   
-  yPos += 8;
+  yPos += 6;
   
   // SUMMARY SECTION
   if (resumeData.summary) {
@@ -142,7 +142,7 @@ export const generateProfessionalTemplate = async (resumeData: ResumeData, resum
     pdf.setFontSize(14);
     pdf.setTextColor(30, 30, 30);
     pdf.setFont(mainFont, 'bold');
-    pdf.text("SUMMARY", margin, yPos);
+    pdf.text("PROFESSIONAL SUMMARY", margin, yPos);
     
     yPos += 2;
     
@@ -151,7 +151,7 @@ export const generateProfessionalTemplate = async (resumeData: ResumeData, resum
     pdf.setLineWidth(0.5);
     pdf.line(margin, yPos, pageWidth - margin, yPos);
     
-    yPos += 5;
+    yPos += 4;
     
     pdf.setFontSize(10);
     pdf.setTextColor(50, 50, 50);

@@ -285,7 +285,20 @@ export default function ResumeDashboard() {
       scoreFormData.append('file', optimizedResumeFile);
       scoreFormData.append('job', jobDescription.trim());
 
-      await scoreOperation.execute(scoreFormData);
+      // Use the specialized optimized resume scoring endpoint
+      const response = await fetch('/api/resume/score-optimized', {
+        method: 'POST',
+        body: scoreFormData
+      });
+      
+      const scoreData = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(scoreData.error || 'Failed to score optimized resume');
+      }
+      
+      setScoreResult(scoreData);
+      setIsScoring(false);
     } catch (err) {
       console.error('Error scoring optimized resume:', err);
       setError(err instanceof Error ? err.message : 'Failed to score optimized resume');

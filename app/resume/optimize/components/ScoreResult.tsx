@@ -1,4 +1,4 @@
-import { AlertCircle, ArrowRight, Check, ExternalLink, FileText, Loader, Plus, Sparkles, Star, X } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, ExternalLink, FileText, Loader, Plus, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Button } from "../../../../components/ui/Button";
@@ -327,34 +327,7 @@ export default function ScoreResult({
         <div className="mb-4">
           <h3 className="font-medium text-gray-800 mb-2">Skills Analysis</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
-            {/* Missing Skills */}
-            {scoreResult.missing_skills && scoreResult.missing_skills.length > 0 && (
-              <div className="bg-gray-50 border rounded-lg p-2 sm:p-3">
-                <h4 className="font-semibold text-gray-700 mb-1 flex items-center text-xs sm:text-sm">
-                  <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-amber-500" />
-                  Missing Skills ({scoreResult.missing_skills.length})
-                </h4>
-                <div className="sm:max-h-24 sm:overflow-y-auto sm:scrollbar-thin sm:scrollbar-thumb-gray-300">
-                  <ul className="space-y-1 pl-2 text-xs">
-                    {(isMobile ? scoreResult.missing_skills : scoreResult.missing_skills.slice(0, 5)).map((skill: string, index: number) => (
-                      <li key={index} className="flex items-start">
-                        <span className="inline-flex items-center justify-center rounded-full bg-amber-100 text-amber-600 mr-1.5 flex-shrink-0 p-0.5">
-                          <X className="h-2 w-2" />
-                        </span>
-                        <span className="text-gray-700">{skill}</span>
-                      </li>
-                    ))}
-                    {!isMobile && scoreResult.missing_skills.length > 5 && (
-                      <li className="text-xs text-gray-500 italic pl-4">
-                        +{scoreResult.missing_skills.length - 5} more
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </div>
-            )}
-            
+          <div className="grid grid-cols-1 gap-2 sm:gap-3">
             {/* Matched Skills */}
             {scoreResult.matched_skills && scoreResult.matched_skills.length > 0 && (
               <div className="bg-green-50 border rounded-lg p-2 sm:p-3">

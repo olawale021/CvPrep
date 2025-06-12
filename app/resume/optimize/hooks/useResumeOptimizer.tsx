@@ -80,7 +80,14 @@ export function useResumeOptimizer() {
         } : (data.Skills ? {
           technical_skills: data.Skills
         } : {})),
-        work_experience: Array.isArray(data.work_experience) ? data.work_experience : 
+        work_experience: Array.isArray(data.work_experience) ? data.work_experience.map((exp: any) => ({
+                           company: exp.company,
+                           title: exp.role || exp.title || "",
+                           dates: exp.date_range || exp.dates || "",
+                           bullets: exp.achievements || exp.accomplishments || exp.bullets || [],
+                           accomplishments: exp.achievements || exp.accomplishments || exp.bullets || [],
+                           location: exp.location || ""
+                         })) : 
                          Array.isArray(data["Work Experience"]) ? data["Work Experience"].map((exp: ApiWorkExperienceItem) => ({
                            company: exp.company,
                            title: exp.role || exp.title || "",

@@ -244,8 +244,8 @@ function OptimizedResumeContent({
             {activeTab === "summary" && <Summary />}
             {activeTab === "skills" && <Skills />}
             {activeTab === "experience" && <WorkExperience />}
-            {activeTab === "education" && <Education />}
-            {activeTab === "projects" && <Projects />}
+            {activeTab === "education" && <Education education={editableResume.education} isEditMode={isEditMode} />}
+            {activeTab === "projects" && <Projects projects={editableResume.projects} isEditMode={isEditMode} />}
             {activeTab === "certifications" && <Certifications />}
           </div>
         </div>

@@ -104,8 +104,8 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   
   // Check if we need page break
   const checkPageBreak = (spaceNeeded: number) => {
-    // Leave more space for footer and ensure we don't cut off content
-    const availableSpace = pageHeight - yPos - 20; // 20mm buffer for footer
+    // Use less conservative buffer to utilize more space on first page
+    const availableSpace = pageHeight - yPos - 10; // Reduced from 20mm to 10mm buffer
     
     if (spaceNeeded > availableSpace) {
       addPageBreak();
@@ -133,7 +133,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         const bulletHeight = bulletLines.length * 4 + 2;
         
         // Check if this bullet can fit on current page
-        if (yPos + bulletHeight > pageHeight - 25) {
+        if (yPos + bulletHeight > pageHeight - 15) {
           addPageBreak();
         }
       });
@@ -142,7 +142,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   
   // Helper function to estimate space needed for a section
   const estimateSectionHeight = (lines: number, fontSize: number = 10, spacing: number = 4) => {
-    return lines * (fontSize * 0.35) + (lines - 1) * spacing + 15; // Adding section header space
+    return lines * (fontSize * 0.35) + (lines - 1) * spacing + 10; // Reduced header space from 15 to 10
   };
   
   // Add background color to the first page
@@ -157,7 +157,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   const hasEducation = resumeData.education && resumeData.education.length > 0;
   
   // HEADER SECTION - always on first page
-  yPos = 18; // Reduced from 20 to 18 for more space
+  yPos = 15; // Further reduced for tighter spacing
   
   // Header with name
   pdf.setFontSize(24);
@@ -172,7 +172,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   
   pdf.text(displayName, pageWidth / 2, yPos, { align: 'center' });
   
-  yPos += 8; // Reduced from 10 to 8
+  yPos += 6; // Further reduced for tighter spacing
   
   // Contact details
   pdf.setFontSize(10);
@@ -198,14 +198,14 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
     });
   }
   
-  yPos += 6; // Reduced from 8 to 6
+  yPos += 4; // Further reduced for tighter spacing
   
   // Horizontal line
   pdf.setDrawColor(26, 86, 219);
   pdf.setLineWidth(0.5);
   pdf.line(margin, yPos, pageWidth - margin, yPos);
   
-  yPos += 5; // Reduced from 6 to 5
+  yPos += 4; // Further reduced for tighter spacing
   
   // SECTION: PROFESSIONAL SUMMARY
   if (resumeData.summary) {
@@ -219,7 +219,7 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
     pdf.setFont(mainFont, 'bold');
     pdf.text("PROFESSIONAL SUMMARY", margin, yPos);
     
-    yPos += 6;
+    yPos += 5;
     pdf.setFontSize(10); 
     pdf.setTextColor(45, 55, 72);
     pdf.setFont(mainFont, 'normal');
@@ -227,17 +227,17 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
     pdf.text(summaryLines, margin, yPos);
     yPos += summaryLines.length * 4;
     
-    yPos += 6; // Reduced from 10 to 6
+    yPos += 5; // Further reduced for tighter spacing
   }
   
   // SECTION: SKILLS
   if (hasSkills) {
-    // Estimate skills height
-    let skillsHeight = 20; // Base header height
+    // Estimate skills height more conservatively to avoid unnecessary page breaks
+    let skillsHeight = 15; // Reduced base header height
     Object.entries(resumeData.skills || {}).forEach(([, skillList]) => {
       if (!skillList || !skillList.length) return;
-      skillsHeight += 15; // Category header
-      skillsHeight += Math.ceil((skillList as string[]).length / 6) * 8; // Pills layout estimate
+      skillsHeight += 10; // Reduced category header from 15 to 10
+      skillsHeight += Math.ceil((skillList as string[]).length / 8) * 6; // More compact pills layout estimate
     });
     
     checkPageBreak(skillsHeight);
@@ -544,4 +544,4 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   }
   
   return pdf;
-}; 
+};

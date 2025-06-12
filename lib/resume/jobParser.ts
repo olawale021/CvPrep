@@ -58,7 +58,10 @@ export async function extract_job_requirements(jobDescription: string): Promise<
         { role: 'user', content: prompt }
       ],
       temperature: 0.1,
+      max_tokens: 2000, // Optimize token usage
       response_format: { type: "json_object" }
+    }, {
+      timeout: 30000, // 30 seconds timeout for faster response
     });
 
     try {
@@ -132,7 +135,7 @@ export async function extract_key_job_terms(jobDescription: string): Promise<{
     `;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini', // Use faster model for keyword extraction
       messages: [
         { 
           role: 'system', 
@@ -141,7 +144,10 @@ export async function extract_key_job_terms(jobDescription: string): Promise<{
         { role: 'user', content: prompt }
       ],
       temperature: 0.1,
+      max_tokens: 1500, // Optimize token usage for keywords
       response_format: { type: "json_object" }
+    }, {
+      timeout: 30000, // 30 seconds timeout for faster response
     });
 
     try {

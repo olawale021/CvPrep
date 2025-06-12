@@ -1,9 +1,63 @@
 import '@testing-library/jest-dom'
+import 'whatwg-fetch'
 
 // Mock environment variables
 process.env.OPENAI_API_KEY = 'test-api-key'
 process.env.SUPABASE_URL = 'https://test.supabase.co'
 process.env.SUPABASE_ANON_KEY = 'test-anon-key'
+
+// Mock Web API globals for Next.js
+import { Headers, Request, Response } from 'undici'
+
+global.Request = Request
+global.Response = Response
+global.Headers = Headers
+
+// Mock NextRequest and NextResponse
+jest.mock('next/server', () => ({
+  NextRequest: jest.fn(),
+  NextResponse: {
+    json: jest.fn((data, init) => ({
+      json: () => Promise.resolve(data),
+      status: init?.status || 200,
+      headers: new Headers(init?.headers || {}),
+    })),
+    redirect: jest.fn(),
+  },
+}))
+
+// Mock FormData if not available
+if (typeof global.FormData === 'undefined') {
+  global.FormData = class FormData {
+    constructor() {
+      this.data = new Map()
+    }
+    
+    append(key, value) {
+      if (!this.data.has(key)) {
+        this.data.set(key, [])
+      }
+      this.data.get(key).push(value)
+    }
+    
+    get(key) {
+      const values = this.data.get(key)
+      return values ? values[0] : null
+    }
+    
+    getAll(key) {
+      return this.data.get(key) || []
+    }
+    
+    has(key) {
+      return this.data.has(key)
+    }
+    
+    set(key, value) {
+      this.data.set(key, [value])
+    }
+  }
+}
 
 // Mock Next.js router
 jest.mock('next/navigation', () => ({

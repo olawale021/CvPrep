@@ -88,13 +88,16 @@ export async function segment_resume_sections(text: string): Promise<Record<stri
     `;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini', // Use faster model for parsing
       messages: [
         { role: 'system', content: 'You are an expert resume section extractor that can parse any resume format or style. Always return valid JSON with properly escaped strings.' },
         { role: 'user', content: prompt }
       ],
       temperature: 0.1,
+      max_tokens: 3000, // Optimize token usage
       response_format: { type: "json_object" }
+    }, {
+      timeout: 30000, // 30 seconds timeout for faster response
     });
 
     // Try to parse the result with better error handling
@@ -283,7 +286,10 @@ export async function structure_resume(text: string): Promise<StructuredResume> 
         { role: 'user', content: prompt }
       ],
       temperature: 0.1,
+      max_tokens: 3000, // Optimize token usage
       response_format: { type: "json_object" }
+    }, {
+      timeout: 30000, // 30 seconds timeout for faster response
     });
 
     try {
@@ -440,7 +446,10 @@ export async function extract_skills_from_text(text: string): Promise<string[]> 
         { role: 'user', content: prompt }
       ],
       temperature: 0.1,
+      max_tokens: 2000, // Optimize token usage
       response_format: { type: "json_object" }
+    }, {
+      timeout: 30000, // 30 seconds timeout for faster response
     });
 
     try {
