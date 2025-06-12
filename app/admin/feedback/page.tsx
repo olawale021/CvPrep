@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, CheckCircle, Clock, MessageSquare } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
@@ -48,7 +48,11 @@ export default function AdminFeedbackPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "new" | "in_progress" | "resolved">("new");
 
-  const fetchFeedback = useCallback(async () => {
+  useEffect(() => {
+    fetchFeedback();
+  }, [filter]);
+
+  const fetchFeedback = async () => {
     try {
       const status = filter === "all" ? "" : filter;
       const response = await fetch(`/api/feedback${status ? `?status=${status}` : ""}`);
@@ -62,11 +66,7 @@ export default function AdminFeedbackPage() {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
-
-  useEffect(() => {
-    fetchFeedback();
-  }, [fetchFeedback]);
+  };
 
   // Simple admin check - you should implement proper role-based access control
   if (!user || !user.email?.includes("admin")) {
@@ -158,11 +158,11 @@ export default function AdminFeedbackPage() {
         {/* Filters */}
         <div className="mb-6">
           <div className="flex gap-2">
-            {(["all", "new", "in_progress", "resolved"] as const).map((status) => (
+            {["all", "new", "in_progress", "resolved"].map((status) => (
               <Button
                 key={status}
                 variant={filter === status ? "default" : "outline"}
-                onClick={() => setFilter(status)}
+                onClick={() => setFilter(status as any)}
                 className="capitalize"
               >
                 {status.replace("_", " ")}

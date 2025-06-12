@@ -112,6 +112,7 @@ export default function FeedbackWidget() {
   };
 
   const selectedType = feedbackTypes.find(type => type.value === formData.type);
+  const selectedPriority = priorityLevels.find(priority => priority.value === formData.priority);
 
   return (
     <>
