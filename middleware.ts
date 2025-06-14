@@ -9,27 +9,34 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Skip rate limiting for these routes that handle their own feature limits
+  const skipRateLimitRoutes = [
+    '/api/resume/create',
+    '/api/resume/optimize',
+    '/api/user/usage',
+    '/api/debug-usage',
+    '/api/reset-usage'
+  ];
+
+  if (skipRateLimitRoutes.some(route => pathname.includes(route))) {
+    return NextResponse.next();
+  }
+
+  // Apply IP-based rate limiting for other routes
   let limiter;
 
-  // Determine which rate limiter to use based on the route
-  if (pathname.includes('/resume/score') || pathname.includes('/resume/optimize')) {
-    // AI-powered endpoints - most restrictive
+  if (pathname.includes('/resume/score')) {
     limiter = rateLimiters.ai;
   } else if (pathname.includes('/auth/')) {
-    // Authentication endpoints
     limiter = rateLimiters.auth;
   } else if (pathname.includes('/upload') || pathname.includes('/file')) {
-    // File upload endpoints
     limiter = rateLimiters.upload;
   } else if (pathname.includes('/user/')) {
-    // User data endpoints
     limiter = rateLimiters.user;
   } else {
-    // General API endpoints
     limiter = rateLimiters.api;
   }
 
-  // Apply rate limiting
   const rateLimitResponse = await limiter.createMiddleware()(request);
   
   if (rateLimitResponse) {

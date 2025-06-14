@@ -9,8 +9,10 @@ import { Input } from '../../../components/ui/Input';
 import { Label } from '../../../components/ui/Label';
 import Sidebar from '../../../components/ui/Sidebar';
 import { Textarea } from '../../../components/ui/Textarea';
+import { useAuth } from '../../../context/AuthContext';
 import { useAsyncOperation } from '../../../hooks/useAsyncOperation';
 import { ResumeScore } from '../../../lib/resume/scoreResume';
+import { supabase } from '../../../lib/supabaseClient';
 import DashboardScoreResult from '../dashboard/components/DashboardScoreResult';
 import ErrorMessage from '../optimize/components/ErrorMessage';
 import LoadingState from '../optimize/components/LoadingState';
@@ -48,6 +50,8 @@ interface CreateResumeFormData {
 }
 
 export default function CreateResumePage() {
+  const { user, isLoading: authLoading } = useAuth();
+  
   const [formData, setFormData] = useState<CreateResumeFormData>({
     jobDescription: '',
     currentSummary: '',
@@ -70,9 +74,22 @@ export default function CreateResumePage() {
   const generateOperation = useAsyncOperation(
     async (...args: unknown[]) => {
       const formData = args[0] as CreateResumeFormData;
+      
+      // Get the session token from Supabase for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch('/api/resume/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(formData),
       });
 
@@ -110,8 +127,40 @@ export default function CreateResumePage() {
       }
     }
   );
+  
+  // Redirect to login if not authenticated
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Score generated resume
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <Sparkles className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+            <p className="text-gray-600 mb-6">Please sign in to create your resume.</p>
+            <Button 
+              onClick={() => window.location.href = '/login'}
+              className="w-full"
+            >
+              Sign In
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Generate resume operation
   const scoreGeneratedResume = async (resumeData: ResumeData) => {
     if (!formData.jobDescription.trim()) return;
     

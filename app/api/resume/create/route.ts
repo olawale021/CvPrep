@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { withFeatureLimit } from '../../../../lib/userRateLimit';
 
 const openaiApiKey = process.env.OPENAI_API_KEY;
 let openai: OpenAI | null = null;
@@ -33,46 +34,47 @@ interface GeneratedWorkExperience {
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const { 
-      jobDescription, 
-      currentSummary, 
-      workExperience, 
-      education, 
-      projects, 
-      certifications, 
-      licenses 
-    } = await req.json();
+  return withFeatureLimit(req, 'resume_create', async () => {
+    try {
+      const { 
+        jobDescription, 
+        currentSummary, 
+        workExperience, 
+        education, 
+        projects, 
+        certifications, 
+        licenses 
+      } = await req.json();
 
-    // Validate required fields
-    if (!jobDescription || !workExperience || !Array.isArray(workExperience) || workExperience.length === 0) {
-      return NextResponse.json({ 
-        error: 'Missing required fields. Please provide jobDescription and at least one work experience.' 
-      }, { status: 400 });
-    }
+      // Validate required fields
+      if (!jobDescription || !workExperience || !Array.isArray(workExperience) || workExperience.length === 0) {
+        return NextResponse.json({ 
+          error: 'Missing required fields. Please provide jobDescription and at least one work experience.' 
+        }, { status: 400 });
+      }
 
-    // Validate work experience entries
-    const validWorkExperience = workExperience.filter((exp: WorkExperience) => 
-      exp.company && exp.title && exp.dateRange
-    );
+      // Validate work experience entries
+      const validWorkExperience = workExperience.filter((exp: WorkExperience) => 
+        exp.company && exp.title && exp.dateRange
+      );
 
-    if (validWorkExperience.length === 0) {
-      return NextResponse.json({ 
-        error: 'Please provide complete information for at least one work experience (company, title, and date range).' 
-      }, { status: 400 });
-    }
+      if (validWorkExperience.length === 0) {
+        return NextResponse.json({ 
+          error: 'Please provide complete information for at least one work experience (company, title, and date range).' 
+        }, { status: 400 });
+      }
 
-    if (!openai) {
-      return NextResponse.json({ 
-        error: 'OpenAI service unavailable. Please try again later.' 
-      }, { status: 503 });
-    }
+      if (!openai) {
+        return NextResponse.json({ 
+          error: 'OpenAI service unavailable. Please try again later.' 
+        }, { status: 503 });
+      }
 
-    // Filter provided data
-    const validEducation = education?.filter((edu: Education) => edu.institution || edu.degree) || [];
-    const validProjects = projects?.filter((proj: Project) => proj.title || proj.description) || [];
+      // Filter provided data
+      const validEducation = education?.filter((edu: Education) => edu.institution || edu.degree) || [];
+      const validProjects = projects?.filter((proj: Project) => proj.title || proj.description) || [];
 
-    const prompt = `
+      const prompt = `
 You are an expert resume writer and career coach. Using the following information, generate ONLY a professional summary, skills, and achievements for each work experience.
 
 INPUT INFORMATION:
@@ -147,124 +149,125 @@ Return ONLY a valid JSON object with this exact structure:
 IMPORTANT: Return ONLY the JSON object, no additional text or explanation.
 `;
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are an expert resume writer specializing in creating achievement-focused resumes that perfectly match job requirements. Always return valid JSON only.' 
-        },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.3,
-      max_tokens: 3000,
-    });
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { 
+            role: 'system', 
+            content: 'You are an expert resume writer specializing in creating achievement-focused resumes that perfectly match job requirements. Always return valid JSON only.' 
+          },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 3000,
+      });
 
-    const content = response.choices[0].message.content || '';
-    
-    // Validate that we got actual content
-    if (!content || content.trim().length < 50) {
-      throw new Error('OpenAI returned insufficient content for resume generation');
-    }
-
-    // Try to parse the JSON response
-    let resumeData;
-    try {
-      // Clean the content and try to parse as JSON
-      const cleanedContent = content.trim();
+      const content = response.choices[0].message.content || '';
       
-      // Try to extract JSON if it's wrapped in markdown
-      const jsonMatch = cleanedContent.match(/```json\n([\s\S]*?)\n```/) || 
-                        cleanedContent.match(/```\n([\s\S]*?)\n```/) || 
-                        cleanedContent.match(/{[\s\S]*}/);
-      
-      const jsonContent = jsonMatch ? jsonMatch[1] || jsonMatch[0] : cleanedContent;
-      resumeData = JSON.parse(jsonContent);
-      
-      // Validate the structure
-      if (!resumeData || typeof resumeData !== 'object') {
-        throw new Error('Invalid JSON structure returned');
+      // Validate that we got actual content
+      if (!content || content.trim().length < 50) {
+        throw new Error('OpenAI returned insufficient content for resume generation');
       }
-      
-    } catch (parseError) {
-      console.error('Failed to parse OpenAI response as JSON:', parseError);
-      console.error('Raw response:', content);
-      
+
+      // Try to parse the JSON response
+      let resumeData;
+      try {
+        // Clean the content and try to parse as JSON
+        const cleanedContent = content.trim();
+        
+        // Try to extract JSON if it's wrapped in markdown
+        const jsonMatch = cleanedContent.match(/```json\n([\s\S]*?)\n```/) || 
+                          cleanedContent.match(/```\n([\s\S]*?)\n```/) || 
+                          cleanedContent.match(/{[\s\S]*}/);
+        
+        const jsonContent = jsonMatch ? jsonMatch[1] || jsonMatch[0] : cleanedContent;
+        resumeData = JSON.parse(jsonContent);
+        
+        // Validate the structure
+        if (!resumeData || typeof resumeData !== 'object') {
+          throw new Error('Invalid JSON structure returned');
+        }
+        
+      } catch (parseError) {
+        console.error('Failed to parse OpenAI response as JSON:', parseError);
+        console.error('Raw response:', content);
+        
+        return NextResponse.json({ 
+          error: 'Failed to generate structured resume data. Please try again.',
+          debug: process.env.NODE_ENV === 'development' ? content : undefined
+        }, { status: 500 });
+      }
+
+      // Transform user education data to match ResumeData format
+      const transformedEducation = validEducation.map((edu: Education) => ({
+        school: edu.institution,
+        degree: edu.degree,
+        dates: edu.graduationDate,
+        institution: edu.institution,
+        graduation_date: edu.graduationDate
+      }));
+
+      // Transform user projects data to match ResumeData format
+      const transformedProjects = validProjects.map((proj: Project) => ({
+        title: proj.title,
+        description: proj.description,
+        technologies: proj.technologies ? proj.technologies.split(',').map(tech => tech.trim()).filter(tech => tech) : []
+      }));
+
+      // Transform certifications to array format
+      const transformedCertifications = certifications ? 
+        certifications.split(/[,\n]/).map((cert: string) => cert.trim()).filter((cert: string) => cert) : [];
+
+      // Transform licenses to array format (add to certifications for now)
+      const transformedLicenses = licenses ? 
+        licenses.split(/[,\n]/).map((license: string) => license.trim()).filter((license: string) => license) : [];
+
+      // Combine certifications and licenses
+      const allCertifications = [...transformedCertifications, ...transformedLicenses];
+
+      // Ensure required fields are present with defaults and proper structure
+      const finalResume = {
+        summary: resumeData.summary || 'Professional with extensive experience in the field.',
+        skills: {
+          technical_skills: resumeData.skills?.technical_skills || [],
+          soft_skills: resumeData.skills?.soft_skills || []
+        },
+        work_experience: resumeData.work_experience ? 
+          resumeData.work_experience.map((genExp: GeneratedWorkExperience, index: number) => ({
+            company: genExp.company || validWorkExperience[index]?.company || '',
+            title: genExp.title || validWorkExperience[index]?.title || '',
+            role: genExp.title || validWorkExperience[index]?.title || '',
+            dates: genExp.dates || validWorkExperience[index]?.dateRange || '',
+            date_range: genExp.dates || validWorkExperience[index]?.dateRange || '',
+            accomplishments: genExp.achievements || ['Led key initiatives and delivered results.'],
+            bullets: genExp.achievements || ['Led key initiatives and delivered results.']
+          })) : 
+          validWorkExperience.map((exp: WorkExperience) => ({
+            company: exp.company,
+            title: exp.title,
+            role: exp.title,
+            dates: exp.dateRange,
+            date_range: exp.dateRange,
+            accomplishments: ['Led key initiatives and delivered results.'],
+            bullets: ['Led key initiatives and delivered results.']
+          })),
+        education: transformedEducation,
+        projects: transformedProjects,
+        certifications: allCertifications
+      };
+
+      return NextResponse.json({
+        success: true,
+        resume: finalResume,
+        message: 'Resume content generated successfully'
+      });
+
+    } catch (error) {
+      console.error('Resume creation error:', error);
       return NextResponse.json({ 
-        error: 'Failed to generate structured resume data. Please try again.',
-        debug: process.env.NODE_ENV === 'development' ? content : undefined
+        error: error instanceof Error ? error.message : 'An unexpected error occurred during resume generation',
+        success: false
       }, { status: 500 });
     }
-
-    // Transform user education data to match ResumeData format
-    const transformedEducation = validEducation.map((edu: Education) => ({
-      school: edu.institution,
-      degree: edu.degree,
-      dates: edu.graduationDate,
-      institution: edu.institution,
-      graduation_date: edu.graduationDate
-    }));
-
-    // Transform user projects data to match ResumeData format
-    const transformedProjects = validProjects.map((proj: Project) => ({
-      title: proj.title,
-      description: proj.description,
-      technologies: proj.technologies ? proj.technologies.split(',').map(tech => tech.trim()).filter(tech => tech) : []
-    }));
-
-    // Transform certifications to array format
-    const transformedCertifications = certifications ? 
-      certifications.split(/[,\n]/).map((cert: string) => cert.trim()).filter((cert: string) => cert) : [];
-
-    // Transform licenses to array format (add to certifications for now)
-    const transformedLicenses = licenses ? 
-      licenses.split(/[,\n]/).map((license: string) => license.trim()).filter((license: string) => license) : [];
-
-    // Combine certifications and licenses
-    const allCertifications = [...transformedCertifications, ...transformedLicenses];
-
-    // Ensure required fields are present with defaults and proper structure
-    const finalResume = {
-      summary: resumeData.summary || 'Professional with extensive experience in the field.',
-      skills: {
-        technical_skills: resumeData.skills?.technical_skills || [],
-        soft_skills: resumeData.skills?.soft_skills || []
-      },
-      work_experience: resumeData.work_experience ? 
-        resumeData.work_experience.map((genExp: GeneratedWorkExperience, index: number) => ({
-          company: genExp.company || validWorkExperience[index]?.company || '',
-          title: genExp.title || validWorkExperience[index]?.title || '',
-          role: genExp.title || validWorkExperience[index]?.title || '',
-          dates: genExp.dates || validWorkExperience[index]?.dateRange || '',
-          date_range: genExp.dates || validWorkExperience[index]?.dateRange || '',
-          accomplishments: genExp.achievements || ['Led key initiatives and delivered results.'],
-          bullets: genExp.achievements || ['Led key initiatives and delivered results.']
-        })) : 
-        validWorkExperience.map((exp: WorkExperience) => ({
-          company: exp.company,
-          title: exp.title,
-          role: exp.title,
-          dates: exp.dateRange,
-          date_range: exp.dateRange,
-          accomplishments: ['Led key initiatives and delivered results.'],
-          bullets: ['Led key initiatives and delivered results.']
-        })),
-      education: transformedEducation,
-      projects: transformedProjects,
-      certifications: allCertifications
-    };
-
-    return NextResponse.json({
-      success: true,
-      resume: finalResume,
-      message: 'Resume content generated successfully'
-    });
-
-  } catch (error) {
-    console.error('Resume creation error:', error);
-    return NextResponse.json({ 
-      error: error instanceof Error ? error.message : 'An unexpected error occurred during resume generation',
-      success: false
-    }, { status: 500 });
-  }
+  });
 } 

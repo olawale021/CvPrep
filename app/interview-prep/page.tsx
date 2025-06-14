@@ -1,6 +1,6 @@
 "use client";
 
-import { HelpCircle, Info, MessageSquare, Send } from "lucide-react";
+import { HelpCircle, Info, Loader2, MessageSquare, Send, Users } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
 import { Alert, AlertDescription } from "../../components/ui/Alert";
@@ -11,6 +11,7 @@ import { Input } from "../../components/ui/Input";
 import { ResumeUpload } from "../../components/ui/ResumeUpload";
 import Sidebar from "../../components/ui/Sidebar";
 import { Textarea } from "../../components/ui/Textarea";
+import { useAuth } from "../../context/AuthContext";
 
 type Question = string;
 type Answer = string;
@@ -65,6 +66,8 @@ interface SimulationResponse {
 }
 
 export default function InterviewPrep() {
+  const { user, isLoading: authLoading } = useAuth();
+  
   // File and input states
   const [file, setFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState<string>("");
@@ -91,6 +94,38 @@ export default function InterviewPrep() {
   const questionsRef = useRef<HTMLDivElement>(null);
   const tipsRef = useRef<HTMLDivElement>(null);
   const simulationRef = useRef<HTMLDivElement>(null);
+
+  // Redirect to login if not authenticated
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <Users className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+            <p className="text-gray-600 mb-6">Please sign in to access interview preparation.</p>
+            <Button 
+              onClick={() => window.location.href = '/login'}
+              className="w-full"
+            >
+              Sign In
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleJobDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setJobDescription(event.target.value);

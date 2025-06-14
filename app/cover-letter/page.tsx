@@ -1,12 +1,13 @@
 "use client";
 
-import { Check, ClipboardCopy, Download, Send } from "lucide-react";
+import { Check, ClipboardCopy, Download, FileText, Loader2, Send } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
 import { JobDescriptionInput } from "../../components/ui/JobDescriptionInput";
 import { ResumeUpload } from "../../components/ui/ResumeUpload";
 import Sidebar from "../../components/ui/Sidebar";
+import { useAuth } from "../../context/AuthContext";
 
 // Define type for API response
 interface CoverLetterResponse {
@@ -17,15 +18,50 @@ interface CoverLetterResponse {
   user_id?: string;
 }
 
-export default function CoverLetterGenerator() {
-  const [file, setFile] = useState<File | null>(null);
+export default function CoverLetterPage() {
+  const { user, isLoading: authLoading } = useAuth();
+  
   const [jobDescription, setJobDescription] = useState<string>("");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [coverLetter, setCoverLetter] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<"upload" | "result">("upload");
+  
   const coverLetterRef = useRef<HTMLDivElement>(null);
-  const [copied, setCopied] = useState(false);
+
+  // Redirect to login if not authenticated
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <FileText className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+            <p className="text-gray-600 mb-6">Please sign in to generate cover letters.</p>
+            <Button 
+              onClick={() => window.location.href = '/login'}
+              className="w-full"
+            >
+              Sign In
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleJobDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setJobDescription(event.target.value);
@@ -37,18 +73,18 @@ export default function CoverLetterGenerator() {
       return;
     }
 
-    if (!file) {
+    if (!resumeFile) {
       setError("Please upload a resume.");
       return;
     }
 
-    setLoading(true);
+    setIsGenerating(true);
     setError(null);
 
     try {
       const formData = new FormData();
       formData.append("jobDescription", jobDescription);
-      formData.append("resumeFile", file);
+      formData.append("resumeFile", resumeFile);
 
       const response = await fetch("/api/cover-letter", {
         method: "POST",
@@ -71,7 +107,7 @@ export default function CoverLetterGenerator() {
       console.error("Error:", err);
       setError(err instanceof Error ? err.message : "An unknown error occurred.");
     } finally {
-      setLoading(false);
+      setIsGenerating(false);
     }
   };
 
@@ -136,9 +172,9 @@ export default function CoverLetterGenerator() {
                 </CardHeader>
                 <CardContent>
                   <ResumeUpload
-                    file={file}
-                    onFileChange={setFile}
-                    onRemoveFile={() => setFile(null)}
+                    file={resumeFile}
+                    onFileChange={setResumeFile}
+                    onRemoveFile={() => setResumeFile(null)}
                   />
                 </CardContent>
               </Card>
@@ -156,10 +192,10 @@ export default function CoverLetterGenerator() {
                   <Button
                     onClick={generateCoverLetter}
                     className="w-full mt-4"
-                    disabled={loading}
+                    disabled={isGenerating}
                     size="lg"
                   >
-                    {loading ? (
+                    {isGenerating ? (
                       <>
                         <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         Generating...

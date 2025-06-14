@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import Sidebar from "../../components/ui/Sidebar";
+import { UsageTracker } from "../../components/ui/UsageTracker";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Dashboard() {
@@ -83,6 +84,11 @@ export default function Dashboard() {
           <div className="mb-8 md:mb-10">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Welcome, {user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'User'}</h1>
             <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Manage your job applications and career tools all in one place.</p>
+          </div>
+
+          {/* Usage Tracker - Prominently displayed for free users */}
+          <div className="mb-8 md:mb-10">
+            <UsageTracker />
           </div>
           
           {/* Personalized Quick Actions */}

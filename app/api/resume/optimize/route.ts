@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { extractTextFromFile } from '../../../../lib/resume/fileParser';
 import { OptimizedResume, optimizeResume } from '../../../../lib/resume/optimizeResume';
 import { structure_resume } from '../../../../lib/resume/resumeParser';
+import { withFeatureLimit } from '../../../../lib/userRateLimit';
 
 // Define an extended interface for the response that might have capitalized keys
 interface ExtendedOptimizedResume extends OptimizedResume {
@@ -33,9 +34,10 @@ export const config = {
 };
 
 export async function POST(req: NextRequest) {
-  const startTime = Date.now();
-  
-  try {
+  return withFeatureLimit(req, 'resume_optimize', async () => {
+    const startTime = Date.now();
+    
+    try {
       console.log('Optimize API: Request started');
       
       const formData = await req.formData();
@@ -221,22 +223,19 @@ export async function POST(req: NextRequest) {
 
       
       return NextResponse.json(responseData);
-  } catch (error: unknown) {
-    console.error('Optimize API error:', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      elapsedTime: Date.now() - startTime
-    });
-    
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    
-    // Return more specific error codes
-    const status = errorMessage.includes('timeout') || errorMessage.includes('OpenAI') ? 408 : 
-                  errorMessage.includes('Invalid') || errorMessage.includes('too large') ? 400 : 500;
-    
-    return NextResponse.json({ 
-      error: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
-    }, { status });
-  }
+    } catch (error: unknown) {
+      console.error('Optimize API: Error occurred', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        elapsedTime: Date.now() - startTime
+      });
+      
+      return NextResponse.json(
+        { 
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
+          details: 'Please check your file and try again.'
+        },
+        { status: 500 }
+      );
+    }
+  });
 } 

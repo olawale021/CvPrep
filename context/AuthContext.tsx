@@ -55,19 +55,41 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
     };
   }, []);
 
-  // Save user to database when authenticated
+  // Handle user database operations and fetch app user data
   useEffect(() => {
     const handleUserDatabase = async () => {
       if (user && user.id && user.email) {
-        logger.debug('Attempting to save user to database', {
+        logger.debug('Checking if user exists in database', {
           email: user.email,
           context: 'AuthContext',
         });
         
         try {
+          // First, check if user already exists
+          const checkResponse = await fetch(`/api/user?email=${encodeURIComponent(user.email)}`);
+          
+          if (checkResponse.ok) {
+            const checkData = await checkResponse.json();
+            if (checkData.user) {
+              logger.debug('User already exists in database, skipping save', {
+                email: user.email,
+                context: 'AuthContext',
+              });
+              // Set appUser with existing data
+              setAppUser(checkData.user);
+              return; // User exists, no need to save
+            }
+          }
+          
+          // User doesn't exist, proceed with saving
+          logger.debug('User not found in database, creating new user', {
+            email: user.email,
+            context: 'AuthContext',
+          });
+          
           const googleId = user.user_metadata?.provider_id || user.user_metadata?.sub || user.id;
           
-          // Use the API route instead of direct Supabase client call
+          // Use the API route to create new user
           const response = await fetch('/api/user', {
             method: 'POST',
             headers: {
@@ -84,51 +106,42 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
           
           const result = await response.json();
           
-          logger.debug('Save user to DB result', {
+          logger.debug('Save new user to DB result', {
             success: result.success,
             error: result.error ? true : false,
             context: 'AuthContext',
           });
           
           if (result.error) {
-            logger.error('Failed to save user via API', {
+            logger.error('Failed to save new user via API', {
               error: result.error,
               context: 'AuthContext',
             });
+            setAppUser(null);
+          } else {
+            // Fetch the newly created user data
+            const newUserResponse = await fetch(`/api/user?email=${encodeURIComponent(user.email)}`);
+            if (newUserResponse.ok) {
+              const newUserData = await newUserResponse.json();
+              setAppUser(newUserData.user);
+            }
           }
         } catch (err) {
-          logger.error('Exception saving user to database', {
+          logger.error('Exception handling user database operations', {
             error: err,
             context: 'AuthContext',
           });
-        }
-      }
-    };
-    if (user) {
-      handleUserDatabase();
-    }
-  }, [user]);
-
-  // Fetch app user (with type) from your DB
-  useEffect(() => {
-    const fetchAppUser = async () => {
-      if (user?.email) {
-        try {
-          const res = await fetch(`/api/user?email=${encodeURIComponent(user.email)}`);
-          if (res.ok) {
-            const data = await res.json();
-            setAppUser(data.user);
-          } else {
-            setAppUser(null);
-          }
-        } catch {
           setAppUser(null);
         }
       } else {
         setAppUser(null);
       }
     };
-    fetchAppUser();
+    if (user) {
+      handleUserDatabase();
+    } else {
+      setAppUser(null);
+    }
   }, [user]);
 
   // Redirect to dashboard after login
