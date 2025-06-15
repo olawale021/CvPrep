@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../lib/supabaseClient";
 import { Badge } from "./Badge";
 
 interface CompactUsageStats {
@@ -32,7 +33,16 @@ export function UsageBadge() {
 
   const fetchUsageStats = async () => {
     try {
-      const response = await fetch('/api/user/usage');
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch('/api/user/usage', { headers });
       if (response.ok) {
         const data = await response.json();
         

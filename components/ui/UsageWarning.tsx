@@ -3,6 +3,7 @@
 import { AlertTriangle, Clock, Zap } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../lib/supabaseClient";
 import { FeatureType } from "../../lib/userRateLimit";
 import { Alert } from "./Alert";
 import { Badge } from "./Badge";
@@ -35,7 +36,16 @@ export function UsageWarning({
 
   const fetchUsageData = useCallback(async () => {
     try {
-      const response = await fetch('/api/user/usage');
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch('/api/user/usage', { headers });
       if (response.ok) {
         const data = await response.json();
         setUsage(data[feature] || { used: 0, limit: 1, successful: 0, failed: 0 });

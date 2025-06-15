@@ -8,6 +8,7 @@ import { JobDescriptionInput } from "../../components/ui/JobDescriptionInput";
 import { ResumeUpload } from "../../components/ui/ResumeUpload";
 import Sidebar from "../../components/ui/Sidebar";
 import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../lib/supabaseClient";
 
 // Define type for API response
 interface CoverLetterResponse {
@@ -82,13 +83,23 @@ export default function CoverLetterPage() {
     setError(null);
 
     try {
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
       const formData = new FormData();
       formData.append("jobDescription", jobDescription);
       formData.append("resumeFile", resumeFile);
 
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch("/api/cover-letter", {
         method: "POST",
         body: formData,
+        headers
       });
 
       if (!response.ok) {

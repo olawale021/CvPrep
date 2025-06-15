@@ -1,5 +1,6 @@
 import { FormEvent, useRef, useState } from "react";
 import { ResumeScore } from "../../../../lib/resume/scoreResume";
+import { supabase } from "../../../../lib/supabaseClient";
 import { ApiEducationItem, ApiProjectItem, ApiResumeResponse, ApiWorkExperienceItem, ResumeData, ResumeResponse } from "../types";
 
 export function useResumeOptimizer() {
@@ -25,10 +26,24 @@ export function useResumeOptimizer() {
     setIsScoring(true);
     
     try {
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
       const form = new FormData();
       form.append("file", file);
       form.append("job", jobDescription);
-      const res = await fetch("/api/resume/score", { method: "POST", body: form });
+      
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const res = await fetch("/api/resume/score", { 
+        method: "POST", 
+        body: form,
+        headers 
+      });
       const data = await res.json();
       
       if (!res.ok) throw new Error(data.error || "Failed to score resume");
@@ -52,16 +67,25 @@ export function useResumeOptimizer() {
     setScoringMode(false);
     
     try {
-  
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
       
       const form = new FormData();
       form.append("file", file);
       form.append("job", jobDescription);
       
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
 
-              const res = await fetch("/api/resume/optimize", { method: "POST", body: form });
+      const res = await fetch("/api/resume/optimize", { 
+        method: "POST", 
+        body: form,
+        headers 
+      });
 
-      
       const data = await res.json() as ApiResumeResponse;
       
       if (!res.ok) throw new Error(data.error || "Failed to optimize resume");

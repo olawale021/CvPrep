@@ -3,6 +3,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Button } from "../../../../components/ui/Button";
 import { ResumeScore } from "../../../../lib/resume/scoreResume";
+import { supabase } from "../../../../lib/supabaseClient";
 import AddWorkExperienceForm from "./AddWorkExperienceForm";
 
 interface UpdatedResumeData {
@@ -99,15 +100,25 @@ export default function ScoreResult({
     setAddingExperience(true);
     
     try {
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
       const formData = new FormData();
       formData.append('file', file);
       formData.append('jobTitle', data.jobTitle);
       formData.append('company', data.company);
       formData.append('achievements', data.achievements);
 
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch('/api/resume/add-experience', {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers
       });
 
       const result = await response.json();
@@ -141,6 +152,10 @@ export default function ScoreResult({
     if (!updatedResumeData || !file) return;
     
     try {
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
       // Create a new FormData with the updated resume data
       const formData = new FormData();
       
@@ -152,9 +167,15 @@ export default function ScoreResult({
       formData.append('file', updatedResumeFile);
       formData.append('job', jobDescription);
       
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch('/api/resume/score', {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers
       });
       
       const scoreData = await response.json();

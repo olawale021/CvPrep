@@ -11,6 +11,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { useAsyncOperation } from "../../../hooks/useAsyncOperation";
 import { useSavedResumes } from "../../../hooks/useSavedResumes";
 import { ResumeScore } from "../../../lib/resume/scoreResume";
+import { supabase } from "../../../lib/supabaseClient";
 import { SaveResumeRequest } from "../../../types/savedResume";
 import ErrorMessage from "../optimize/components/ErrorMessage";
 import LoadingState from "../optimize/components/LoadingState";
@@ -33,6 +34,7 @@ export default function ResumeDashboard() {
   const [optimizedResume, setOptimizedResume] = useState<ResumeData | null>(null);
   const [resumeResponse, setResumeResponse] = useState<ResumeResponse | null>(null);
   const [scoreResult, setScoreResult] = useState<ResumeScore | null>(null);
+  const [optimizedScoreResult, setOptimizedScoreResult] = useState<ResumeScore | null>(null);
   const [showOptimized, setShowOptimized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isScoring, setIsScoring] = useState(false);
@@ -44,13 +46,24 @@ export default function ResumeDashboard() {
   const analyzeOperation = useAsyncOperation(
     async (...args: unknown[]) => {
       const [file, jobDescription] = args as [File, string];
+      
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
       const formData = new FormData();
       formData.append('file', file);
       formData.append('job', jobDescription);
 
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch('/api/resume/analyze', {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers
       });
       
       const data = await response.json();
@@ -76,13 +89,24 @@ export default function ResumeDashboard() {
   const scoreOperation = useAsyncOperation(
     async (...args: unknown[]) => {
       const [file, jobDescription] = args as [File, string];
+      
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
       const formData = new FormData();
       formData.append('file', file);
       formData.append('job', jobDescription);
 
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch('/api/resume/score', {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers
       });
       
       const data = await response.json();
@@ -108,16 +132,25 @@ export default function ResumeDashboard() {
 
   const optimizeOperation = useAsyncOperation(
     async (...args: unknown[]) => {
-      const [resumeData, jobDescription] = args as [ResumeData, string];
+      const [file, jobDescription] = args as [File, string];
+      
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('job', jobDescription);
+      
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch('/api/resume/optimize', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          resumeData,
-          jobDescription
-        })
+        headers,
+        body: formData
       });
       
       const data = await response.json();
@@ -126,19 +159,126 @@ export default function ResumeDashboard() {
         throw new Error(data.error || 'Failed to optimize resume');
       }
       
-      return data.optimizedResume;
+      return data;
     },
     {
       onSuccess: (optimizedData) => {
         setOptimizedResume(optimizedData);
         setShowOptimized(true);
         setError(null);
+        // Automatically score the optimized resume
+        scoreOptimizedResume(optimizedData, jobDescription);
       },
       onError: (error) => {
         setError(error.message);
       }
     }
   );
+
+  // Function to score optimized resume
+  const scoreOptimizedResume = async (optimizedData: ResumeData, jobDesc: string) => {
+    try {
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      // Create a text representation of the optimized resume
+      const resumeText = createResumeText(optimizedData);
+      const resumeBlob = new Blob([resumeText], { type: 'text/plain' });
+      const resumeFile = new File([resumeBlob], 'optimized_resume.txt', { type: 'text/plain' });
+      
+      const formData = new FormData();
+      formData.append('file', resumeFile);
+      formData.append('job', jobDesc);
+
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('/api/resume/score', {
+        method: 'POST',
+        body: formData,
+        headers
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setOptimizedScoreResult(data);
+      }
+    } catch (error) {
+      console.error('Error scoring optimized resume:', error);
+    }
+  };
+
+  // Helper function to create resume text from ResumeData
+  const createResumeText = (resumeData: ResumeData): string => {
+    let resumeText = '';
+    
+    if (resumeData.summary) {
+      resumeText += `SUMMARY\n${resumeData.summary}\n\n`;
+    }
+    
+    if (resumeData.work_experience && resumeData.work_experience.length > 0) {
+      resumeText += 'WORK EXPERIENCE\n';
+      resumeData.work_experience.forEach((exp) => {
+        resumeText += `${exp.title || exp.role || 'Position'} at ${exp.company}\n`;
+        if (exp.dates || exp.date_range) {
+          resumeText += `${exp.dates || exp.date_range}\n`;
+        }
+        if (exp.accomplishments || exp.bullets) {
+          const achievements = exp.accomplishments || exp.bullets || [];
+          achievements.forEach((achievement: string) => {
+            resumeText += `• ${achievement}\n`;
+          });
+        }
+        resumeText += '\n';
+      });
+    }
+    
+    if (resumeData.skills && resumeData.skills.technical_skills) {
+      resumeText += 'SKILLS\n';
+      resumeData.skills.technical_skills.forEach((skill: string) => {
+        resumeText += `• ${skill}\n`;
+      });
+      resumeText += '\n';
+    }
+    
+    if (resumeData.education && resumeData.education.length > 0) {
+      resumeText += 'EDUCATION\n';
+      resumeData.education.forEach((edu) => {
+        resumeText += `${edu.degree} - ${edu.school || 'Institution'}\n`;
+        if (edu.dates) {
+          resumeText += `${edu.dates}\n`;
+        }
+        resumeText += '\n';
+      });
+    }
+    
+    if (resumeData.projects && resumeData.projects.length > 0) {
+      resumeText += 'PROJECTS\n';
+      resumeData.projects.forEach((project) => {
+        resumeText += `${project.title || 'Project'}\n`;
+        if (project.description) {
+          resumeText += `${project.description}\n`;
+        }
+        if (project.technologies && project.technologies.length > 0) {
+          resumeText += `Technologies: ${project.technologies.join(', ')}\n`;
+        }
+        resumeText += '\n';
+      });
+    }
+    
+    if (resumeData.certifications && resumeData.certifications.length > 0) {
+      resumeText += 'CERTIFICATIONS\n';
+      resumeData.certifications.forEach((cert: string) => {
+        resumeText += `• ${cert}\n`;
+      });
+    }
+    
+    return resumeText;
+  };
 
   // Redirect to login if not authenticated
   if (authLoading) {
@@ -202,13 +342,13 @@ export default function ResumeDashboard() {
   };
 
   const handleOptimizeResume = async () => {
-    if (!originalResumeData || !jobDescription.trim()) {
-      setError("Missing resume data or job description");
+    if (!file || !jobDescription.trim()) {
+      setError("Missing original file or job description");
       return;
     }
 
     setError(null);
-    await optimizeOperation.execute(originalResumeData, jobDescription.trim());
+    await optimizeOperation.execute(file, jobDescription.trim());
   };
 
   const handleDownloadPdf = async (editableResume?: ResumeData) => {
@@ -248,6 +388,7 @@ export default function ResumeDashboard() {
     setOriginalResumeData(null);
     setOptimizedResume(null);
     setScoreResult(null);
+    setOptimizedScoreResult(null);
     setShowOptimized(false);
     setError(null);
     setIsScoring(false);
@@ -491,7 +632,7 @@ export default function ResumeDashboard() {
                     </div>
                   ) : scoreResult ? (
                     <DashboardScoreResult
-                      scoreResult={scoreResult}
+                      scoreResult={showOptimized && optimizedScoreResult ? optimizedScoreResult : scoreResult}
                       onStartOverAction={handleReset}
                       showOptimizeButton={!showOptimized}
                       onOptimize={handleOptimizeResume}

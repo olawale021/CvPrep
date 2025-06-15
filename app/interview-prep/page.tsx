@@ -12,6 +12,7 @@ import { ResumeUpload } from "../../components/ui/ResumeUpload";
 import Sidebar from "../../components/ui/Sidebar";
 import { Textarea } from "../../components/ui/Textarea";
 import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../lib/supabaseClient";
 
 type Question = string;
 type Answer = string;
@@ -148,6 +149,10 @@ export default function InterviewPrep() {
     setError(null);
 
     try {
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
       // Create FormData
       const formData = new FormData();
       formData.append("job_description", jobDescription);
@@ -157,9 +162,15 @@ export default function InterviewPrep() {
         formData.append("resume_file", file);
       }
 
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch("/api/interview/questions", {
         method: "POST",
         body: formData,
+        headers
       });
 
       if (!response.ok) {
@@ -198,13 +209,23 @@ export default function InterviewPrep() {
     setActiveTab("tips");
 
     try {
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
       const formData = new FormData();
       formData.append("question", question);
       formData.append("job_description", jobDescription);
 
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch("/api/interview/answer-tips", {
         method: "POST",
         body: formData,
+        headers
       });
 
       if (!response.ok) {
@@ -267,6 +288,10 @@ export default function InterviewPrep() {
     setError(null);
 
     try {
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
       const formData = new FormData();
       formData.append("job_description", jobDescription);
       
@@ -278,9 +303,15 @@ export default function InterviewPrep() {
         formData.append("answers", a);
       });
 
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch("/api/interview/simulate", {
         method: "POST",
         body: formData,
+        headers
       });
 
       if (!response.ok) {
