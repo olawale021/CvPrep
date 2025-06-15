@@ -1,4 +1,4 @@
-import { Download, Edit, Expand, FileText } from "lucide-react";
+import { Download, Edit, Expand, FileText, Save } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../../../../components/ui/Button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../../../components/ui/Dialog";
@@ -17,6 +17,7 @@ interface OptimizedResumeProps {
   response: ResumeData;
   handleDownloadPdf: (editableResume?: ResumeData) => void;
   isPdfGenerating: boolean;
+  onSaveResume?: () => void;
 }
 
 interface OptimizedResumeContentProps {
@@ -28,12 +29,14 @@ interface OptimizedResumeContentProps {
   activeTab: string;
   setActiveTab: (value: string) => void;
   resumeContentRef: React.RefObject<HTMLDivElement | null>;
+  onSaveResume?: () => void;
 }
 
 export default function OptimizedResume({
   response,
   handleDownloadPdf,
-  isPdfGenerating
+  isPdfGenerating,
+  onSaveResume
 }: OptimizedResumeProps) {
   const [activeTab, setActiveTab] = useState<string>("summary");
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -57,6 +60,7 @@ export default function OptimizedResume({
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         resumeContentRef={resumeContentRef}
+        onSaveResume={onSaveResume}
       />
     </ResumeEditProvider>
   );
@@ -70,7 +74,8 @@ function OptimizedResumeContent({
   setIsEditMode,
   activeTab,
   setActiveTab,
-  resumeContentRef
+  resumeContentRef,
+  onSaveResume
 }: OptimizedResumeContentProps) {
   const { editableResume } = useResumeEdit();
   const { generatePreview, previewUrl, selectedTemplate, setSelectedTemplate } = usePdfGenerator();
@@ -122,6 +127,18 @@ function OptimizedResumeContent({
                 <span className="hidden sm:inline">{isEditMode ? "Done Editing" : "Edit Resume"}</span>
                 <span className="sm:hidden">{isEditMode ? "Done" : "Edit"}</span>
               </Button>
+              {onSaveResume && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="whitespace-nowrap items-center text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                  onClick={onSaveResume}
+                >
+                  <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Save Resume</span>
+                  <span className="sm:hidden">Save</span>
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"

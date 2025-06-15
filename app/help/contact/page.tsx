@@ -18,6 +18,7 @@ import { Input } from "../../../components/ui/Input";
 import { LoadingButton } from "../../../components/ui/LoadingButton";
 import Sidebar from "../../../components/ui/Sidebar";
 import { Textarea } from "../../../components/ui/Textarea";
+import TicketId from "../../../components/ui/TicketId";
 
 const supportOptions = [
   {
@@ -125,7 +126,7 @@ export default function ContactSupport() {
                 </p>
                 <div className="bg-gray-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-gray-600">
-                    <strong>Ticket ID:</strong> #CS-{Date.now().toString().slice(-6)}
+                    <strong>Ticket ID:</strong> <TicketId prefix="CS" />
                   </p>
                   <p className="text-sm text-gray-600">
                     <strong>Subject:</strong> {formData.subject}

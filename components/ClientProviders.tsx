@@ -3,6 +3,7 @@
 import { AuthContextProvider } from "../context/AuthContext";
 import { LoadingProvider } from "../context/LoadingContext";
 import NoSSR from "./NoSSR";
+import QueryProvider from "./providers/QueryProvider";
 import { ErrorBoundary } from "./ui/ErrorBoundary";
 import FeedbackWidget from "./ui/FeedbackWidget";
 import { GlobalLoadingOverlay } from "./ui/GlobalLoadingOverlay";
@@ -16,14 +17,16 @@ export default function ClientProviders({
   return (
     <NoSSR>
       <ErrorBoundary>
-        <LoadingProvider>
-          <AuthContextProvider>
-            {children}
-            <GlobalLoadingOverlay />
-            <FeedbackWidget />
-            <Toaster />
-          </AuthContextProvider>
-        </LoadingProvider>
+        <QueryProvider>
+          <LoadingProvider>
+            <AuthContextProvider>
+              {children}
+              <GlobalLoadingOverlay />
+              <FeedbackWidget />
+              <Toaster />
+            </AuthContextProvider>
+          </LoadingProvider>
+        </QueryProvider>
       </ErrorBoundary>
     </NoSSR>
   );

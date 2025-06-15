@@ -7,12 +7,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { ErrorBoundary } from '../../../components/ui/ErrorBoundary';
 import { Input } from '../../../components/ui/Input';
 import { Label } from '../../../components/ui/Label';
+import { SaveResumeDialog } from '../../../components/ui/SaveResumeDialog';
 import Sidebar from '../../../components/ui/Sidebar';
 import { Textarea } from '../../../components/ui/Textarea';
 import { useAuth } from '../../../context/AuthContext';
 import { useAsyncOperation } from '../../../hooks/useAsyncOperation';
+import { useSavedResumes } from '../../../hooks/useSavedResumes';
 import { ResumeScore } from '../../../lib/resume/scoreResume';
 import { supabase } from '../../../lib/supabaseClient';
+import { SaveResumeRequest } from '../../../types/savedResume';
 import DashboardScoreResult from '../dashboard/components/DashboardScoreResult';
 import ErrorMessage from '../optimize/components/ErrorMessage';
 import LoadingState from '../optimize/components/LoadingState';
@@ -67,8 +70,10 @@ export default function CreateResumePage() {
   const [resumeResponse, setResumeResponse] = useState<ResumeResponse | null>(null);
   const [scoreResult, setScoreResult] = useState<ResumeScore | null>(null);
   const [isScoring, setIsScoring] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   const { isPdfGenerating, downloadPdf } = usePdfGenerator();
+  const { saveResume } = useSavedResumes();
 
   // Generate resume operation
   const generateOperation = useAsyncOperation(
@@ -338,6 +343,78 @@ export default function CreateResumePage() {
     setError(null);
     setIsScoring(false);
     generateOperation.reset();
+  };
+
+  const handleSaveResume = async (request: SaveResumeRequest) => {
+    if (!generatedResume) {
+      return { success: false, error: 'No resume to save' };
+    }
+
+    try {
+      // Transform form data to match the expected format
+      const transformedFormData = {
+        jobDescription: formData.jobDescription,
+        currentSummary: formData.currentSummary,
+        workExperience: formData.workExperience,
+        education: formData.education,
+        projects: formData.projects,
+        certifications: formData.certifications,
+        licenses: formData.licenses
+      };
+
+      // Transform generated data to match the expected format
+      const transformedGeneratedData = {
+        summary: generatedResume.summary || '',
+        skills: {
+          technical_skills: generatedResume.skills?.technical_skills || [],
+          soft_skills: generatedResume.skills?.soft_skills || [],
+          ...generatedResume.skills
+        },
+        work_experience: (generatedResume.work_experience || []).map(exp => ({
+          company: exp.company || '',
+          title: exp.title || exp.role || '',
+          role: exp.role || exp.title || '',
+          dates: exp.dates || exp.date_range || '',
+          date_range: exp.date_range || exp.dates || '',
+          accomplishments: exp.accomplishments || exp.bullets || [],
+          bullets: exp.bullets || exp.accomplishments || []
+        })),
+        education: (generatedResume.education || []).map(edu => {
+          const eduData = edu as unknown as Record<string, unknown>;
+          return {
+            institution: (eduData.school as string) || (eduData.institution as string) || '',
+            degree: edu.degree || '',
+            graduationDate: (eduData.dates as string) || (eduData.graduation_date as string) || (eduData.graduationDate as string) || ''
+          };
+        }),
+        projects: (generatedResume.projects || []).map(proj => ({
+          title: proj.title || '',
+          description: proj.description || '',
+          technologies: Array.isArray(proj.technologies) ? proj.technologies.join(', ') : (proj.technologies || '')
+        })),
+        certifications: generatedResume.certifications || []
+      };
+
+      const saveRequest: SaveResumeRequest = {
+        title: request.title,
+        formData: transformedFormData,
+        generatedData: transformedGeneratedData,
+        isPrimary: request.isPrimary,
+        isFavorite: request.isFavorite
+      };
+
+      const result = await saveResume(saveRequest);
+      
+      if (result.success) {
+        // Show success message or redirect
+        console.log('Resume saved successfully!');
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      return { success: false, error: 'Failed to save resume' };
+    }
   };
 
   // Helper function to create resume text from generated data
@@ -773,6 +850,7 @@ export default function CreateResumePage() {
                           response={generatedResume}
                           handleDownloadPdf={handleDownloadPdf}
                           isPdfGenerating={isPdfGenerating}
+                          onSaveResume={() => setShowSaveDialog(true)}
                         />
                       </ResumeEditProvider>
                     </ErrorBoundary>
@@ -850,6 +928,14 @@ export default function CreateResumePage() {
           {error && <ErrorMessage message={error} className="mt-3 sm:mt-4 max-w-2xl mx-auto" />}
         </div>
       </div>
+
+      {/* Save Resume Dialog */}
+      <SaveResumeDialog
+        isOpen={showSaveDialog}
+        onClose={() => setShowSaveDialog(false)}
+        onSave={handleSaveResume}
+        defaultTitle={`Resume for ${formData.jobDescription.split(' ').slice(0, 3).join(' ')}...`}
+      />
     </div>
   );
 } 

@@ -242,7 +242,8 @@ export const generateProfessionalTemplate = async (resumeData: ResumeData, resum
       pdf.setTextColor(30, 30, 30);
       pdf.setFont(mainFont, 'bold');
       if (exp.company) {
-        pdf.text(exp.company + " (" + (exp.location || "Remote") + ")", margin, yPos);
+        const companyText = exp.location ? `${exp.company} (${exp.location})` : exp.company;
+        pdf.text(companyText, margin, yPos);
       }
       
       // Date on the right

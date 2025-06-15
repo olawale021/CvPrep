@@ -32,6 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${josefinSans.variable} ${notoSerif.variable} font-noto-serif antialiased`}
+        suppressHydrationWarning={true}
       >
         <ClientProviders>{children}</ClientProviders>
         <Analytics />

@@ -17,6 +17,7 @@ import { Input } from "../../../components/ui/Input";
 import { LoadingButton } from "../../../components/ui/LoadingButton";
 import Sidebar from "../../../components/ui/Sidebar";
 import { Textarea } from "../../../components/ui/Textarea";
+import TicketId from "../../../components/ui/TicketId";
 
 const feedbackTypes = [
   {
@@ -122,7 +123,7 @@ export default function FeedbackPage() {
                 </p>
                 <div className="bg-gray-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-gray-600">
-                    <strong>Request ID:</strong> #FR-{Date.now().toString().slice(-6)}
+                    <strong>Request ID:</strong> <TicketId prefix="FR" />
                   </p>
                   <p className="text-sm text-gray-600">
                     <strong>Title:</strong> {formData.title}

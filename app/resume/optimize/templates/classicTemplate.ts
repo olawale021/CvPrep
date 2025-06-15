@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import { ResumeData, ResumeResponse } from "../types";
 
 /**
- * Generates a classic style resume PDF with multi-page support
+ * Generates a classic style resume PDF with multi-page support and optimized spacing
  */
 export const generateClassicTemplate = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => {
   // Extract contact details from the full response
@@ -77,8 +77,8 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   // Use Times New Roman font
   const mainFont = 'times';
   
-  // Page settings
-  const margin = 15;
+  // Page settings - optimized for maximum content
+  const margin = 12; // Reduced from 15mm
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   const contentWidth = pageWidth - (margin * 2);
@@ -99,17 +99,16 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
     pdf.setFontSize(8);
     pdf.setTextColor(150, 150, 150);
     pdf.setFont(mainFont, 'normal');
-    pdf.text(`Page ${currentPage}`, pageWidth - margin - 10, pageHeight - 10);
+    pdf.text(`Page ${currentPage}`, pageWidth - margin - 10, pageHeight - 8);
   };
   
-  // Check if we need page break
+  // Check if we need page break - more aggressive space utilization
   const checkPageBreak = (spaceNeeded: number) => {
-    // Use less conservative buffer to utilize more space on first page
-    const availableSpace = pageHeight - yPos - 10; // Reduced from 20mm to 10mm buffer
+    const availableSpace = pageHeight - yPos - 8; // Reduced buffer from 10mm to 8mm
     
     if (spaceNeeded > availableSpace) {
       addPageBreak();
-      return true; // Indicate that a page break occurred
+      return true;
     }
     return false;
   };
@@ -117,11 +116,11 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   // Special function for work experience that might need to break mid-entry
   const checkWorkExperiencePageBreak = (exp: { bullets?: string[]; accomplishments?: string[] }) => {
     const bulletPoints = exp.bullets || exp.accomplishments || [];
-    const baseHeight = 25; // Title, company, minimal spacing
+    const baseHeight = 20; // Reduced from 25mm
     
     // Check if at least the header (title + company) can fit
     if (checkPageBreak(baseHeight)) {
-      return; // Page break already happened
+      return;
     }
     
     // If we have bullets, check if they need to span pages
@@ -130,10 +129,10 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         if (!bullet) return;
         
         const bulletLines = pdf.splitTextToSize(String(bullet), contentWidth - 8);
-        const bulletHeight = bulletLines.length * 4 + 2;
+        const bulletHeight = bulletLines.length * 3.5 + 1.5; // Reduced line height
         
         // Check if this bullet can fit on current page
-        if (yPos + bulletHeight > pageHeight - 15) {
+        if (yPos + bulletHeight > pageHeight - 12) {
           addPageBreak();
         }
       });
@@ -141,8 +140,8 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   };
   
   // Helper function to estimate space needed for a section
-  const estimateSectionHeight = (lines: number, fontSize: number = 10, spacing: number = 4) => {
-    return lines * (fontSize * 0.35) + (lines - 1) * spacing + 10; // Reduced header space from 15 to 10
+  const estimateSectionHeight = (lines: number, fontSize: number = 10, spacing: number = 3.5) => {
+    return lines * (fontSize * 0.35) + (lines - 1) * spacing + 8; // Reduced header space
   };
   
   // Add background color to the first page
@@ -156,15 +155,89 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   const hasCertifications = resumeData.certifications && resumeData.certifications.length > 0;
   const hasEducation = resumeData.education && resumeData.education.length > 0;
   
-  // HEADER SECTION - always on first page
-  yPos = 15; // Further reduced for tighter spacing
+  // Estimate total content height to determine if we need to expand spacing
+  const estimateTotalContentHeight = () => {
+    let totalHeight = 50; // Header section (more accurate)
+    
+    // Summary
+    if (resumeData.summary) {
+      const summaryLines = pdf.splitTextToSize(resumeData.summary, contentWidth);
+      totalHeight += 25 + (summaryLines.length * 4.5); // More accurate spacing
+    }
+    
+    // Skills
+    if (hasSkills) {
+      totalHeight += 35; // Base skills section header
+      Object.entries(resumeData.skills || {}).forEach(([, skillList]) => {
+        if (skillList && skillList.length) {
+          totalHeight += 20 + Math.ceil((skillList as string[]).length / 8) * 8; // More accurate pill layout
+        }
+      });
+    }
+    
+    // Work Experience
+    if (hasWorkExperience) {
+      totalHeight += 30; // Header
+      (resumeData.work_experience || []).forEach((exp) => {
+        totalHeight += 25; // Title, company, dates
+        const bullets = exp.bullets || exp.accomplishments || [];
+        totalHeight += bullets.length * 6; // More accurate bullet spacing
+      });
+    }
+    
+    // Projects
+    if (hasProjects) {
+      totalHeight += 30; // Header
+      (resumeData.projects || []).forEach((project) => {
+        totalHeight += 20; // Title and spacing
+        if (project.description) totalHeight += 18;
+        if (project.technologies) totalHeight += 10;
+      });
+    }
+    
+    // Education
+    if (hasEducation) {
+      totalHeight += 30 + ((resumeData.education || []).length * 18); // More accurate education spacing
+    }
+    
+    // Certifications
+    if (hasCertifications) {
+      totalHeight += 25 + ((resumeData.certifications || []).length * 8); // More accurate cert spacing
+    }
+    
+    return totalHeight;
+  };
   
-  // Header with name
-  pdf.setFontSize(24);
-  pdf.setTextColor(26, 86, 219); // Blue color for headers
+  const estimatedHeight = estimateTotalContentHeight();
+  const availableHeight = pageHeight - 20; // Account for margins
+  const contentRatio = estimatedHeight / availableHeight;
+  
+  // More aggressive space utilization - use extra space when content uses less than 85% of page
+  const hasExtraSpace = contentRatio < 0.85;
+  const hasLotsOfSpace = contentRatio < 0.65; // Very sparse content
+  
+  // Dynamic spacing multipliers based on available space
+  let spacingMultiplier = 1.0;
+  let fontSizeBoost = 0;
+  
+  if (hasLotsOfSpace) {
+    // Very sparse content - use much more space
+    spacingMultiplier = 1.8;
+    fontSizeBoost = 2;
+  } else if (hasExtraSpace) {
+    // Some extra space - moderate expansion
+    spacingMultiplier = 1.4;
+    fontSizeBoost = 1;
+  }
+  
+  // HEADER SECTION - Dynamic spacing based on content
+  yPos = hasExtraSpace ? 15 : 12; // More space if available
+  
+  // Header with name - dynamic font size
+  pdf.setFontSize(23 + fontSizeBoost); // Dynamic font size
+  pdf.setTextColor(26, 86, 219);
   pdf.setFont(mainFont, 'bold');
   
-  // Ensure we have a name to display - use extracted name if available
   const displayName = extractedName || 
                      userName || 
                      (resumeData.contact_details?.name) || 
@@ -172,82 +245,84 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   
   pdf.text(displayName, pageWidth / 2, yPos, { align: 'center' });
   
-  yPos += 6; // Further reduced for tighter spacing
+  yPos += Math.round(5 * spacingMultiplier); // Dynamic spacing
   
-  // Contact details
-  pdf.setFontSize(10);
+  // Contact details - dynamic layout
+  pdf.setFontSize(10 + fontSizeBoost); // Dynamic font size
   pdf.setTextColor(74, 85, 104);
   pdf.setFont(mainFont, 'normal');
   
-  // Try multiple sources for contact info - use extracted values first
   const email = extractedEmail || userEmail || resumeData.contact_details?.email || "";
   const phone = extractedPhone || userPhone || resumeData.contact_details?.phone || "";
   const location = extractedLocation || userLocation || resumeData.contact_details?.location || "";
   
-  const contactElements = [];
-  if (email) contactElements.push({ label: "Email:", value: email });
-  if (phone) contactElements.push({ label: "Phone:", value: phone });
-  if (location) contactElements.push({ label: "Location:", value: location.replace(/\n/g, ' ').trim() });
+  // Create compact contact line
+  const contactParts = [];
+  if (email) contactParts.push(email);
+  if (phone) contactParts.push(phone);
+  if (location) contactParts.push(location.replace(/\n/g, ' ').trim());
   
-  // Display contact info in lines only if we have contact details
-  if (contactElements.length > 0) {
-  contactElements.forEach((element, index) => {
-      const elementText = `${element.label} ${element.value}`;
-      pdf.text(elementText, pageWidth / 2, yPos, { align: 'center' });
-      if (index < contactElements.length - 1) yPos += 4;
-    });
+  if (contactParts.length > 0) {
+    const contactLine = contactParts.join(' • ');
+    pdf.text(contactLine, pageWidth / 2, yPos, { align: 'center' });
+    yPos += Math.round(3 * spacingMultiplier); // Dynamic spacing
   }
   
-  yPos += 4; // Further reduced for tighter spacing
+  yPos += Math.round(2 * spacingMultiplier); // Dynamic spacing before line
   
   // Horizontal line
   pdf.setDrawColor(26, 86, 219);
   pdf.setLineWidth(0.5);
   pdf.line(margin, yPos, pageWidth - margin, yPos);
   
-  yPos += 4; // Further reduced for tighter spacing
+  yPos += Math.round(3 * spacingMultiplier); // Dynamic spacing
   
-  // SECTION: PROFESSIONAL SUMMARY
+  // SECTION: PROFESSIONAL SUMMARY - Dynamic spacing
   if (resumeData.summary) {
-    // Check if summary will fit
     const summaryLines = pdf.splitTextToSize(resumeData.summary, contentWidth);
-    const summaryHeight = estimateSectionHeight(summaryLines.length + 1, 10, 4);
+    const summaryHeight = estimateSectionHeight(summaryLines.length + 1, 10, 3.5);
     checkPageBreak(summaryHeight);
     
-    pdf.setFontSize(14);
+    pdf.setFontSize(14 + fontSizeBoost); // Dynamic font size
     pdf.setTextColor(26, 86, 219);
     pdf.setFont(mainFont, 'bold');
     pdf.text("PROFESSIONAL SUMMARY", margin, yPos);
     
-    yPos += 5;
-    pdf.setFontSize(10); 
+    yPos += Math.round(4 * spacingMultiplier); // Dynamic spacing
+    pdf.setFontSize(11 + fontSizeBoost); // Dynamic font size
     pdf.setTextColor(45, 55, 72);
     pdf.setFont(mainFont, 'normal');
     
     pdf.text(summaryLines, margin, yPos);
-    yPos += summaryLines.length * 4;
+    yPos += summaryLines.length * (3.5 * spacingMultiplier); // Dynamic line spacing
     
-    yPos += 5; // Further reduced for tighter spacing
+    yPos += Math.round(6 * spacingMultiplier); // Increased base section spacing
+    
+    // Add extra spacing between major sections when there's lots of space
+    if (hasLotsOfSpace) {
+      yPos += Math.round(6 * spacingMultiplier);
+    } else if (hasExtraSpace) {
+      yPos += Math.round(3 * spacingMultiplier);
+    }
   }
   
-  // SECTION: SKILLS
+  // SECTION: SKILLS - Dynamic spacing
   if (hasSkills) {
-    // Estimate skills height more conservatively to avoid unnecessary page breaks
-    let skillsHeight = 15; // Reduced base header height
+    let skillsHeight = 12; // Reduced base height
     Object.entries(resumeData.skills || {}).forEach(([, skillList]) => {
       if (!skillList || !skillList.length) return;
-      skillsHeight += 10; // Reduced category header from 15 to 10
-      skillsHeight += Math.ceil((skillList as string[]).length / 8) * 6; // More compact pills layout estimate
+      skillsHeight += 8; // Reduced category header
+      skillsHeight += Math.ceil((skillList as string[]).length / 10) * 5; // More compact estimate
     });
     
     checkPageBreak(skillsHeight);
     
-    pdf.setFontSize(14);
+    pdf.setFontSize(14 + fontSizeBoost); // Dynamic font size
     pdf.setTextColor(26, 86, 219);
     pdf.setFont(mainFont, 'bold');
     pdf.text("SKILLS", margin, yPos);
     
-    yPos += 8;
+    yPos += Math.round(6 * spacingMultiplier); // Dynamic spacing
     
     // Process each skill category
     Object.entries(resumeData.skills || {}).forEach(([category, skillList]) => {
@@ -258,22 +333,22 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
       
-      pdf.setFontSize(12);
+      pdf.setFontSize(12 + fontSizeBoost); // Dynamic font size
       pdf.setTextColor(45, 55, 72);
       pdf.setFont(mainFont, 'bold');
       pdf.text(formattedCategory, margin, yPos);
       
-      yPos += 5; // Reduced from 6 to 5
+      yPos += Math.round(4 * spacingMultiplier); // Dynamic spacing
       
-      // Create pill-style skills
-      pdf.setFontSize(9);
+      // Create pill-style skills - dynamic sizing
+      pdf.setFontSize(9.5 + fontSizeBoost); // Dynamic font size
       pdf.setFont(mainFont, 'normal');
       
       let xOffset = margin;
-      const pillHeight = 5;
-      const pillPadding = 3;
-      const pillMargin = 3;
-      const maxRowWidth = contentWidth - 5;
+      const pillHeight = 4.5; // Reduced from 5
+      const pillPadding = 2.5; // Reduced from 3
+      const pillMargin = 2.5; // Reduced from 3
+      const maxRowWidth = contentWidth - 3;
       
       // Draw skills as pills
       (skillList as string[]).forEach((skill) => {
@@ -282,15 +357,14 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         // Check if we need to move to next line
         if (xOffset + skillWidth > margin + maxRowWidth) {
           xOffset = margin;
-          yPos += pillHeight + 2;
+          yPos += pillHeight + (1.5 * spacingMultiplier); // Dynamic spacing
           
-          // Check if we need a page break for the next line
-          checkPageBreak(pillHeight + 5);
+          checkPageBreak(pillHeight + 4);
         }
         
         // Draw pill background
         pdf.setFillColor(240, 240, 245);
-        pdf.roundedRect(xOffset, yPos - 3.5, skillWidth, pillHeight, 1.5, 1.5, 'F');
+        pdf.roundedRect(xOffset, yPos - 3, skillWidth, pillHeight, 1.5, 1.5, 'F');
         
         // Draw skill text
         pdf.setTextColor(74, 85, 104);
@@ -299,29 +373,33 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         xOffset += skillWidth + pillMargin;
       });
       
-      yPos += pillHeight + 4; // Reduced from 6 to 4
+      yPos += pillHeight + Math.round(3 * spacingMultiplier); // Dynamic spacing
     });
     
-    yPos += 6; // Reduced from 10 to 6
+    yPos += Math.round(4 * spacingMultiplier); // Dynamic spacing
+    
+    // Add extra spacing between major sections when there's lots of space
+    if (hasLotsOfSpace) {
+      yPos += Math.round(8 * spacingMultiplier);
+    }
   }
   
-  // SECTION: WORK EXPERIENCE
+  // SECTION: WORK EXPERIENCE - Dynamic spacing
   if (hasWorkExperience) {
-    checkPageBreak(30); // Minimum space for work experience header
+    checkPageBreak(25); // Reduced minimum space
     
-    pdf.setFontSize(14);
+    pdf.setFontSize(14 + fontSizeBoost); // Dynamic font size
     pdf.setTextColor(26, 86, 219);
     pdf.setFont(mainFont, 'bold');
     pdf.text("WORK EXPERIENCE", margin, yPos);
     
-    yPos += 8;
+    yPos += Math.round(6 * spacingMultiplier); // Dynamic spacing
     
-    (resumeData.work_experience || []).forEach((exp) => {
-      // Check if this entire job entry will fit on current page
+    (resumeData.work_experience || []).forEach((exp, index) => {
       checkWorkExperiencePageBreak(exp);
       
       // Job title and dates on the same line
-      pdf.setFontSize(12);
+      pdf.setFontSize(12 + fontSizeBoost); // Dynamic font size
       pdf.setTextColor(45, 55, 72);
       pdf.setFont(mainFont, 'bold');
       const title = exp.title || exp.role || "Position";
@@ -330,38 +408,37 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
       const dateText = exp.dates || exp.date_range || "";
       if (dateText) {
         const datesWidth = pdf.getTextWidth(dateText);
-        pdf.setFontSize(10);
+        pdf.setFontSize(10 + fontSizeBoost); // Dynamic font size
         pdf.setFont(mainFont, 'normal');
         pdf.text(dateText, pageWidth - margin - datesWidth, yPos);
       }
       
-      yPos += 6;
+      yPos += Math.round(5 * spacingMultiplier); // Dynamic spacing
       
       // Company and location
-      pdf.setFontSize(10);
+      pdf.setFontSize(10 + fontSizeBoost); // Dynamic font size
       pdf.setTextColor(74, 85, 104);
       pdf.setFont(mainFont, 'italic');
       if (exp.company) {
         pdf.text(`${exp.company}${exp.location ? ` • ${exp.location}` : ''}`, margin, yPos);
       }
       
-      yPos += 5; // Reduced from 6 to 5
+      yPos += Math.round(4 * spacingMultiplier); // Dynamic spacing
       
-      // Bullet points
-      const bulletPoints = exp.bullets || exp.accomplishments || [];
-      if (bulletPoints.length > 0) {
-        pdf.setFontSize(10);
-        pdf.setTextColor(45, 55, 72);
-        pdf.setFont(mainFont, 'normal');
+              // Bullet points - dynamic spacing
+        const bulletPoints = exp.bullets || exp.accomplishments || [];
+        if (bulletPoints.length > 0) {
+          pdf.setFontSize(10 + fontSizeBoost); // Dynamic font size
+          pdf.setTextColor(45, 55, 72);
+          pdf.setFont(mainFont, 'normal');
         
         bulletPoints.forEach((bullet) => {
           if (!bullet) return;
           
-          // Check if this bullet point will fit on current page
           const bulletLines = pdf.splitTextToSize(String(bullet), contentWidth - 8);
-          const bulletHeight = bulletLines.length * 4 + 2;
+          const bulletHeight = bulletLines.length * 3.5 + 1.5; // Reduced line height
           
-          if (yPos + bulletHeight > pageHeight - 25) {
+          if (yPos + bulletHeight > pageHeight - 20) {
             addPageBreak();
           }
           
@@ -373,91 +450,104 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
           const lines = pdf.splitTextToSize(String(bullet), bulletWidth);
           if (lines && lines.length > 0) {
             pdf.text(lines, bulletIndent, yPos);
-            yPos += lines.length * 4;
+            yPos += lines.length * (3.5 * spacingMultiplier); // Dynamic line spacing
           }
           
-          yPos += 1; // Reduced from 2 to 1
+          yPos += Math.round(0.5 * spacingMultiplier); // Dynamic bullet spacing
         });
       }
       
-      yPos += 5; // Reduced from 8 to 5
+      // Add spacing between jobs, but less for last job
+      const jobSpacing = index === (resumeData.work_experience || []).length - 1 ? 3 : 4;
+      yPos += Math.round(jobSpacing * spacingMultiplier);
     });
     
-    yPos += 6; // Reduced from 10 to 6
+    yPos += Math.round(4 * spacingMultiplier); // Dynamic section spacing
+    
+    // Add extra spacing between major sections when there's lots of space
+    if (hasLotsOfSpace) {
+      yPos += Math.round(8 * spacingMultiplier);
+    }
   }
   
-  // SECTION: PROJECTS
+  // SECTION: PROJECTS - Dynamic spacing
   if (hasProjects) {
-    checkPageBreak(30); // Minimum space for projects section
+    checkPageBreak(25); // Reduced minimum space
     
-    pdf.setFontSize(14);
+    pdf.setFontSize(14 + fontSizeBoost); // Dynamic font size
     pdf.setTextColor(26, 86, 219);
     pdf.setFont(mainFont, 'bold');
     pdf.text("PROJECTS", margin, yPos);
     
-    yPos += 8;
+    yPos += Math.round(6 * spacingMultiplier); // Dynamic spacing
     
-    (resumeData.projects || []).forEach((project) => {
-      // Estimate project height
-      const projectHeight = 25 + (project.description ? 15 : 0) + (project.technologies ? 8 : 0);
+    (resumeData.projects || []).forEach((project, index) => {
+      const projectHeight = 20 + (project.description ? 12 : 0) + (project.technologies ? 6 : 0);
       checkPageBreak(projectHeight);
       
       // Project title
-      pdf.setFontSize(12);
+      pdf.setFontSize(12 + fontSizeBoost); // Dynamic font size
       pdf.setTextColor(45, 55, 72);
       pdf.setFont(mainFont, 'bold');
       if (project.title) {
         pdf.text(project.title, margin, yPos);
       }
       
-      yPos += 5; // Reduced from 6 to 5
+      yPos += Math.round(4 * spacingMultiplier); // Dynamic spacing
       
       // Project description
       if (project.description) {
-        pdf.setFontSize(10);
+        pdf.setFontSize(10 + fontSizeBoost); // Dynamic font size
         pdf.setFont(mainFont, 'normal');
         const descLines = pdf.splitTextToSize(project.description, contentWidth);
         pdf.text(descLines, margin, yPos);
-        yPos += descLines.length * 4;
+        yPos += descLines.length * (3.5 * spacingMultiplier); // Dynamic line spacing
       }
       
       // Technologies
       if (project.technologies && Array.isArray(project.technologies) && project.technologies.length > 0) {
-        pdf.setFontSize(9);
+        pdf.setFontSize(9.5 + fontSizeBoost); // Dynamic font size
         pdf.setTextColor(44, 82, 130);
         pdf.setFont(mainFont, 'italic');
         
-          const validTechs = project.technologies.filter(tech => tech && typeof tech === 'string');
-          if (validTechs.length > 0) {
+        const validTechs = project.technologies.filter(tech => tech && typeof tech === 'string');
+        if (validTechs.length > 0) {
           const techText = "Technologies: " + validTechs.join(', ');
           const techLines = pdf.splitTextToSize(techText, contentWidth);
           pdf.text(techLines, margin, yPos);
-          yPos += techLines.length * 4;
+          yPos += techLines.length * (3.5 * spacingMultiplier); // Dynamic line spacing
         }
       }
       
-      yPos += 5; // Reduced from 8 to 5
+      // Add spacing between projects, but less for last project
+      const projectSpacing = index === (resumeData.projects || []).length - 1 ? 3 : 4;
+      yPos += Math.round(projectSpacing * spacingMultiplier);
     });
     
-    yPos += 6; // Reduced from 10 to 6
+    yPos += Math.round(4 * spacingMultiplier); // Dynamic section spacing
+    
+    // Add extra spacing between major sections when there's lots of space
+    if (hasLotsOfSpace) {
+      yPos += Math.round(8 * spacingMultiplier);
+    }
   }
   
-  // SECTION: EDUCATION
+  // SECTION: EDUCATION - Dynamic spacing
   if (hasEducation) {
-    checkPageBreak(30); // Minimum space for education
+    checkPageBreak(25); // Reduced minimum space
     
-    pdf.setFontSize(14);
+    pdf.setFontSize(14 + fontSizeBoost); // Dynamic font size
     pdf.setTextColor(26, 86, 219);
     pdf.setFont(mainFont, 'bold');
     pdf.text("EDUCATION", margin, yPos);
     
-    yPos += 8;
+    yPos += Math.round(6 * spacingMultiplier); // Dynamic spacing
     
-    (resumeData.education || []).forEach((edu) => {
-      checkPageBreak(15); // Space for one education entry
+    (resumeData.education || []).forEach((edu, index) => {
+      checkPageBreak(12); // Reduced space for one education entry
       
       // Degree and date
-      pdf.setFontSize(12);
+      pdf.setFontSize(12 + fontSizeBoost); // Dynamic font size
       pdf.setTextColor(45, 55, 72);
       pdf.setFont(mainFont, 'bold');
       if (edu.degree) {
@@ -466,46 +556,54 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
       
       if (edu.dates) {
         const datesWidth = pdf.getTextWidth(edu.dates);
-        pdf.setFontSize(10);
+        pdf.setFontSize(10 + fontSizeBoost); // Dynamic font size
         pdf.setFont(mainFont, 'normal');
         pdf.text(edu.dates, pageWidth - margin - datesWidth, yPos);
       }
       
-      yPos += 5;
+      yPos += Math.round(4 * spacingMultiplier); // Dynamic spacing
       
       // School
-      pdf.setFontSize(10);
+      pdf.setFontSize(10 + fontSizeBoost); // Dynamic font size
       pdf.setFont(mainFont, 'italic');
       if (edu.school) {
         pdf.text(edu.school, margin, yPos);
       }
       
-      yPos += 5; // Reduced from 8 to 5
+      // Add spacing between education entries, but less for last entry
+      let eduSpacing = index === (resumeData.education || []).length - 1 ? 3 : 4;
+      
+      // Add extra spacing within education section when there's lots of space
+      if (hasLotsOfSpace) {
+        eduSpacing += 3;
+      }
+      
+      yPos += Math.round(eduSpacing * spacingMultiplier);
     });
     
-    yPos += 6; // Reduced from 10 to 6
+    yPos += Math.round(4 * spacingMultiplier); // Dynamic section spacing
   }
   
-  // SECTION: CERTIFICATIONS
+  // SECTION: CERTIFICATIONS - Dynamic spacing
   if (hasCertifications) {
     const certCount = (resumeData.certifications || []).length;
-    checkPageBreak(20 + (certCount * 5)); // Estimate certifications height
+    checkPageBreak(15 + (certCount * 4)); // Reduced estimate
     
-    pdf.setFontSize(14);
+    pdf.setFontSize(14 + fontSizeBoost); // Dynamic font size
     pdf.setTextColor(26, 86, 219);
     pdf.setFont(mainFont, 'bold');
     pdf.text("CERTIFICATIONS", margin, yPos);
     
-    yPos += 6; // Reduced from 8 to 6
+    yPos += Math.round(5 * spacingMultiplier); // Dynamic spacing
     
-    pdf.setFontSize(10);
+    pdf.setFontSize(10 + fontSizeBoost); // Dynamic font size
     pdf.setTextColor(45, 55, 72);
     pdf.setFont(mainFont, 'normal');
     
-    (resumeData.certifications || []).forEach((cert) => {
+    (resumeData.certifications || []).forEach((cert, index) => {
       if (!cert || typeof cert !== 'string') return;
       
-      checkPageBreak(8); // Space for one certification
+      checkPageBreak(6); // Reduced space for one certification
       
       pdf.text("•", margin, yPos);
       
@@ -515,10 +613,13 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
       const lines = pdf.splitTextToSize(cert, bulletWidth);
       if (lines && lines.length > 0) {
         pdf.text(lines, bulletIndent, yPos);
-        yPos += lines.length * 4;
+        yPos += lines.length * (3.5 * spacingMultiplier); // Dynamic line spacing
       }
       
-      yPos += 1; // Reduced from 2 to 1
+      // Dynamic spacing between certifications
+      if (index < (resumeData.certifications || []).length - 1) {
+        yPos += Math.round(0.5 * spacingMultiplier);
+      }
     });
   }
   
@@ -529,17 +630,17 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
     }
     
     // Footer with generation date and page number
-    pdf.setFontSize(8);
+    pdf.setFontSize(8); // Increased by +1
     pdf.setTextColor(150, 150, 150);
-      pdf.setFont(mainFont, 'italic');
-      
-      const currentDate = new Date().toLocaleDateString();
-      const footerText = `Resume generated on ${currentDate} · CvPrep.ai`;
-      
-    pdf.text(footerText, margin, pageHeight - 10);
+    pdf.setFont(mainFont, 'italic');
+    
+    const currentDate = new Date().toLocaleDateString();
+    const footerText = `Resume generated on ${currentDate} · CvPrep.ai`;
+    
+    pdf.text(footerText, margin, pageHeight - 8); // Moved up slightly
     
     if (currentPage > 1) {
-      pdf.text(`Page ${page} of ${currentPage}`, pageWidth - margin - 20, pageHeight - 10);
+      pdf.text(`Page ${page} of ${currentPage}`, pageWidth - margin - 20, pageHeight - 8);
     }
   }
   

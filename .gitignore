@@ -89,3 +89,6 @@ README.md
 db/migrations/feedback_table.sql
 db/migrations/001_create_usage_tracking_tables.sql
 db/migrations/002_add_missing_columns.sql
+db/apply-production-fix.md
+db/migrations/003_fix_production_errors.sql
+db/schema/saved-resumes-table.sql
