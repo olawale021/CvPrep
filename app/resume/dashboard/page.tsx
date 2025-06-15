@@ -63,7 +63,7 @@ export default function ResumeDashboard() {
     },
     {
       onSuccess: (data) => {
-        setOriginalResumeData(data.data);
+        setOriginalResumeData(data);
         setResumeResponse(data);
         setError(null);
       },
