@@ -16,6 +16,7 @@ interface UsageStats {
   cover_letter_optimize: { used: number; limit: number };
   interview_prep: { used: number; limit: number };
   trialDaysRemaining: number;
+  environment?: string;
 }
 
 const featureConfig = {
@@ -33,6 +34,11 @@ const featureConfig = {
     label: "Cover Letter Create",
     icon: MessageSquare,
     color: "bg-purple-500"
+  },
+  cover_letter_optimize: {
+    label: "Cover Letter Optimize",
+    icon: MessageSquare,
+    color: "bg-orange-500"
   },
   interview_prep: {
     label: "Interview Prep",
@@ -232,48 +238,42 @@ export function UsageTracker() {
       
       <CardContent className="pt-0">
         <div className="flex space-x-4">
-          {Object.entries(usage).map(([key, value]) => {
-            if (key === 'trialDaysRemaining') return null;
-            
-            const featureKey = key as keyof typeof featureConfig;
-            const config = featureConfig[featureKey];
-            
-            // Skip if config is not found (safety check)
-            if (!config) {
-              console.warn(`No config found for feature: ${key}`);
-              return null;
-            }
-            
-            const { used, limit } = value;
-            const percentage = limit > 0 ? (used / limit) * 100 : 0;
-            const isAtLimit = used >= limit;
-            
-            const Icon = config.icon;
-            
-            return (
-              <div key={key} className="flex-1 text-center">
-                <div className="mb-2">
-                  <div className={`w-8 h-8 ${isAtLimit ? 'bg-red-500' : config.color} rounded-lg flex items-center justify-center mx-auto mb-1`}>
-                    <Icon className="w-4 h-4 text-white" />
+          {Object.entries(usage)
+            .filter(([key]) => key !== 'trialDaysRemaining' && key !== 'environment' && key in featureConfig)
+            .map(([key, value]) => {
+              const featureKey = key as keyof typeof featureConfig;
+              const config = featureConfig[featureKey];
+              
+              const { used, limit } = value;
+              const percentage = limit > 0 ? (used / limit) * 100 : 0;
+              const isAtLimit = used >= limit;
+              
+              const Icon = config.icon;
+              
+              return (
+                <div key={key} className="flex-1 text-center">
+                  <div className="mb-2">
+                    <div className={`w-8 h-8 ${isAtLimit ? 'bg-red-500' : config.color} rounded-lg flex items-center justify-center mx-auto mb-1`}>
+                      <Icon className="w-4 h-4 text-white" />
+                    </div>
+                    <p className="text-xs font-medium text-gray-700 mb-1">{config.label}</p>
                   </div>
-                  <p className="text-xs font-medium text-gray-700 mb-1">{config.label}</p>
-                </div>
-                
-                <div className="space-y-1">
-                  <ProgressBar 
-                    value={percentage} 
-                    size="sm"
-                    variant={isAtLimit ? "error" : "default"}
-                  />
-                  <div className="flex justify-center">
-                    <span className={`text-xs font-medium ${isAtLimit ? 'text-red-600' : 'text-gray-600'}`}>
-                      {used}/{limit}
-                    </span>
+                  
+                  <div className="space-y-1">
+                    <ProgressBar 
+                      value={percentage} 
+                      size="sm"
+                      variant={isAtLimit ? "error" : "default"}
+                    />
+                    <div className="flex justify-center">
+                      <span className={`text-xs font-medium ${isAtLimit ? 'text-red-600' : 'text-gray-600'}`}>
+                        {used}/{limit}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
         
         <div className="mt-4 text-center">

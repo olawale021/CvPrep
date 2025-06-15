@@ -10,6 +10,7 @@ import { Label } from '../../../components/ui/Label';
 import { SaveResumeDialog } from '../../../components/ui/SaveResumeDialog';
 import Sidebar from '../../../components/ui/Sidebar';
 import { Textarea } from '../../../components/ui/Textarea';
+import { useToast } from '../../../components/ui/use-toast';
 import { useAuth } from '../../../context/AuthContext';
 import { useAsyncOperation } from '../../../hooks/useAsyncOperation';
 import { useSavedResumes } from '../../../hooks/useSavedResumes';
@@ -74,6 +75,7 @@ export default function CreateResumePage() {
 
   const { isPdfGenerating, downloadPdf } = usePdfGenerator();
   const { saveResume } = useSavedResumes();
+  const { toast } = useToast();
 
   // Generate resume operation
   const generateOperation = useAsyncOperation(
@@ -404,11 +406,6 @@ export default function CreateResumePage() {
       };
 
       const result = await saveResume(saveRequest);
-      
-      if (result.success) {
-        // Show success message or redirect
-        console.log('Resume saved successfully!');
-      }
       
       return result;
     } catch (error) {
@@ -934,6 +931,12 @@ export default function CreateResumePage() {
         isOpen={showSaveDialog}
         onClose={() => setShowSaveDialog(false)}
         onSave={handleSaveResume}
+        onSuccess={() => {
+          toast({
+            title: "Resume Saved Successfully!",
+            description: "Your resume has been saved and can be accessed from your saved resumes.",
+          });
+        }}
         defaultTitle={`Resume for ${formData.jobDescription.split(' ').slice(0, 3).join(' ')}...`}
       />
     </div>

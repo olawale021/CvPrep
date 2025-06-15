@@ -11,6 +11,7 @@ interface SaveResumeDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (request: SaveResumeRequest) => Promise<{ success: boolean; error?: string }>;
+  onSuccess?: () => void;
   defaultTitle?: string;
   isSaving?: boolean;
 }
@@ -19,6 +20,7 @@ export function SaveResumeDialog({
   isOpen,
   onClose,
   onSave,
+  onSuccess,
   defaultTitle = '',
   isSaving = false
 }: SaveResumeDialogProps) {
@@ -86,6 +88,9 @@ export function SaveResumeDialog({
         setTitle('');
         setIsPrimary(false);
         setIsFavorite(false);
+        if (onSuccess) {
+          onSuccess();
+        }
       } else {
         setError(result.error || 'Failed to save resume');
       }

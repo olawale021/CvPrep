@@ -1,9 +1,14 @@
 "use client";
 
 import { FileText } from "lucide-react";
-import React, { FormEvent } from "react";
+import React, { FormEvent, useState } from "react";
 import { ErrorBoundary } from "../../../components/ui/ErrorBoundary";
+import { SaveResumeDialog } from "../../../components/ui/SaveResumeDialog";
 import Sidebar from "../../../components/ui/Sidebar";
+import { useToast } from "../../../components/ui/use-toast";
+import { useAuth } from "../../../context/AuthContext";
+import { useSavedResumes } from "../../../hooks/useSavedResumes";
+import { SaveResumeRequest } from "../../../types/savedResume";
 import ErrorMessage from "./components/ErrorMessage";
 import LoadingState from "./components/LoadingState";
 import OptimizedResume from "./components/OptimizedResume";
@@ -37,6 +42,11 @@ interface UpdatedResumeData {
 }
 
 export default function OptimizeResume() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { saveResume } = useSavedResumes();
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+
   const {
     file,
     setFile,
@@ -86,6 +96,72 @@ export default function OptimizeResume() {
       } catch (error) {
         console.error("Error generating PDF:", error);
       }
+    }
+  };
+
+  const handleSaveResume = async (request: SaveResumeRequest) => {
+    if (!response || !user?.id) {
+      return { success: false, error: 'No resume data or user not authenticated' };
+    }
+
+    try {
+      // Transform the optimized resume data to match the expected format
+      const transformedFormData = {
+        jobDescription: jobDescription || '',
+        currentSummary: '',
+        workExperience: [],
+        education: [],
+        projects: [],
+        certifications: '',
+        licenses: ''
+      };
+
+      // Transform generated data to match the expected format
+      const transformedGeneratedData = {
+        summary: response.summary || '',
+        skills: {
+          technical_skills: response.skills?.technical_skills || [],
+          soft_skills: response.skills?.soft_skills || [],
+          ...response.skills
+        },
+        work_experience: (response.work_experience || []).map(exp => ({
+          company: exp.company || '',
+          title: exp.title || exp.role || '',
+          role: exp.role || exp.title || '',
+          dates: exp.dates || exp.date_range || '',
+          date_range: exp.date_range || exp.dates || '',
+          accomplishments: exp.accomplishments || exp.bullets || [],
+          bullets: exp.bullets || exp.accomplishments || []
+        })),
+        education: (response.education || []).map(edu => {
+          const eduData = edu as unknown as Record<string, unknown>;
+          return {
+            institution: (eduData.school as string) || (eduData.institution as string) || '',
+            degree: edu.degree || '',
+            graduationDate: (eduData.dates as string) || (eduData.graduation_date as string) || (eduData.graduationDate as string) || ''
+          };
+        }),
+        projects: (response.projects || []).map(proj => ({
+          title: proj.title || '',
+          description: proj.description || '',
+          technologies: Array.isArray(proj.technologies) ? proj.technologies.join(', ') : (proj.technologies || '')
+        })),
+        certifications: response.certifications || []
+      };
+
+      const saveRequest: SaveResumeRequest = {
+        title: request.title,
+        formData: transformedFormData,
+        generatedData: transformedGeneratedData,
+        isPrimary: request.isPrimary,
+        isFavorite: request.isFavorite
+      };
+
+      const result = await saveResume(saveRequest);
+      return result;
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      return { success: false, error: 'Failed to save resume' };
     }
   };
 
@@ -174,6 +250,7 @@ export default function OptimizeResume() {
                           response={response}
                           handleDownloadPdf={handleDownloadPdf}
                           isPdfGenerating={isPdfGenerating}
+                          onSaveResume={() => setShowSaveDialog(true)}
                         />
                       </ResumeEditProvider>
                     </ErrorBoundary>
@@ -196,6 +273,20 @@ export default function OptimizeResume() {
           {error && <ErrorMessage message={error} className="mt-4" />}
         </div>
       </div>
+
+      {/* Save Resume Dialog */}
+      <SaveResumeDialog
+        isOpen={showSaveDialog}
+        onClose={() => setShowSaveDialog(false)}
+        onSave={handleSaveResume}
+        onSuccess={() => {
+          toast({
+            title: "Resume Saved Successfully!",
+            description: "Your optimized resume has been saved and can be accessed from your saved resumes.",
+          });
+        }}
+        defaultTitle={`Optimized Resume for ${jobDescription.split(' ').slice(0, 3).join(' ')}...`}
+      />
     </div>
   );
 }

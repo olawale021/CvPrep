@@ -1,13 +1,17 @@
 "use client";
 
 import { FileText, Loader2, Sparkles } from "lucide-react";
-import React, { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import { ErrorBoundary } from "../../../components/ui/ErrorBoundary";
+import { SaveResumeDialog } from "../../../components/ui/SaveResumeDialog";
 import Sidebar from "../../../components/ui/Sidebar";
+import { useToast } from "../../../components/ui/use-toast";
 import { useAuth } from "../../../context/AuthContext";
 import { useAsyncOperation } from "../../../hooks/useAsyncOperation";
+import { useSavedResumes } from "../../../hooks/useSavedResumes";
 import { ResumeScore } from "../../../lib/resume/scoreResume";
+import { SaveResumeRequest } from "../../../types/savedResume";
 import ErrorMessage from "../optimize/components/ErrorMessage";
 import LoadingState from "../optimize/components/LoadingState";
 import OptimizedResume from "../optimize/components/OptimizedResume";
@@ -19,7 +23,10 @@ import DashboardScoreResult from "./components/DashboardScoreResult";
 
 export default function ResumeDashboard() {
   const { user, isLoading: authLoading } = useAuth();
-  
+  const { toast } = useToast();
+  const { saveResume } = useSavedResumes();
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+
   const [file, setFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState<string>("");
   const [originalResumeData, setOriginalResumeData] = useState<ResumeData | null>(null);
@@ -29,7 +36,7 @@ export default function ResumeDashboard() {
   const [showOptimized, setShowOptimized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isScoring, setIsScoring] = useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { isPdfGenerating, downloadPdf } = usePdfGenerator();
 
@@ -252,6 +259,73 @@ export default function ResumeDashboard() {
     }
   };
 
+  const handleSaveResume = async (request: SaveResumeRequest) => {
+    const currentResume = showOptimized ? optimizedResume : originalResumeData;
+    if (!currentResume || !user?.id) {
+      return { success: false, error: 'No resume data or user not authenticated' };
+    }
+
+    try {
+      // Transform the resume data to match the expected format
+      const transformedFormData = {
+        jobDescription: jobDescription || '',
+        currentSummary: '',
+        workExperience: [],
+        education: [],
+        projects: [],
+        certifications: '',
+        licenses: ''
+      };
+
+      // Transform generated data to match the expected format
+      const transformedGeneratedData = {
+        summary: currentResume.summary || '',
+        skills: {
+          technical_skills: currentResume.skills?.technical_skills || [],
+          soft_skills: currentResume.skills?.soft_skills || [],
+          ...currentResume.skills
+        },
+        work_experience: (currentResume.work_experience || []).map(exp => ({
+          company: exp.company || '',
+          title: exp.title || exp.role || '',
+          role: exp.role || exp.title || '',
+          dates: exp.dates || exp.date_range || '',
+          date_range: exp.date_range || exp.dates || '',
+          accomplishments: exp.accomplishments || exp.bullets || [],
+          bullets: exp.bullets || exp.accomplishments || []
+        })),
+        education: (currentResume.education || []).map(edu => {
+          const eduData = edu as unknown as Record<string, unknown>;
+          return {
+            institution: (eduData.school as string) || (eduData.institution as string) || '',
+            degree: edu.degree || '',
+            graduationDate: (eduData.dates as string) || (eduData.graduation_date as string) || (eduData.graduationDate as string) || ''
+          };
+        }),
+        projects: (currentResume.projects || []).map(proj => ({
+          title: proj.title || '',
+          description: proj.description || '',
+          technologies: Array.isArray(proj.technologies) ? proj.technologies.join(', ') : (proj.technologies || '')
+        })),
+        certifications: currentResume.certifications || []
+      };
+
+      const saveRequest: SaveResumeRequest = {
+        title: request.title,
+        formData: transformedFormData,
+        generatedData: transformedGeneratedData,
+        isPrimary: request.isPrimary,
+        isFavorite: request.isFavorite
+      };
+
+      const result = await saveResume(saveRequest);
+      return result;
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      return { success: false, error: 'Failed to save resume' };
+    }
+  };
+
   const currentResumeData = showOptimized ? optimizedResume : originalResumeData;
   const isLoading = analyzeOperation.isLoading || optimizeOperation.isLoading;
 
@@ -388,6 +462,7 @@ export default function ResumeDashboard() {
                           response={currentResumeData}
                           handleDownloadPdf={handleDownloadPdf}
                           isPdfGenerating={isPdfGenerating}
+                          onSaveResume={() => setShowSaveDialog(true)}
                         />
                       </ResumeEditProvider>
                     </ErrorBoundary>
@@ -466,6 +541,20 @@ export default function ResumeDashboard() {
           {error && <ErrorMessage message={error} className="mt-3 sm:mt-4 max-w-2xl mx-auto" />}
         </div>
       </div>
+
+      {/* Save Resume Dialog */}
+      <SaveResumeDialog
+        isOpen={showSaveDialog}
+        onClose={() => setShowSaveDialog(false)}
+        onSave={handleSaveResume}
+        onSuccess={() => {
+          toast({
+            title: "Resume Saved Successfully!",
+            description: `Your ${showOptimized ? 'optimized' : 'analyzed'} resume has been saved and can be accessed from your saved resumes.`,
+          });
+        }}
+        defaultTitle={`${showOptimized ? 'Optimized' : 'Analyzed'} Resume for ${jobDescription.split(' ').slice(0, 3).join(' ')}...`}
+      />
     </div>
   );
 } 
