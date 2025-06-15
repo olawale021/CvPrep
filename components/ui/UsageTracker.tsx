@@ -34,11 +34,6 @@ const featureConfig = {
     icon: MessageSquare,
     color: "bg-purple-500"
   },
-  cover_letter_optimize: {
-    label: "Cover Letter Optimize",
-    icon: MessageSquare,
-    color: "bg-orange-500"
-  },
   interview_prep: {
     label: "Interview Prep",
     icon: Users,
