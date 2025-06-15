@@ -1,5 +1,17 @@
+import { createClient } from '@supabase/supabase-js';
 import { NextRequest } from 'next/server';
 import { supabase } from './supabaseClient';
+
+// Create a separate client for user authentication verification
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+  },
+});
 
 // Feature usage tracking interface
 interface FeatureUsage {
@@ -59,7 +71,7 @@ export class UserFeatureLimiter {
       }
 
       // Verify the token and get user
-      const { data: { user }, error } = await supabase.auth.getUser(token);
+      const { data: { user }, error } = await authClient.auth.getUser(token);
       
       if (error || !user) {
         return null;
