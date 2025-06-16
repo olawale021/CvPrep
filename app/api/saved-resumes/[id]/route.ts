@@ -4,9 +4,9 @@ import { supabaseAdmin } from '../../../../lib/auth/supabaseClient';
 import { SavedResumeResponse, UpdateSavedResumeRequest } from '../../../../types/api/savedResume';
 
 // GET - Get a specific saved resume
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Get user using proper SSR authentication
     const { user, error: authError } = await getServerUser(req);
@@ -66,9 +66,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PUT - Update a saved resume
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Get user using proper SSR authentication
     const { user, error: authError } = await getServerUser(req);
@@ -166,9 +166,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // DELETE - Delete a saved resume
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Get user using proper SSR authentication
     const { user, error: authError } = await getServerUser(req);
