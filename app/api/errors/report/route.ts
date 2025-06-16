@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/auth/supabaseClient';
+import { getServerUser } from '../../../../lib/auth/supabase-server';
+import { supabaseAdmin } from '../../../../lib/auth/supabaseClient';
 
 interface ErrorReport {
   message: string;
@@ -34,13 +35,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!supabaseAdmin) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Service configuration error' 
+      }, { status: 500 });
+    }
+
     // Get client IP for additional context
     const clientIP = req.headers.get('x-forwarded-for') || 
                     req.headers.get('x-real-ip') || 
                     'unknown';
 
     // Store error report in database
-    const { error: dbError } = await supabase
+    const { error: dbError } = await supabaseAdmin
       .from('error_reports')
       .insert({
         message: errorReport.message,
@@ -138,6 +146,37 @@ async function sendCriticalErrorNotification(
 // GET endpoint to retrieve error reports (for admin dashboard)
 export async function GET(req: NextRequest) {
   try {
+    // Require admin authentication to view error reports
+    const { user, error: authError } = await getServerUser(req);
+    
+    if (authError || !user) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Authentication required' 
+      }, { status: 401 });
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Service configuration error' 
+      }, { status: 500 });
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('type')
+      .eq('id', user.id)
+      .single();
+
+    if (userError || !userData || userData.type !== 'admin') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Admin access required' 
+      }, { status: 403 });
+    }
+
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
@@ -145,7 +184,7 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get('category');
     const userId = searchParams.get('userId');
 
-    let query = supabase
+    let query = supabaseAdmin
       .from('error_reports')
       .select('*')
       .order('created_at', { ascending: false })
@@ -169,7 +208,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Get total count for pagination
-    let countQuery = supabase
+    let countQuery = supabaseAdmin
       .from('error_reports')
       .select('*', { count: 'exact', head: true });
 

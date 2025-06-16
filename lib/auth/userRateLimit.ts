@@ -1,17 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextRequest } from 'next/server';
-import { supabase } from '../auth/supabaseClient';
-
-// Create a separate client for user authentication verification
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const authClient = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
-  },
-});
+import { getServerUser } from './supabase-server';
+import { supabaseAdmin } from './supabaseClient';
 
 // Feature usage tracking interface
 interface FeatureUsage {
@@ -60,31 +49,27 @@ const getCurrentEnvironment = (): 'production' | 'development' => {
 export class UserFeatureLimiter {
   private async getUserFromRequest(req: NextRequest): Promise<{ id: string; type: string; email: string; created_at: string } | null> {
     try {
-      // Extract user ID from Authorization header or cookie
-      const authHeader = req.headers.get('Authorization');
-      const sessionCookie = req.cookies.get('sb-access-token')?.value;
-      
-      const token = authHeader?.replace('Bearer ', '') || sessionCookie;
-      
-      if (!token) {
-        return null;
-      }
-
-      // Verify the token and get user
-      const { data: { user }, error } = await authClient.auth.getUser(token);
+      // Use the secure SSR authentication method
+      const { user, error } = await getServerUser(req);
       
       if (error || !user) {
         return null;
       }
 
-      // Get user data from your users table
-      const { data: userData, error: userError } = await supabase
+      if (!supabaseAdmin) {
+        console.error('Supabase admin client not available');
+        return null;
+      }
+
+      // Get user data from the database using admin client
+      const { data: userData, error: userError } = await supabaseAdmin
         .from('users')
         .select('id, type, email, created_at')
         .eq('id', user.id)
         .single();
 
       if (userError || !userData) {
+        console.error('Error fetching user data:', userError);
         return null;
       }
 
@@ -103,10 +88,15 @@ export class UserFeatureLimiter {
 
   private async getUserDailyUsage(userId: string, feature: FeatureType): Promise<FeatureUsage | null> {
     try {
+      if (!supabaseAdmin) {
+        console.error('Supabase admin client not available');
+        return null;
+      }
+
       const today = new Date().toISOString().split('T')[0];
       const environment = getCurrentEnvironment();
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('user_daily_usage')
         .select('user_id, feature_type, usage_date, count')
         .eq('user_id', userId)
@@ -233,6 +223,11 @@ export class UserFeatureLimiter {
       return;
     }
 
+    if (!supabaseAdmin) {
+      console.error('Cannot record usage: Supabase admin client not available');
+      return;
+    }
+
     // Always record usage for analytics, even for premium users
     const today = new Date().toISOString().split('T')[0];
     const environment = getCurrentEnvironment();
@@ -241,7 +236,7 @@ export class UserFeatureLimiter {
 
     try {
       // Check if the record exists first
-      const { data: existing } = await supabase
+      const { data: existing } = await supabaseAdmin
         .from('user_daily_usage')
         .select('count, success_count, failure_count, total_processing_time_ms')
         .eq('user_id', user.id)
@@ -257,7 +252,7 @@ export class UserFeatureLimiter {
         const newTotalTime = existing.total_processing_time_ms + processingTime;
         const newCount = existing.count + 1;
         
-        const { error: updateError } = await supabase
+        const { error: updateError } = await supabaseAdmin
           .from('user_daily_usage')
           .update({
             count: newCount,
@@ -276,7 +271,7 @@ export class UserFeatureLimiter {
         }
       } else {
         // Insert new record with success/failure tracking
-        const { error: insertError } = await supabase
+        const { error: insertError } = await supabaseAdmin
           .from('user_daily_usage')
           .insert({
             user_id: user.id,
@@ -304,11 +299,16 @@ export class UserFeatureLimiter {
   }
 
   private async updateGlobalAnalytics(feature: FeatureType, isSuccess: boolean = true, processingTime: number = 0): Promise<void> {
+    if (!supabaseAdmin) {
+      console.error('Cannot update analytics: Supabase admin client not available');
+      return;
+    }
+
     const environment = getCurrentEnvironment();
 
     try {
       // Use the SQL function for atomic updates
-      const { error } = await supabase.rpc('update_feature_analytics', {
+      const { error } = await supabaseAdmin.rpc('update_feature_analytics', {
         p_feature_type: feature,
         p_environment: environment,
         p_success: isSuccess,
@@ -319,7 +319,7 @@ export class UserFeatureLimiter {
         console.error('Error updating analytics via function:', error);
         
         // Fallback to manual update if function fails
-        const { data: existing } = await supabase
+        const { data: existing } = await supabaseAdmin
           .from('feature_analytics')
           .select('total_count, success_count, failure_count, total_processing_time_ms')
           .eq('feature_type', feature)
@@ -333,7 +333,7 @@ export class UserFeatureLimiter {
           const newFailureCount = existing.failure_count + (isSuccess ? 0 : 1);
           const newTotalTime = existing.total_processing_time_ms + processingTime;
           
-          const { error: updateError } = await supabase
+          const { error: updateError } = await supabaseAdmin
             .from('feature_analytics')
             .update({
               total_count: newTotalCount,
@@ -351,7 +351,7 @@ export class UserFeatureLimiter {
           }
         } else {
           // Insert new record
-          const { error: insertError } = await supabase
+          const { error: insertError } = await supabaseAdmin
             .from('feature_analytics')
             .insert({
               feature_type: feature,
