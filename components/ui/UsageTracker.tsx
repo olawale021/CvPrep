@@ -241,39 +241,39 @@ export function UsageTracker() {
           {Object.entries(usage)
             .filter(([key]) => key !== 'trialDaysRemaining' && key !== 'environment' && key in featureConfig)
             .map(([key, value]) => {
-              const featureKey = key as keyof typeof featureConfig;
-              const config = featureConfig[featureKey];
-              
-              const { used, limit } = value;
-              const percentage = limit > 0 ? (used / limit) * 100 : 0;
-              const isAtLimit = used >= limit;
-              
-              const Icon = config.icon;
-              
-              return (
-                <div key={key} className="flex-1 text-center">
-                  <div className="mb-2">
-                    <div className={`w-8 h-8 ${isAtLimit ? 'bg-red-500' : config.color} rounded-lg flex items-center justify-center mx-auto mb-1`}>
-                      <Icon className="w-4 h-4 text-white" />
-                    </div>
-                    <p className="text-xs font-medium text-gray-700 mb-1">{config.label}</p>
+            const featureKey = key as keyof typeof featureConfig;
+            const config = featureConfig[featureKey];
+            
+            const { used, limit } = value;
+            const percentage = limit > 0 ? (used / limit) * 100 : 0;
+            const isAtLimit = used >= limit;
+            
+            const Icon = config.icon;
+            
+            return (
+              <div key={key} className="flex-1 text-center">
+                <div className="mb-2">
+                  <div className={`w-8 h-8 ${isAtLimit ? 'bg-red-500' : config.color} rounded-lg flex items-center justify-center mx-auto mb-1`}>
+                    <Icon className="w-4 h-4 text-white" />
                   </div>
-                  
-                  <div className="space-y-1">
-                    <ProgressBar 
-                      value={percentage} 
-                      size="sm"
-                      variant={isAtLimit ? "error" : "default"}
-                    />
-                    <div className="flex justify-center">
-                      <span className={`text-xs font-medium ${isAtLimit ? 'text-red-600' : 'text-gray-600'}`}>
-                        {used}/{limit}
-                      </span>
-                    </div>
+                  <p className="text-xs font-medium text-gray-700 mb-1">{config.label}</p>
+                </div>
+                
+                <div className="space-y-1">
+                  <ProgressBar 
+                    value={percentage} 
+                    size="sm"
+                    variant={isAtLimit ? "error" : "default"}
+                  />
+                  <div className="flex justify-center">
+                    <span className={`text-xs font-medium ${isAtLimit ? 'text-red-600' : 'text-gray-600'}`}>
+                      {used}/{limit}
+                    </span>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            );
+          })}
         </div>
         
         <div className="mt-4 text-center">

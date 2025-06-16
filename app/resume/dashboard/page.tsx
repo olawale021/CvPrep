@@ -27,7 +27,7 @@ export default function ResumeDashboard() {
   const { toast } = useToast();
   const { saveResume } = useSavedResumes();
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-
+  
   const [file, setFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState<string>("");
   const [originalResumeData, setOriginalResumeData] = useState<ResumeData | null>(null);

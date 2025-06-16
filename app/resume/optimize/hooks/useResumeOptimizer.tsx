@@ -85,7 +85,7 @@ export function useResumeOptimizer() {
         body: form,
         headers 
       });
-
+      
       const data = await res.json() as ApiResumeResponse;
       
       if (!res.ok) throw new Error(data.error || "Failed to optimize resume");
@@ -190,6 +190,8 @@ export function useResumeOptimizer() {
       setResponse(structuredData);
       setResumeResponse(resumeResponseData);
       
+      // Score optimized resume
+      await scoreOptimizedResume(structuredData, jobDescription);
 
     } catch (e: unknown) {
       console.error("Optimization error:", e);
@@ -198,6 +200,112 @@ export function useResumeOptimizer() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Function to score optimized resume
+  const scoreOptimizedResume = async (optimizedData: ResumeData, jobDesc: string) => {
+    try {
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      // Create a text representation of the optimized resume
+      const resumeText = createResumeText(optimizedData);
+      const resumeBlob = new Blob([resumeText], { type: 'text/plain' });
+      const resumeFile = new File([resumeBlob], 'optimized_resume.txt', { type: 'text/plain' });
+      
+      const formData = new FormData();
+      formData.append('file', resumeFile);
+      formData.append('job', jobDesc);
+
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('/api/resume/score', {
+        method: 'POST',
+        body: formData,
+        headers
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setScoreResult(data);
+        setScoringMode(true);
+      }
+    } catch (error) {
+      console.error('Error scoring optimized resume:', error);
+    }
+  };
+
+  // Helper function to create resume text from ResumeData
+  const createResumeText = (resumeData: ResumeData): string => {
+    let resumeText = '';
+    
+    if (resumeData.summary) {
+      resumeText += `SUMMARY\n${resumeData.summary}\n\n`;
+    }
+    
+    if (resumeData.work_experience && resumeData.work_experience.length > 0) {
+      resumeText += 'WORK EXPERIENCE\n';
+      resumeData.work_experience.forEach((exp) => {
+        resumeText += `${exp.title || exp.role || 'Position'} at ${exp.company}\n`;
+        if (exp.dates || exp.date_range) {
+          resumeText += `${exp.dates || exp.date_range}\n`;
+        }
+        if (exp.accomplishments || exp.bullets) {
+          const achievements = exp.accomplishments || exp.bullets || [];
+          achievements.forEach((achievement: string) => {
+            resumeText += `• ${achievement}\n`;
+          });
+        }
+        resumeText += '\n';
+      });
+    }
+    
+    if (resumeData.skills && resumeData.skills.technical_skills) {
+      resumeText += 'SKILLS\n';
+      resumeData.skills.technical_skills.forEach((skill: string) => {
+        resumeText += `• ${skill}\n`;
+      });
+      resumeText += '\n';
+    }
+    
+    if (resumeData.education && resumeData.education.length > 0) {
+      resumeText += 'EDUCATION\n';
+      resumeData.education.forEach((edu) => {
+        resumeText += `${edu.degree} - ${edu.school || 'Institution'}\n`;
+        if (edu.dates) {
+          resumeText += `${edu.dates}\n`;
+        }
+        resumeText += '\n';
+      });
+    }
+    
+    if (resumeData.projects && resumeData.projects.length > 0) {
+      resumeText += 'PROJECTS\n';
+      resumeData.projects.forEach((project) => {
+        resumeText += `${project.title || 'Project'}\n`;
+        if (project.description) {
+          resumeText += `${project.description}\n`;
+        }
+        if (project.technologies && project.technologies.length > 0) {
+          resumeText += `Technologies: ${project.technologies.join(', ')}\n`;
+        }
+        resumeText += '\n';
+      });
+    }
+    
+    if (resumeData.certifications && resumeData.certifications.length > 0) {
+      resumeText += 'CERTIFICATIONS\n';
+      resumeData.certifications.forEach((cert: string) => {
+        resumeText += `• ${cert}\n`;
+      });
+    }
+    
+    return resumeText;
   };
 
   return {

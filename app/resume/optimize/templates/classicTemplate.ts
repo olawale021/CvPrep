@@ -426,11 +426,11 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
       yPos += Math.round(4 * spacingMultiplier); // Dynamic spacing
       
               // Bullet points - dynamic spacing
-        const bulletPoints = exp.bullets || exp.accomplishments || [];
-        if (bulletPoints.length > 0) {
+      const bulletPoints = exp.bullets || exp.accomplishments || [];
+      if (bulletPoints.length > 0) {
           pdf.setFontSize(10 + fontSizeBoost); // Dynamic font size
-          pdf.setTextColor(45, 55, 72);
-          pdf.setFont(mainFont, 'normal');
+        pdf.setTextColor(45, 55, 72);
+        pdf.setFont(mainFont, 'normal');
         
         bulletPoints.forEach((bullet) => {
           if (!bullet) return;
@@ -510,8 +510,8 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
         pdf.setTextColor(44, 82, 130);
         pdf.setFont(mainFont, 'italic');
         
-        const validTechs = project.technologies.filter(tech => tech && typeof tech === 'string');
-        if (validTechs.length > 0) {
+          const validTechs = project.technologies.filter(tech => tech && typeof tech === 'string');
+          if (validTechs.length > 0) {
           const techText = "Technologies: " + validTechs.join(', ');
           const techLines = pdf.splitTextToSize(techText, contentWidth);
           pdf.text(techLines, margin, yPos);
@@ -632,11 +632,11 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
     // Footer with generation date and page number
     pdf.setFontSize(8); // Increased by +1
     pdf.setTextColor(150, 150, 150);
-    pdf.setFont(mainFont, 'italic');
-    
-    const currentDate = new Date().toLocaleDateString();
-    const footerText = `Resume generated on ${currentDate} · CvPrep.ai`;
-    
+      pdf.setFont(mainFont, 'italic');
+      
+      const currentDate = new Date().toLocaleDateString();
+      const footerText = `Resume generated on ${currentDate} · CvPrep.ai`;
+      
     pdf.text(footerText, margin, pageHeight - 8); // Moved up slightly
     
     if (currentPage > 1) {

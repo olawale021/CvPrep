@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, Clock, FileText, Sparkles, Users } from "lucide-react";
+import { CalendarDays, Clock, FileText, Heart, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,12 +8,16 @@ import { Button } from "../../components/ui/Button";
 import Sidebar from "../../components/ui/Sidebar";
 import { UsageTracker } from "../../components/ui/UsageTracker";
 import { useAuth } from "../../context/AuthContext";
+import { useSavedResumes } from "../../hooks/useSavedResumes";
 
 export default function Dashboard() {
   const { user, isLoading, authError } = useAuth();
   const router = useRouter();
   const [redirecting, setRedirecting] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
+  
+  // Get saved resumes
+  const { savedResumes, loading: resumesLoading, error: resumesError } = useSavedResumes();
   
   // Handle redirect to home if not authenticated and finished loading
   useEffect(() => {
@@ -30,6 +34,13 @@ export default function Dashboard() {
       setSessionChecked(true);
     }
   }, [user, isLoading, router, redirecting, sessionChecked]);
+  
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+  };
   
   // Show loading state when authentication is pending
   if (isLoading || !sessionChecked) {
@@ -119,6 +130,18 @@ export default function Dashboard() {
               
               {/* Secondary Actions */}
               <div className="space-y-4">
+                <Link href="/resume/create" className="block group">
+                  <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="bg-blue-100 p-2 rounded-lg">
+                        <FileText className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <h3 className="font-bold text-gray-900 group-hover:text-blue-600">Create Resume</h3>
+                    </div>
+                    <p className="text-sm text-gray-600">Build a new resume from scratch</p>
+                  </div>
+                </Link>
+
                 <Link href="/cover-letter" className="block group">
                   <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <div className="flex items-center gap-3 mb-2">
@@ -131,7 +154,7 @@ export default function Dashboard() {
                   </div>
                 </Link>
                 
-                <Link href="/interview-prep" className="block group">
+                {/* <Link href="/interview-prep" className="block group">
                   <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="bg-green-100 p-2 rounded-lg">
@@ -141,35 +164,124 @@ export default function Dashboard() {
                     </div>
                     <p className="text-sm text-gray-600">AI-powered interview simulation</p>
                   </div>
-                </Link>
+                </Link> */}
               </div>
             </div>
           </div>
           
-          {/* Recent Activity / Calendar Section */}
+          {/* Saved Resumes / Recent Activity Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900">Recent Activity</h2>
-                <Link href="/activity" className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">View all</Link>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900">Saved Resumes</h2>
+                <Link href="/saved-resumes" className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">View all</Link>
               </div>
               
-              {/* Enhanced Empty state */}
-              <div className="flex flex-col items-center justify-center py-8 md:py-12 text-center">
-                <div className="bg-gradient-to-br from-blue-100 to-purple-100 p-6 rounded-2xl mb-4 shadow-lg">
-                  <div className="text-4xl mb-2">🚀</div>
-                  <Clock className="h-8 w-8 text-blue-600 mx-auto" />
+              {/* Loading State */}
+              {resumesLoading && (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-center">
+                    <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                    <p className="text-gray-600 text-sm">Loading your resumes...</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Your Career Journey Starts Here!</h3>
-                <p className="text-gray-600 mb-6 max-w-sm leading-relaxed">
-                  You haven&apos;t started yet. Let&apos;s get your resume AI-optimized and start landing interviews!
-                </p>
-                <Link href="/resume/dashboard">
-                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                    🎯 Upload Resume Now
-                  </Button>
-                </Link>
-              </div>
+              )}
+
+              {/* Error State */}
+              {resumesError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="text-red-800 text-sm">Failed to load saved resumes. Please try again.</p>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {!resumesLoading && !resumesError && savedResumes.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-8 md:py-12 text-center">
+                  <div className="bg-gradient-to-br from-blue-100 to-purple-100 p-6 rounded-2xl mb-4 shadow-lg">
+                    <div className="text-4xl mb-2">📄</div>
+                    <FileText className="h-8 w-8 text-blue-600 mx-auto" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">No Saved Resumes Yet!</h3>
+                  <p className="text-gray-600 mb-6 max-w-sm leading-relaxed">
+                    Create your first resume to start building your professional profile.
+                  </p>
+                  <div className="flex gap-3">
+                    <Link href="/resume/create">
+                      <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        🎯 Create Resume
+                      </Button>
+                    </Link>
+                    <Link href="/resume/dashboard">
+                      <Button variant="outline" className="px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+                        📊 Optimize Existing
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* Resumes List */}
+              {!resumesLoading && !resumesError && savedResumes.length > 0 && (
+                <div className="space-y-4">
+                  {savedResumes.slice(0, 3).map((resume) => (
+                    <div key={resume.id} className="group border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 hover:border-blue-300">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                              {resume.title}
+                            </h4>
+                            {resume.is_primary && (
+                              <span title="Primary Resume">
+                                <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                              </span>
+                            )}
+                            {resume.is_favorite && (
+                              <span title="Favorite">
+                                <Heart className="h-4 w-4 text-red-500 fill-current" />
+                              </span>
+                            )}
+                          </div>
+                          
+                          {resume.job_description && (
+                            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                              {resume.job_description.substring(0, 100)}...
+                            </p>
+                          )}
+                          
+                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {formatDate(resume.updated_at)}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <FileText className="h-3 w-3" />
+                              Resume
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <Link 
+                          href={`/saved-resumes/${resume.id}`}
+                          className="ml-4 text-blue-600 hover:text-blue-700 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          View →
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {savedResumes.length > 3 && (
+                    <div className="text-center pt-4">
+                      <Link href="/saved-resumes">
+                        <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                          View {savedResumes.length - 3} more resumes
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             
             <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">

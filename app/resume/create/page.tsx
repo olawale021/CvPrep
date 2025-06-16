@@ -175,6 +175,10 @@ export default function CreateResumePage() {
     setScoreResult(null);
 
     try {
+      // Get the session token from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
       // Create text representation of generated resume
       const resumeText = createResumeText(resumeData);
       const resumeBlob = new Blob([resumeText], { type: 'text/plain' });
@@ -184,9 +188,15 @@ export default function CreateResumePage() {
       scoreFormData.append('file', resumeFile);
       scoreFormData.append('job', formData.jobDescription.trim());
 
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch('/api/resume/score', {
         method: 'POST',
-        body: scoreFormData
+        body: scoreFormData,
+        headers
       });
       
       const scoreData = await response.json();

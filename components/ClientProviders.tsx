@@ -18,14 +18,14 @@ export default function ClientProviders({
     <NoSSR>
       <ErrorBoundary>
         <QueryProvider>
-          <LoadingProvider>
-            <AuthContextProvider>
-              {children}
-              <GlobalLoadingOverlay />
-              <FeedbackWidget />
-              <Toaster />
-            </AuthContextProvider>
-          </LoadingProvider>
+        <LoadingProvider>
+          <AuthContextProvider>
+            {children}
+            <GlobalLoadingOverlay />
+            <FeedbackWidget />
+            <Toaster />
+          </AuthContextProvider>
+        </LoadingProvider>
         </QueryProvider>
       </ErrorBoundary>
     </NoSSR>
