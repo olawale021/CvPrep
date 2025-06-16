@@ -3,8 +3,8 @@
 import { Session, User } from '@supabase/supabase-js';
 // import { useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState } from 'react';
-import logger from '../lib/logger';
-import { supabase } from '../lib/supabaseClient';
+import logger from '../lib/core/logger';
+import { supabase } from '../lib/auth/supabaseClient';
 
 // Type for your app's user (from your DB)
 export type AppUser = {

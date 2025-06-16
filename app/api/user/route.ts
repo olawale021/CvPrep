@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import logger from '../../../lib/logger';
-import { supabase } from '../../../lib/supabaseClient';
+import logger from '../../../lib/core/logger';
+import { supabase } from '../../../lib/auth/supabaseClient';
 
 export async function POST(req: Request) {
   try {

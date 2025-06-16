@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
-import { ErrorBoundary } from "../../components/ui/ErrorBoundary";
+import { ErrorBoundary } from "../../components/ui/feedback/ErrorBoundary";
 import { useAuth } from "../../context/AuthContext";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

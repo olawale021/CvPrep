@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabaseClient';
-import { SaveResumeRequest, SavedResumeListResponse, SavedResumeResponse } from '../../../types/savedResume';
+import { supabase } from '../../../lib/auth/supabaseClient';
+import { SaveResumeRequest, SavedResumeListResponse, SavedResumeResponse } from '../../../types/api/savedResume';
 
 // GET - List all saved resumes for the authenticated user
 export async function GET(req: NextRequest) {

@@ -3,8 +3,8 @@ import { ArrowRight, CheckCircle, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "../components/ui/Button";
-import LandingHeader from "../components/ui/LandingHeader";
+import { Button } from "../components/ui/base/Button";
+import LandingHeader from "../components/layout/LandingHeader";
 
 export default function Home() {
   const router = useRouter();

@@ -10,9 +10,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Button } from "../../../../components/ui/Button";
-import { Card, CardContent } from "../../../../components/ui/Card";
-import Sidebar from "../../../../components/ui/Sidebar";
+import { Button } from "../../../../components/ui/base/Button";
+import { Card, CardContent } from "../../../../components/ui/base/Card";
+import Sidebar from "../../../../components/layout/Sidebar";
 
 // Category data with all articles
 const categoryData = {

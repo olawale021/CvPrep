@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { addWorkExperience } from '../../../../lib/resume/addExperienceService';
+import { addWorkExperience } from '../../../../lib/services/resume/addExperienceService';
 
 export const config = {
   api: {

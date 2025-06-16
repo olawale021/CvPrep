@@ -12,13 +12,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "../../../components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/Card";
-import { Input } from "../../../components/ui/Input";
-import { LoadingButton } from "../../../components/ui/LoadingButton";
-import Sidebar from "../../../components/ui/Sidebar";
-import { Textarea } from "../../../components/ui/Textarea";
-import TicketId from "../../../components/ui/TicketId";
+import { Button } from "../../../components/ui/base/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/base/Card";
+import { Input } from "../../../components/ui/base/Input";
+import { LoadingButton } from "../../../components/ui/feedback/LoadingButton";
+import Sidebar from "../../../components/layout/Sidebar";
+import { Textarea } from "../../../components/ui/base/Textarea";
+import TicketId from "../../../components/features/feedback/TicketId";
 
 const supportOptions = [
   {

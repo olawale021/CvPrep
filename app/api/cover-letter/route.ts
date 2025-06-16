@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateCoverLetter } from '../../../lib/resume/coverLetterService';
+import { generateCoverLetter } from '../../../lib/services/resume/coverLetterService';
 
 export async function POST(req: NextRequest) {
   try {

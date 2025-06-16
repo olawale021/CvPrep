@@ -2,17 +2,17 @@
 
 import { FileText, Loader2, Sparkles } from "lucide-react";
 import { FormEvent, useRef, useState } from "react";
-import { Button } from "../../../components/ui/Button";
-import { ErrorBoundary } from "../../../components/ui/ErrorBoundary";
-import { SaveResumeDialog } from "../../../components/ui/SaveResumeDialog";
-import Sidebar from "../../../components/ui/Sidebar";
-import { useToast } from "../../../components/ui/use-toast";
+import { Button } from "../../../components/ui/base/Button";
+import { ErrorBoundary } from "../../../components/ui/feedback/ErrorBoundary";
+import { SaveResumeDialog } from "../../../components/features/resume/SaveResumeDialog";
+import Sidebar from "../../../components/layout/Sidebar";
+import { useToast } from "../../../components/ui/feedback/use-toast";
 import { useAuth } from "../../../context/AuthContext";
-import { useAsyncOperation } from "../../../hooks/useAsyncOperation";
-import { useSavedResumes } from "../../../hooks/useSavedResumes";
-import { ResumeScore } from "../../../lib/resume/scoreResume";
-import { supabase } from "../../../lib/supabaseClient";
-import { SaveResumeRequest } from "../../../types/savedResume";
+import { useAsyncOperation } from "../../../hooks/ui/useAsyncOperation";
+import { useSavedResumes } from "../../../hooks/api/useSavedResumes";
+import { ResumeScore } from "../../../lib/services/resume/scoreResume";
+import { supabase } from "../../../lib/auth/supabaseClient";
+import { SaveResumeRequest } from "../../../types/api/savedResume";
 import ErrorMessage from "../optimize/components/ErrorMessage";
 import LoadingState from "../optimize/components/LoadingState";
 import OptimizedResume from "../optimize/components/OptimizedResume";

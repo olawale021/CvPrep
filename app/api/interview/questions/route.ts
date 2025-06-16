@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateInterviewQuestions } from "../../../../lib/interview/interviewService";
+import { generateInterviewQuestions } from "../../../../lib/services/interview/interviewService";
 
 export async function POST(req: NextRequest) {
   try {

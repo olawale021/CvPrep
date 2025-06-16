@@ -4,11 +4,11 @@ import { CalendarDays, Clock, FileText, Heart, Sparkles, Star } from "lucide-rea
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "../../components/ui/Button";
-import Sidebar from "../../components/ui/Sidebar";
-import { UsageTracker } from "../../components/ui/UsageTracker";
+import { Button } from "../../components/ui/base/Button";
+import Sidebar from "../../components/layout/Sidebar";
+import { UsageTracker } from "../../components/features/dashboard/UsageTracker";
 import { useAuth } from "../../context/AuthContext";
-import { useSavedResumes } from "../../hooks/useSavedResumes";
+import { useSavedResumes } from "../../hooks/api/useSavedResumes";
 
 export default function Dashboard() {
   const { user, isLoading, authError } = useAuth();

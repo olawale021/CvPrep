@@ -1,9 +1,9 @@
 import { AlertCircle, ArrowRight, Check, ExternalLink, FileText, Loader, Plus, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { Button } from "../../../../components/ui/Button";
-import { ResumeScore } from "../../../../lib/resume/scoreResume";
-import { supabase } from "../../../../lib/supabaseClient";
+import { Button } from "../../../../components/ui/base/Button";
+import { ResumeScore } from "../../../../lib/services/resume/scoreResume";
+import { supabase } from "../../../../lib/auth/supabaseClient";
 import AddWorkExperienceForm from "./AddWorkExperienceForm";
 
 interface UpdatedResumeData {

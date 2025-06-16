@@ -15,10 +15,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "../../../components/ui/Button";
-import { Card, CardContent } from "../../../components/ui/Card";
-import { Input } from "../../../components/ui/Input";
-import Sidebar from "../../../components/ui/Sidebar";
+import { Button } from "../../../components/ui/base/Button";
+import { Card, CardContent } from "../../../components/ui/base/Card";
+import { Input } from "../../../components/ui/base/Input";
+import Sidebar from "../../../components/layout/Sidebar";
 
 const videoCategories = [
   { id: "all", title: "All Videos", icon: <BookOpen className="h-4 w-4" /> },

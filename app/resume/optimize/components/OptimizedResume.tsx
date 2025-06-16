@@ -1,7 +1,7 @@
 import { Download, Edit, Expand, FileText, Save } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { Button } from "../../../../components/ui/Button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../../../components/ui/Dialog";
+import { Button } from "../../../../components/ui/base/Button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../../../components/ui/composite/Dialog";
 import { ResumeEditProvider, useResumeEdit } from "../context/ResumeEditContext";
 import { usePdfGenerator } from "../hooks/usePdfGenerator";
 import { ResumeData, ResumeResponse } from "../types";

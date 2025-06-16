@@ -1,8 +1,8 @@
 import { Check, Edit, FolderPlus, Plus, Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { Button } from "../../../../../components/ui/Button";
-import { Input } from "../../../../../components/ui/Input";
-import { Textarea } from "../../../../../components/ui/Textarea";
+import { Button } from "../../../../../components/ui/base/Button";
+import { Input } from "../../../../../components/ui/base/Input";
+import { Textarea } from "../../../../../components/ui/base/Textarea";
 import { useResumeEdit } from "../../context/ResumeEditContext";
 import { Project } from "../../types/index";
 

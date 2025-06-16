@@ -1,6 +1,6 @@
 import { FormEvent, useRef, useState } from "react";
-import { ResumeScore } from "../../../../lib/resume/scoreResume";
-import { supabase } from "../../../../lib/supabaseClient";
+import { ResumeScore } from "../../../../lib/services/resume/scoreResume";
+import { supabase } from "../../../../lib/auth/supabaseClient";
 import { ApiEducationItem, ApiProjectItem, ApiResumeResponse, ApiWorkExperienceItem, ResumeData, ResumeResponse } from "../types";
 
 export function useResumeOptimizer() {

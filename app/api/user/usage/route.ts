@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabaseClient';
-import { FREE_TRIAL_DAYS, FREE_USER_LIMITS, FeatureType } from '../../../../lib/userRateLimit';
+import { supabase } from '../../../../lib/auth/supabaseClient';
+import { FREE_TRIAL_DAYS, FREE_USER_LIMITS, FeatureType } from '../../../../lib/auth/userRateLimit';
 
 // Get current environment
 const getCurrentEnvironment = (): 'production' | 'development' => {

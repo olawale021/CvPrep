@@ -1,7 +1,7 @@
 import { Calendar, Edit, MapPin, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "../../../../../components/ui/Button";
-import { Input } from "../../../../../components/ui/Input";
+import { Button } from "../../../../../components/ui/base/Button";
+import { Input } from "../../../../../components/ui/base/Input";
 import { useResumeEdit } from "../../context/ResumeEditContext";
 import { ApiEducationItem, Education } from "../../types/index";
 

@@ -17,9 +17,9 @@ import {
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { Button } from "../../../../components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/Card";
-import Sidebar from "../../../../components/ui/Sidebar";
+import { Button } from "../../../../components/ui/base/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/base/Card";
+import Sidebar from "../../../../components/layout/Sidebar";
 
 // Types
 interface ArticleContentItem {

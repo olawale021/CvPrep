@@ -1,6 +1,6 @@
 import { Edit } from "lucide-react";
 import React, { useState } from "react";
-import { Textarea } from "../../../../../components/ui/Textarea";
+import { Textarea } from "../../../../../components/ui/base/Textarea";
 import { useResumeEdit } from "../../context/ResumeEditContext";
 
 interface SummaryProps {

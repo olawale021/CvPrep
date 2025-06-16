@@ -1,7 +1,7 @@
 "use client"
 
 import { ReactNode } from "react"
-import { ToastActionElement, ToastProps } from "./Toast"
+import { ToastActionElement, ToastProps } from "../feedback/Toast"
 
 const TOAST_LIMIT = 20
 

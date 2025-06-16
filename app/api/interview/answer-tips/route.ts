@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateAnswerTips } from "../../../../lib/interview/answerTipsService";
+import { generateAnswerTips } from "../../../../lib/services/interview/answerTipsService";
 
 export async function POST(req: NextRequest) {
   try {

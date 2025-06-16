@@ -2,17 +2,17 @@
 
 import { HelpCircle, Info, Loader2, MessageSquare, Send, Users } from "lucide-react";
 import React, { useRef, useState } from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
-import { Alert, AlertDescription } from "../../components/ui/Alert";
-import { Badge } from "../../components/ui/Badge";
-import { Button } from "../../components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/Card";
-import { Input } from "../../components/ui/Input";
-import { ResumeUpload } from "../../components/ui/ResumeUpload";
-import Sidebar from "../../components/ui/Sidebar";
-import { Textarea } from "../../components/ui/Textarea";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/composite/accordion";
+import { Alert, AlertDescription } from "../../components/ui/base/Alert";
+import { Badge } from "../../components/ui/base/Badge";
+import { Button } from "../../components/ui/base/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/base/Card";
+import { Input } from "../../components/ui/base/Input";
+import { ResumeUpload } from "../../components/features/resume/ResumeUpload";
+import Sidebar from "../../components/layout/Sidebar";
+import { Textarea } from "../../components/ui/base/Textarea";
 import { useAuth } from "../../context/AuthContext";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "../../lib/auth/supabaseClient";
 
 type Question = string;
 type Answer = string;

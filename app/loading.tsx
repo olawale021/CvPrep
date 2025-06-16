@@ -1,4 +1,4 @@
-import { LoadingCard } from "../components/ui/LoadingCard";
+import { LoadingCard } from "../components/ui/feedback/LoadingCard";
 
 export default function Loading() {
   return (

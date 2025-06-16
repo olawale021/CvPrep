@@ -2,13 +2,13 @@
 
 import { FileText } from "lucide-react";
 import React, { FormEvent, useState } from "react";
-import { ErrorBoundary } from "../../../components/ui/ErrorBoundary";
-import { SaveResumeDialog } from "../../../components/ui/SaveResumeDialog";
-import Sidebar from "../../../components/ui/Sidebar";
-import { useToast } from "../../../components/ui/use-toast";
+import { ErrorBoundary } from "../../../components/ui/feedback/ErrorBoundary";
+import { SaveResumeDialog } from "../../../components/features/resume/SaveResumeDialog";
+import Sidebar from "../../../components/layout/Sidebar";
+import { useToast } from "../../../components/ui/feedback/use-toast";
 import { useAuth } from "../../../context/AuthContext";
-import { useSavedResumes } from "../../../hooks/useSavedResumes";
-import { SaveResumeRequest } from "../../../types/savedResume";
+import { useSavedResumes } from "../../../hooks/api/useSavedResumes";
+import { SaveResumeRequest } from "../../../types/api/savedResume";
 import ErrorMessage from "./components/ErrorMessage";
 import LoadingState from "./components/LoadingState";
 import OptimizedResume from "./components/OptimizedResume";

@@ -13,9 +13,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "../../../components/ui/Button";
-import { Card, CardContent } from "../../../components/ui/Card";
-import Sidebar from "../../../components/ui/Sidebar";
+import { Button } from "../../../components/ui/base/Button";
+import { Card, CardContent } from "../../../components/ui/base/Card";
+import Sidebar from "../../../components/layout/Sidebar";
 
 const services = [
   {

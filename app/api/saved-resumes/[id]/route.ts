@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabaseClient';
-import { SavedResumeResponse, UpdateSavedResumeRequest } from '../../../../types/savedResume';
+import { supabase } from '../../../../lib/auth/supabaseClient';
+import { SavedResumeResponse, UpdateSavedResumeRequest } from '../../../../types/api/savedResume';
 
 // GET - Fetch a single saved resume
 export async function GET(

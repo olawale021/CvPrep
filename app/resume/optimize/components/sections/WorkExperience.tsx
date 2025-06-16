@@ -1,8 +1,8 @@
 import { Briefcase, Calendar, Edit, MapPin, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "../../../../../components/ui/Button";
-import { Input } from "../../../../../components/ui/Input";
-import { Textarea } from "../../../../../components/ui/Textarea";
+import { Button } from "../../../../../components/ui/base/Button";
+import { Input } from "../../../../../components/ui/base/Input";
+import { Textarea } from "../../../../../components/ui/base/Textarea";
 import { useResumeEdit } from "../../context/ResumeEditContext";
 import { WorkExperience } from "../../types";
 

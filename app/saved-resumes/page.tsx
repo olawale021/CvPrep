@@ -14,22 +14,22 @@ import {
     Trash2
 } from 'lucide-react';
 import { useState } from 'react';
-import { Badge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/Dialog';
+import { Badge } from '../../components/ui/base/Badge';
+import { Button } from '../../components/ui/base/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/base/Card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/composite/Dialog';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger
-} from '../../components/ui/DropdownMenu';
-import { Input } from '../../components/ui/Input';
-import Sidebar from '../../components/ui/Sidebar';
+} from '../../components/ui/composite/DropdownMenu';
+import { Input } from '../../components/ui/base/Input';
+import Sidebar from '../../components/layout/Sidebar';
 import { useAuth } from '../../context/AuthContext';
-import { useSavedResumesCached } from '../../hooks/useSavedResumesCached';
-import { SavedResumeListItem } from '../../types/savedResume';
+import { useSavedResumesCached } from '../../hooks/api/useSavedResumesCached';
+import { SavedResumeListItem } from '../../types/api/savedResume';
 
 export default function SavedResumesPage() {
   const { user, isLoading: authLoading } = useAuth();

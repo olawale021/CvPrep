@@ -16,10 +16,10 @@ import {
     WifiOff
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useCacheManagement } from "../hooks/useApi";
-import { useServiceWorker } from "../lib/service-worker";
-import { Button } from "./ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/Card";
+import { useCacheManagement } from "../hooks/api/useApi";
+import { useServiceWorker } from "../lib/services/service-worker";
+import { Button } from "./ui/base/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/base/Card";
 
 interface CacheEntry {
   key: string;

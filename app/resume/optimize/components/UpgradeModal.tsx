@@ -1,7 +1,7 @@
 "use client";
 import { Lock } from "lucide-react";
-import { Button } from "../../../../components/ui/Button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../../components/ui/Dialog";
+import { Button } from "../../../../components/ui/base/Button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../../components/ui/composite/Dialog";
 
 export default function UpgradeModal({ open, onClose }: { open: boolean, onClose: () => void }) {
   return (

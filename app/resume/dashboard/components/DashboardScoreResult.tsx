@@ -1,8 +1,8 @@
 "use client";
 
 import { ArrowRight, Check, FileText, RefreshCw, Sparkles, Star, X } from "lucide-react";
-import { Button } from "../../../../components/ui/Button";
-import { ResumeScore } from "../../../../lib/resume/scoreResume";
+import { Button } from "../../../../components/ui/base/Button";
+import { ResumeScore } from "../../../../lib/services/resume/scoreResume";
 
 interface DashboardScoreResultProps {
   scoreResult: ResumeScore;

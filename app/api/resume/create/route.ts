@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { withFeatureLimit } from '../../../../lib/userRateLimit';
+import { withFeatureLimit } from '../../../../lib/auth/userRateLimit';
 
 const openaiApiKey = process.env.OPENAI_API_KEY;
 let openai: OpenAI | null = null;

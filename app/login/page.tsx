@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Button } from "../../components/ui/Button";
+import { Button } from "../../components/ui/base/Button";
 import { useAuth } from "../../context/AuthContext";
 
 export default function LoginPage() {

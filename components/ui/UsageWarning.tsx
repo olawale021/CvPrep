@@ -3,11 +3,11 @@
 import { AlertTriangle, Clock, Zap } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { supabase } from "../../lib/supabaseClient";
-import { FeatureType } from "../../lib/userRateLimit";
-import { Alert } from "./Alert";
-import { Badge } from "./Badge";
-import { Button } from "./Button";
+import { supabase } from "../../lib/auth/supabaseClient";
+import { FeatureType } from "../../lib/auth/userRateLimit";
+import { Alert } from "./base/Alert";
+import { Badge } from "./base/Badge";
+import { Button } from "./base/Button";
 
 interface FeatureUsageData {
   used: number;

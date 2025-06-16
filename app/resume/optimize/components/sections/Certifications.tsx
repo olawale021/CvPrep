@@ -1,7 +1,7 @@
 import { Award, Check, Edit, Plus, Trash2, X } from "lucide-react";
 import React, { useState } from "react";
-import { Button } from "../../../../../components/ui/Button";
-import { Input } from "../../../../../components/ui/Input";
+import { Button } from "../../../../../components/ui/base/Button";
+import { Input } from "../../../../../components/ui/base/Input";
 import { useResumeEdit } from "../../context/ResumeEditContext";
 
 interface CertificationsProps {

@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { Badge } from "../ui/Badge";
-import { Button } from "../ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
-import { ProgressBar } from "../ui/ProgressBar";
+import { Badge } from "../ui/base/Badge";
+import { Button } from "../ui/base/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/base/Card";
+import { ProgressBar } from "../ui/feedback/ProgressBar";
 
 interface AnalyticsData {
   feature_type: string;

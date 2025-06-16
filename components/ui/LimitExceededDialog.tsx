@@ -2,8 +2,8 @@
 
 import { AlertTriangle, Clock, Crown, RefreshCw, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "./Button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./Dialog";
+import { Button } from "./base/Button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./composite/Dialog";
 
 interface LimitExceededDialogProps {
   open: boolean;

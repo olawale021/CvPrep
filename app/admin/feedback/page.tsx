@@ -2,9 +2,9 @@
 
 import { AlertCircle, CheckCircle, Clock, MessageSquare } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { Badge } from "../../../components/ui/Badge";
-import { Button } from "../../../components/ui/Button";
-import { Card } from "../../../components/ui/Card";
+import { Badge } from "../../../components/ui/base/Badge";
+import { Button } from "../../../components/ui/base/Button";
+import { Card } from "../../../components/ui/base/Card";
 import { useAuth } from "../../../context/AuthContext";
 
 interface Feedback {

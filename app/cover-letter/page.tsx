@@ -2,13 +2,13 @@
 
 import { Check, ClipboardCopy, Download, FileText, Loader2, Send } from "lucide-react";
 import React, { useRef, useState } from "react";
-import { Button } from "../../components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
-import { JobDescriptionInput } from "../../components/ui/JobDescriptionInput";
-import { ResumeUpload } from "../../components/ui/ResumeUpload";
-import Sidebar from "../../components/ui/Sidebar";
+import { Button } from "../../components/ui/base/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/base/Card";
+import { JobDescriptionInput } from "../../components/features/resume/JobDescriptionInput";
+import { ResumeUpload } from "../../components/features/resume/ResumeUpload";
+import Sidebar from "../../components/layout/Sidebar";
 import { useAuth } from "../../context/AuthContext";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "../../lib/auth/supabaseClient";
 
 // Define type for API response
 interface CoverLetterResponse {

@@ -11,9 +11,9 @@ import {
     Users
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "../../../components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
-import Sidebar from "../../../components/ui/Sidebar";
+import { Button } from "../../../components/ui/base/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/base/Card";
+import Sidebar from "../../../components/layout/Sidebar";
 
 const communityStats = [
   { label: "Active Members", value: "12,500+", icon: <Users className="h-5 w-5" /> },

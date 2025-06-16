@@ -3,11 +3,11 @@
 import { Clock, FileText, MessageSquare, RefreshCw, Users, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { supabase } from "../../lib/supabaseClient";
-import { Badge } from "./Badge";
-import { Button } from "./Button";
-import { Card, CardContent, CardHeader, CardTitle } from "./Card";
-import { ProgressBar } from "./ProgressBar";
+import { supabase } from "../../lib/auth/supabaseClient";
+import { Badge } from "./base/Badge";
+import { Button } from "./base/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "./base/Card";
+import { ProgressBar } from "./feedback/ProgressBar";
 
 interface UsageStats {
   resume_create: { used: number; limit: number };

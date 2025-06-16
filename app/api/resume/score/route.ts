@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { extractTextFromFile } from '../../../../lib/resume/fileParser';
-import { scoreResume } from '../../../../lib/resume/scoreResume';
+import { extractTextFromFile } from '../../../../lib/services/resume/fileParser';
+import { scoreResume } from '../../../../lib/services/resume/scoreResume';
 
 export const config = {
   api: {

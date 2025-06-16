@@ -2,7 +2,7 @@
 
 import { ArrowRight, Briefcase, Building2, CheckCircle, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "../../../../components/ui/Button";
+import { Button } from "../../../../components/ui/base/Button";
 
 interface AddedExperience {
   company: string;

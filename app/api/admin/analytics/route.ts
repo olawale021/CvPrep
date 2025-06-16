@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabaseClient';
+import { supabase } from '../../../../lib/auth/supabaseClient';
 
 // Check if user is admin (you may want to implement proper admin role checking)
 async function isAdmin(token: string): Promise<boolean> {

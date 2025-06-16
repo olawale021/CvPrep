@@ -1,7 +1,7 @@
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Josefin_Sans, Noto_Serif } from "next/font/google";
-import ClientProviders from "../components/ClientProviders";
+import ClientProviders from "../components/providers/ClientProviders";
 import "./globals.css";
 
 const josefinSans = Josefin_Sans({

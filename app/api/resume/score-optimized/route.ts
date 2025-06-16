@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { extractTextFromFile } from '../../../../lib/resume/fileParser';
-import { scoreOptimizedResume } from '../../../../lib/resume/scoreResume';
+import { extractTextFromFile } from '../../../../lib/services/resume/fileParser';
+import { scoreOptimizedResume } from '../../../../lib/services/resume/scoreResume';
 
 export async function POST(request: NextRequest) {
   try {
