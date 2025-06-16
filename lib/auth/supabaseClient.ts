@@ -14,7 +14,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // This will only log in development mode
-logger.debug('Initializing Supabase client', { 
+logger.debug('Initializing Supabase client', {
   context: 'SupabaseClient'
 });
 

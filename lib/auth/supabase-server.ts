@@ -34,33 +34,29 @@ export async function getServerUser(request: NextRequest) {
   const supabase = createServerSupabaseClient(request);
   
   try {
-    // First try to get the session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    // Use getUser() instead of getSession() for secure server-side authentication
+    // This method authenticates the data by contacting the Supabase Auth server
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     
-    if (sessionError) {
-      console.log('Session error:', sessionError.message);
-      return { user: null, error: `Session error: ${sessionError.message}` };
+    if (userError) {
+    //   console.log('User authentication error:', userError.message);
+      return { user: null, error: `Authentication error: ${userError.message}` };
     }
 
-    if (!session) {
-      console.log('No session found');
-      return { user: null, error: 'No session found' };
+    if (!user) {
+    //   console.log('No authenticated user found');
+      return { user: null, error: 'No authenticated user found' };
     }
 
-    if (!session.user) {
-      console.log('Session exists but no user');
-      return { user: null, error: 'Session exists but no user' };
-    }
-
-    // Session and user exist, return the user
-    console.log('User authenticated:', session.user.id);
-    return { user: session.user, error: null };
+    // User is authenticated and verified by Supabase Auth server
+    // console.log('User authenticated securely:', user.id);
+    return { user, error: null };
     
   } catch (error) {
-    console.error('Exception in getServerUser:', error);
+    // console.error('Exception in getServerUser:', error);
     return { 
       user: null, 
-      error: error instanceof Error ? error.message : 'Authentication error' 
+      error: error instanceof Error ? error.message : 'Authentication error'
     };
   }
 } 
