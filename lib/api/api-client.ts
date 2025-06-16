@@ -358,7 +358,24 @@ export const apiClient = new CachedApiClient(process.env.NEXT_PUBLIC_API_URL || 
 // Add authentication interceptor
 apiClient.addRequestInterceptor(async (config) => {
   // Add auth token if available
-  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+  let token: string | null = null;
+  
+  if (typeof window !== 'undefined') {
+    // Try to get token from Supabase client
+    try {
+      const { supabase } = await import('../auth/supabaseClient');
+      const { data: { session } } = await supabase.auth.getSession();
+      token = session?.access_token || null;
+    } catch (error) {
+      console.warn('Failed to get Supabase session:', error);
+    }
+    
+    // Fallback to localStorage
+    if (!token) {
+      token = localStorage.getItem('auth_token');
+    }
+  }
+  
   if (token) {
     config.headers = {
       ...config.headers,

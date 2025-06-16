@@ -1,33 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../lib/auth/supabaseClient';
+import { getServerUser } from '../../../lib/auth/supabase-server';
+import { supabaseAdmin } from '../../../lib/auth/supabaseClient';
 import { SaveResumeRequest, SavedResumeListResponse, SavedResumeResponse } from '../../../types/api/savedResume';
 
 // GET - List all saved resumes for the authenticated user
 export async function GET(req: NextRequest) {
   try {
-    // Get user from auth token
-    const authHeader = req.headers.get('Authorization');
-    const sessionCookie = req.cookies.get('sb-access-token')?.value;
-    const token = authHeader?.replace('Bearer ', '') || sessionCookie;
-
-    if (!token) {
+    // Get user using proper SSR authentication
+    const { user, error: authError } = await getServerUser(req);
+    
+    if (authError || !user) {
       return NextResponse.json({ 
         success: false, 
         error: 'Authentication required' 
       }, { status: 401 });
     }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
+    if (!supabaseAdmin) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Invalid authentication token' 
-      }, { status: 401 });
+        error: 'Service configuration error' 
+      }, { status: 500 });
     }
 
-    // Fetch saved resumes for the user
-    const { data: savedResumes, error: fetchError } = await supabase
+    // Fetch saved resumes for the user using admin client to bypass RLS
+    const { data: savedResumes, error: fetchError } = await supabaseAdmin
       .from('saved_resumes')
       .select(`
         id,
@@ -68,25 +65,21 @@ export async function GET(req: NextRequest) {
 // POST - Save a new resume
 export async function POST(req: NextRequest) {
   try {
-    // Get user from auth token
-    const authHeader = req.headers.get('Authorization');
-    const sessionCookie = req.cookies.get('sb-access-token')?.value;
-    const token = authHeader?.replace('Bearer ', '') || sessionCookie;
-
-    if (!token) {
+    // Get user using proper SSR authentication
+    const { user, error: authError } = await getServerUser(req);
+    
+    if (authError || !user) {
       return NextResponse.json({ 
         success: false, 
         error: 'Authentication required' 
       }, { status: 401 });
     }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
+    if (!supabaseAdmin) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Invalid authentication token' 
-      }, { status: 401 });
+        error: 'Service configuration error' 
+      }, { status: 500 });
     }
 
     // Parse request body
@@ -135,8 +128,8 @@ export async function POST(req: NextRequest) {
       is_favorite: isFavorite
     };
 
-    // Insert the saved resume
-    const { data: savedResume, error: insertError } = await supabase
+    // Insert the saved resume using admin client to bypass RLS
+    const { data: savedResume, error: insertError } = await supabaseAdmin
       .from('saved_resumes')
       .insert([resumeData])
       .select()

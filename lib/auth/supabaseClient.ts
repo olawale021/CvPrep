@@ -35,7 +35,7 @@ export const supabase = isClient
         },
       },
     })
-  : createClient(supabaseUrl, supabaseServiceKey || supabaseAnonKey, {
+  : createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -50,6 +50,19 @@ export const supabase = isClient
         schema: 'public',
       },
     });
+
+// Create a separate service role client for admin operations
+export const supabaseAdmin = supabaseServiceKey 
+  ? createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+      db: {
+        schema: 'public',
+      },
+    })
+  : null;
 
 // Test the connection and log results
 export async function testSupabaseConnection() {

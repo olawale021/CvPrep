@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '../../../lib/auth/supabaseClient';
 import logger from '../../../lib/core/logger';
-import { supabase } from '../../../lib/auth/supabaseClient';
 
 export async function POST(req: Request) {
   try {
@@ -13,8 +13,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid user data' }, { status: 400 });
     }
 
-    // Check if user already exists
-    const { data: existingUser } = await supabase
+    if (!supabaseAdmin) {
+      logger.error('Supabase admin client not available', {
+        context: 'UserAPI',
+      });
+      return NextResponse.json({ error: 'Service configuration error' }, { status: 500 });
+    }
+
+    // Check if user already exists using admin client
+    const { data: existingUser } = await supabaseAdmin
       .from('users')
       .select('type')
       .eq('email', email)
@@ -44,8 +51,8 @@ export async function POST(req: Request) {
       type: userType, // <-- use the determined type
     };
 
-    // Upsert the user by email
-    const { error } = await supabase
+    // Upsert the user by email using admin client to bypass RLS
+    const { error } = await supabaseAdmin
       .from('users')
       .upsert([userData], { onConflict: 'email' });
     if (error) {
@@ -78,7 +85,15 @@ export async function GET(req: Request) {
   if (!email) {
     return NextResponse.json({ error: "Email required" }, { status: 400 });
   }
-  const { data, error } = await supabase
+
+  if (!supabaseAdmin) {
+    logger.error('Supabase admin client not available', {
+      context: 'UserAPI',
+    });
+    return NextResponse.json({ error: 'Service configuration error' }, { status: 500 });
+  }
+
+  const { data, error } = await supabaseAdmin
     .from("users")
     .select("*")
     .eq("email", email)

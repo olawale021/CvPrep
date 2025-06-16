@@ -10,6 +10,43 @@ An intelligent resume optimization platform that helps job seekers improve their
 - **Cover Letter Generation**: AI-powered cover letter creation
 - **Interview Preparation**: Mock interview practice with AI feedback
 
+## Project Structure
+
+```
+components/
+  layout/         # Layout components (Sidebar, Headers)
+  features/       # Feature-specific components (dashboard, resume, feedback)
+  ui/
+    base/         # Basic UI components (Button, Input, Card, Badge, etc.)
+    composite/    # Composite UI components (Dialog, DropdownMenu, Tabs)
+    feedback/     # Feedback components (Toast, LoadingSpinner, ErrorBoundary)
+    shadcn/       # ShadCN UI wrappers/extensions
+  providers/      # Context and provider components
+  admin/          # Admin dashboard components
+
+hooks/
+  api/            # API-related hooks (useApi, useSavedResumes, etc.)
+  ui/             # UI-related hooks
+  features/       # Feature-specific hooks
+
+lib/
+  services/
+    resume/       # Resume-related services (scoreResume, fileParser, etc.)
+    interview/    # Interview-related services
+    ...           # Other domain services
+  auth/           # Auth utilities (supabaseClient, userRateLimit, etc.)
+  api/            # API client and rate limiting
+  core/           # Core utilities (logger, cache, utils)
+
+types/
+  api/            # API type definitions (savedResume, etc.)
+  ui/             # UI type definitions
+
+context/          # React context providers (AuthContext, LoadingContext)
+public/           # Static assets
+app/              # Next.js app directory (routes, pages)
+```
+
 ## Quick Start
 
 ### Prerequisites
@@ -110,7 +147,7 @@ npm run build
 ## Architecture
 
 - **Frontend**: Next.js 14 with TypeScript
-- **Styling**: Tailwind CSS with custom components
+- **Styling**: Tailwind CSS with custom and ShadCN components
 - **Authentication**: Supabase Auth with Google OAuth
 - **Database**: Supabase (PostgreSQL)
 - **AI Processing**: OpenAI GPT models
@@ -123,6 +160,8 @@ npm run build
 - `/api/resume/score` - ATS compatibility scoring
 - `/api/resume/optimize` - AI-powered resume optimization
 - `/api/user` - User management operations
+
+```
 
 ## Contributing
 
