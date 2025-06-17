@@ -198,9 +198,11 @@ export async function POST(request: NextRequest) {
     
   } catch (error) {
     console.error('ANALYZE API Error:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to analyze resume' },
-      { status: 500 }
-    );
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      message: 'An unexpected error occurred. Please try again.',
+      details: errorMessage
+    }, { status: 500 });
   }
 } 

@@ -112,7 +112,7 @@ function OptimizedResumeContent({
           <div className="flex flex-col space-y-2 sm:space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center space-x-1 sm:space-x-2">
               <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
-              <h2 className="text-base sm:text-lg font-semibold">Optimized Resume</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-black">Optimized Resume</h2>
             </div>
             
             {/* Action Buttons - Mobile Optimized */}
@@ -258,12 +258,12 @@ function OptimizedResumeContent({
           
           {/* Tab Content - Mobile Optimized */}
           <div className={`flex-1 overflow-y-auto p-3 sm:p-6 ${isEditMode ? 'bg-blue-50/10' : ''}`}>
-            {activeTab === "summary" && <Summary />}
-            {activeTab === "skills" && <Skills />}
-            {activeTab === "experience" && <WorkExperience />}
+            {activeTab === "summary" && <Summary isEditMode={isEditMode} summary={editableResume.summary} />}
+            {activeTab === "skills" && <Skills isEditMode={isEditMode} skills={editableResume.skills} />}
+            {activeTab === "experience" && <WorkExperience isEditMode={isEditMode} work_experience={editableResume.work_experience} />}
             {activeTab === "education" && <Education education={editableResume.education} isEditMode={isEditMode} />}
             {activeTab === "projects" && <Projects projects={editableResume.projects} isEditMode={isEditMode} />}
-            {activeTab === "certifications" && <Certifications />}
+            {activeTab === "certifications" && <Certifications isEditMode={isEditMode} certifications={editableResume.certifications} />}
           </div>
         </div>
       </div>

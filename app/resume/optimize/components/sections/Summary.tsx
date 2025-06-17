@@ -57,7 +57,7 @@ export default function Summary({ summary, isEditMode = false }: SummaryProps) {
       )}
       
       <Textarea 
-        className={`min-h-[120px] text-base text-gray-800 ${
+        className={`min-h-[120px] text-base text-black ${
           isEditMode ? 'border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50' : 
           'bg-transparent border-transparent'
         }`}

@@ -81,6 +81,27 @@ export default function Skills({ isEditMode, skills }: SkillsProps) {
     updateSkills(category, currentSkills);
     setEditingSkill(null);
   };
+
+  const handleCategoryEdit = (category: string) => {
+    if (activeCategory === category) {
+      // If this category is already active, deactivate it
+      setActiveCategory(null);
+    } else {
+      // Set this category as active
+      setActiveCategory(category);
+    }
+    // Reset any in-progress skill editing
+    setEditingSkill(null);
+  };
+
+  const handleGlobalEditToggle = () => {
+    setEditing(!editing);
+    if (!editing) {
+      // When starting edit mode, clear any active category
+      setActiveCategory(null);
+      setEditingSkill(null);
+    }
+  };
   
   // Render categories from the editable resume, not the original props
   const categories = editableResume.skills ? Object.keys(editableResume.skills) : [];
@@ -91,7 +112,7 @@ export default function Skills({ isEditMode, skills }: SkillsProps) {
         <h3 className="text-lg font-semibold text-gray-900">Skills</h3>
         {isEditMode && (
           <Button 
-            onClick={() => setEditing(!editing)}
+            onClick={handleGlobalEditToggle}
             variant={editing ? "default" : "outline"} 
             size="sm"
             className={`${editing ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'text-gray-600'}`}
@@ -106,7 +127,7 @@ export default function Skills({ isEditMode, skills }: SkillsProps) {
         <div className="bg-blue-50 border border-blue-100 rounded-md p-3 mb-4 text-sm text-blue-800">
           <p className="flex items-center">
             <Edit className="h-4 w-4 mr-2 text-blue-600" />
-            Skills edit mode is active. Click on skills to edit or remove them, or add new ones below.
+            Skills edit mode is active. Click &quot;Edit&quot; next to a category to edit skills, or click on individual skills to edit them.
           </p>
         </div>
       )}
@@ -126,26 +147,14 @@ export default function Skills({ isEditMode, skills }: SkillsProps) {
                 <h4 className="font-medium text-base capitalize text-gray-800">
                   {category.replace(/_/g, ' ')}
                 </h4>
-                {isEditMode && (
+                {isEditMode && editing && (
                   <Button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (!editing) {
-                        setActiveCategory(category);
-                      } else if (activeCategory === category) {
-                        setActiveCategory(null);
-                      } else {
-                        setActiveCategory(category);
-                      }
-                      setEditing(!editing);
-                      // Reset any in-progress skill editing
-                      setEditingSkill(null);
-                    }} 
+                    onClick={() => handleCategoryEdit(category)}
                     variant={isActive ? "default" : "outline"} 
                     size="sm"
                     className={isActive ? "bg-blue-600 hover:bg-blue-700 text-white" : "text-gray-600"}
                   >
-                    {editing && activeCategory === category ? "Done" : "Edit"}
+                    {isActive ? "Done" : "Edit"}
                   </Button>
                 )}
               </div>

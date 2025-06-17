@@ -15,11 +15,11 @@ import {
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import Sidebar from '../../../components/layout/Sidebar';
 import { Badge } from '../../../components/ui/base/Badge';
 import { Button } from '../../../components/ui/base/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/base/Card';
+import { Card, CardContent, CardHeader } from '../../../components/ui/base/Card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../../components/ui/composite/Dialog';
-import Sidebar from '../../../components/layout/Sidebar';
 import { useAuth } from '../../../context/AuthContext';
 import { useDeleteResume, useSavedResume, useUpdateResume } from '../../../hooks/api/useSavedResumesCached';
 import { SavedResume } from '../../../types/api/savedResume';
@@ -314,7 +314,7 @@ export default function SavedResumeViewPage() {
                 <Button
                   variant="ghost"
                   onClick={() => setShowJobDescription(!showJobDescription)}
-                  className="flex items-center justify-between w-full p-0 h-auto font-medium text-left"
+                  className="flex items-center justify-between w-full p-0 h-auto font-medium text-left text-black hover:text-black"
                 >
                   <div className="flex items-center gap-2">
                     <Eye className="h-4 w-4" />
@@ -330,7 +330,7 @@ export default function SavedResumeViewPage() {
               {showJobDescription && (
                 <CardContent className="pt-0">
                   <div className="bg-gray-50 rounded-lg p-4 border">
-                    <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans">
+                    <pre className="whitespace-pre-wrap text-sm text-black font-sans">
                       {savedResume.job_description}
                     </pre>
                   </div>
@@ -341,23 +341,7 @@ export default function SavedResumeViewPage() {
 
           {/* Resume Content */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Resume Content</span>
-                <Button
-                  onClick={() => handleDownloadPdf()}
-                  disabled={isPdfGenerating}
-                  size="sm"
-                >
-                  {isPdfGenerating ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <FileText className="h-4 w-4 mr-2" />
-                  )}
-                  Download PDF
-                </Button>
-              </CardTitle>
-            </CardHeader>
+           
             <CardContent>
               <OptimizedResume
                 response={convertToResumeData(savedResume)}
