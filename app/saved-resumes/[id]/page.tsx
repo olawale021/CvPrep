@@ -6,7 +6,6 @@ import {
     ChevronDown,
     ChevronUp,
     Crown,
-    Edit,
     Eye,
     FileText,
     Loader2,
@@ -116,9 +115,9 @@ export default function SavedResumeViewPage() {
   const handleToggleFavorite = async () => {
     if (!savedResume) return;
     try {
-      await updateResumeMutation.mutateAsync({ 
-        id: savedResume.id, 
-        isFavorite: !savedResume.is_favorite 
+      await updateResumeMutation.mutateAsync({
+        id: savedResume.id,
+        isFavorite: !savedResume.is_favorite
       });
     } catch (error) {
       console.error('Error toggling favorite:', error);
@@ -285,16 +284,6 @@ export default function SavedResumeViewPage() {
                     Set Primary
                   </Button>
                 )}
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(`/resume/edit/${savedResume.id}`)}
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-                
                 <Button
                   variant="destructive"
                   size="sm"
@@ -389,4 +378,4 @@ export default function SavedResumeViewPage() {
       </Dialog>
     </div>
   );
-} 
+}

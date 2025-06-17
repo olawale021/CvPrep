@@ -1,21 +1,22 @@
 'use client';
 
 import { Award, Briefcase, FileText, GraduationCap, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react';
-import React, { FormEvent, useState } from 'react';
-import { Button } from '../../../components/ui/base/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/base/Card';
-import { ErrorBoundary } from '../../../components/ui/feedback/ErrorBoundary';
-import { Input } from '../../../components/ui/base/Input';
-import { Label } from '../../../components/ui/base/Label';
+import { useRouter } from 'next/navigation';
+import React, { FormEvent, useEffect, useState } from 'react';
 import { SaveResumeDialog } from '../../../components/features/resume/SaveResumeDialog';
 import Sidebar from '../../../components/layout/Sidebar';
+import { Button } from '../../../components/ui/base/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/base/Card';
+import { Input } from '../../../components/ui/base/Input';
+import { Label } from '../../../components/ui/base/Label';
 import { Textarea } from '../../../components/ui/base/Textarea';
+import { ErrorBoundary } from '../../../components/ui/feedback/ErrorBoundary';
 import { useToast } from '../../../components/ui/feedback/use-toast';
 import { useAuth } from '../../../context/AuthContext';
-import { useAsyncOperation } from '../../../hooks/ui/useAsyncOperation';
 import { useSavedResumes } from '../../../hooks/api/useSavedResumes';
-import { ResumeScore } from '../../../lib/services/resume/scoreResume';
+import { useAsyncOperation } from '../../../hooks/ui/useAsyncOperation';
 import { supabase } from '../../../lib/auth/supabaseClient';
+import { ResumeScore } from '../../../lib/services/resume/scoreResume';
 import { SaveResumeRequest } from '../../../types/api/savedResume';
 import DashboardScoreResult from '../dashboard/components/DashboardScoreResult';
 import ErrorMessage from '../optimize/components/ErrorMessage';
@@ -55,6 +56,7 @@ interface CreateResumeFormData {
 
 export default function CreateResumePage() {
   const { user, isLoading: authLoading } = useAuth();
+  const router = useRouter();
   
   const [formData, setFormData] = useState<CreateResumeFormData>({
     jobDescription: '',
@@ -76,6 +78,13 @@ export default function CreateResumePage() {
   const { isPdfGenerating, downloadPdf } = usePdfGenerator();
   const { saveResume } = useSavedResumes();
   const { toast } = useToast();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
 
   // Generate resume operation
   const generateOperation = useAsyncOperation(
@@ -135,33 +144,13 @@ export default function CreateResumePage() {
     }
   );
   
-  // Redirect to login if not authenticated
-  if (authLoading) {
+  // Show loading while checking auth or redirecting
+  if (authLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
           <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center max-w-md mx-auto p-6">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <Sparkles className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
-            <p className="text-gray-600 mb-6">Please sign in to create your resume.</p>
-            <Button 
-              onClick={() => window.location.href = '/login'}
-              className="w-full"
-            >
-              Sign In
-            </Button>
-          </div>
         </div>
       </div>
     );
@@ -507,7 +496,7 @@ export default function CreateResumePage() {
                   </CardHeader>
                   <CardContent className="space-y-3 sm:space-y-4">
                     <div>
-                      <Label htmlFor="jobDescription" className="text-xs sm:text-sm">Job Description *</Label>
+                      <Label htmlFor="jobDescription" className="text-xs sm:text-sm text-black">Job Description *</Label>
                       <Textarea
                         id="jobDescription"
                         placeholder="Paste the complete job description here..."
@@ -519,7 +508,7 @@ export default function CreateResumePage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="currentSummary" className="text-xs sm:text-sm">Current Summary (Optional)</Label>
+                      <Label htmlFor="currentSummary" className="text-xs sm:text-sm text-black">Current Summary (Optional)</Label>
                       <Textarea
                         id="currentSummary"
                         placeholder="Your current professional summary if you have one..."
@@ -547,7 +536,7 @@ export default function CreateResumePage() {
                     {formData.workExperience.map((exp, index) => (
                       <div key={index} className="border border-gray-200 rounded-lg p-3 sm:p-4">
                         <div className="flex justify-between items-center mb-3 sm:mb-4">
-                          <h4 className="font-medium text-xs sm:text-sm">Experience {index + 1}</h4>
+                          <h4 className="font-medium text-xs sm:text-sm text-black">Experience {index + 1}</h4>
                           {formData.workExperience.length > 1 && (
                             <Button
                               type="button"
@@ -562,7 +551,7 @@ export default function CreateResumePage() {
                         </div>
                         <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
                           <div>
-                            <Label htmlFor={`company-${index}`} className="text-xs sm:text-sm">Company *</Label>
+                            <Label htmlFor={`company-${index}`} className="text-xs sm:text-sm text-black">Company *</Label>
                             <Input
                               id={`company-${index}`}
                               placeholder="Company name"
@@ -573,7 +562,7 @@ export default function CreateResumePage() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor={`title-${index}`} className="text-xs sm:text-sm">Job Title *</Label>
+                            <Label htmlFor={`title-${index}`} className="text-xs sm:text-sm text-black">Job Title *</Label>
                             <Input
                               id={`title-${index}`}
                               placeholder="Job title"
@@ -584,7 +573,7 @@ export default function CreateResumePage() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor={`dates-${index}`} className="text-xs sm:text-sm">Date Range *</Label>
+                            <Label htmlFor={`dates-${index}`} className="text-xs sm:text-sm text-black">Date Range *</Label>
                             <Input
                               id={`dates-${index}`}
                               placeholder="Jan 2020 - Present"
@@ -611,7 +600,7 @@ export default function CreateResumePage() {
                       <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5" />
                       Education
                     </CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">
+                    <CardDescription className="text-xs sm:text-sm text-black">
                       Add your educational background (can be left empty).
                     </CardDescription>
                   </CardHeader>
@@ -619,7 +608,7 @@ export default function CreateResumePage() {
                     {formData.education.map((edu, index) => (
                       <div key={index} className="border border-gray-200 rounded-lg p-3 sm:p-4">
                         <div className="flex justify-between items-center mb-3 sm:mb-4">
-                          <h4 className="font-medium text-xs sm:text-sm">Education {index + 1}</h4>
+                          <h4 className="font-medium text-xs sm:text-sm text-black">Education {index + 1}</h4>
                           {formData.education.length > 1 && (
                             <Button
                               type="button"
@@ -634,7 +623,7 @@ export default function CreateResumePage() {
                         </div>
                         <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
                           <div>
-                            <Label htmlFor={`institution-${index}`} className="text-xs sm:text-sm">Institution</Label>
+                            <Label htmlFor={`institution-${index}`} className="text-xs sm:text-sm text-black">Institution</Label>
                             <Input
                               id={`institution-${index}`}
                               placeholder="University/School name"
@@ -644,7 +633,7 @@ export default function CreateResumePage() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor={`degree-${index}`} className="text-xs sm:text-sm">Degree</Label>
+                            <Label htmlFor={`degree-${index}`} className="text-xs sm:text-sm text-black">Degree</Label>
                             <Input
                               id={`degree-${index}`}
                               placeholder="Degree title"
@@ -654,7 +643,7 @@ export default function CreateResumePage() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor={`graduation-${index}`} className="text-xs sm:text-sm">Graduation Date</Label>
+                            <Label htmlFor={`graduation-${index}`} className="text-xs sm:text-sm text-black">Graduation Date</Label>
                             <Input
                               id={`graduation-${index}`}
                               placeholder="2020, May 2022, etc."
@@ -688,7 +677,7 @@ export default function CreateResumePage() {
                     {formData.projects.map((project, index) => (
                       <div key={index} className="border border-gray-200 rounded-lg p-3 sm:p-4">
                         <div className="flex justify-between items-center mb-3 sm:mb-4">
-                          <h4 className="font-medium text-xs sm:text-sm">Project {index + 1}</h4>
+                          <h4 className="font-medium text-xs sm:text-sm text-black">Project {index + 1}</h4>
                           {formData.projects.length > 1 && (
                             <Button
                               type="button"
@@ -703,7 +692,7 @@ export default function CreateResumePage() {
                         </div>
                         <div className="space-y-3 sm:space-y-4">
                           <div>
-                            <Label htmlFor={`project-title-${index}`} className="text-xs sm:text-sm">Project Title</Label>
+                            <Label htmlFor={`project-title-${index}`} className="text-xs sm:text-sm text-black">Project Title</Label>
                             <Input
                               id={`project-title-${index}`}
                               placeholder="Project name"
@@ -713,7 +702,7 @@ export default function CreateResumePage() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor={`project-description-${index}`} className="text-xs sm:text-sm">Description</Label>
+                            <Label htmlFor={`project-description-${index}`} className="text-xs sm:text-sm text-black">Description</Label>
                             <Textarea
                               id={`project-description-${index}`}
                               placeholder="Brief description of the project"
@@ -724,7 +713,7 @@ export default function CreateResumePage() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor={`project-technologies-${index}`} className="text-xs sm:text-sm">Technologies</Label>
+                            <Label htmlFor={`project-technologies-${index}`} className="text-xs sm:text-sm text-black">Technologies</Label>
                             <Input
                               id={`project-technologies-${index}`}
                               placeholder="React, Node.js, Python, etc."
@@ -756,7 +745,7 @@ export default function CreateResumePage() {
                   </CardHeader>
                   <CardContent className="space-y-3 sm:space-y-4">
                     <div>
-                      <Label htmlFor="certifications" className="text-xs sm:text-sm">Certifications</Label>
+                      <Label htmlFor="certifications" className="text-xs sm:text-sm text-black">Certifications</Label>
                       <Textarea
                         id="certifications"
                         placeholder="List your certifications, one per line or separated by commas"
@@ -767,7 +756,7 @@ export default function CreateResumePage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="licenses" className="text-xs sm:text-sm">Licenses</Label>
+                      <Label htmlFor="licenses" className="text-xs sm:text-sm text-black">Licenses</Label>
                       <Textarea
                         id="licenses"
                         placeholder="List your licenses, one per line or separated by commas"

@@ -35,7 +35,7 @@ export default function Home() {
               {/* Main Headline */}
               <div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight">
-                  ✨ AI-Powered CV Optimization & ATS Scoring
+                  ✨ AI-Powered CV Generation, Optimization & ATS Scoring
                 </h1>
               </div>
               
@@ -53,7 +53,7 @@ export default function Home() {
                     <Star className="h-5 w-5 text-yellow-400 fill-current" />
                     <Star className="h-5 w-5 text-yellow-400 fill-current" />
                     <Star className="h-5 w-5 text-yellow-400 fill-current" />
-                    <span className="ml-2 font-medium">4.9/5 from 2,000+ users</span>
+                    <span className="ml-2 font-medium">4.9/5 from Early users</span>
                   </div>
                 </div>
                 
@@ -233,17 +233,17 @@ export default function Home() {
                   </div>
                                      <blockquote className="text-xl text-gray-700 font-medium mb-6 leading-relaxed">
                      &ldquo;CvPrep&apos;s AI optimization increased my interview callback rate by 300%. The keyword matching is incredible - 
-                     my CV now perfectly aligns with job requirements. I landed my dream role at Google within 6 weeks!&rdquo;
+                     my CV now perfectly aligns with job requirements. I landed my dream role within 6 weeks!&rdquo;
                    </blockquote>
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        S
+                        D
                       </div>
                     </div>
                     <div className="ml-4">
-                      <p className="text-lg font-semibold text-gray-900">Sarah Chen</p>
-                      <p className="text-gray-600">Senior Software Engineer at Google</p>
+                      <p className="text-lg font-semibold text-gray-900">Daniel Ibeh</p>
+                  
                     </div>
                   </div>
                 </div>
@@ -338,12 +338,11 @@ export default function Home() {
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        M
+                        O
                       </div>
                     </div>
                     <div className="ml-4">
-                      <p className="text-lg font-semibold text-gray-900">Marcus Johnson</p>
-                      <p className="text-gray-600">Product Manager at Microsoft</p>
+                      <p className="text-lg font-semibold text-gray-900">Osahon Oviawe</p>
                     </div>
                   </div>
                 </div>
@@ -444,12 +443,12 @@ export default function Home() {
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        D
+                        A
                       </div>
                     </div>
                     <div className="ml-4">
-                      <p className="text-lg font-semibold text-gray-900">David Park</p>
-                      <p className="text-gray-600">Marketing Director at Tesla</p>
+                      <p className="text-lg font-semibold text-gray-900">Abdulmajeed Momoh</p>
+                      
                     </div>
                   </div>
                 </div>
@@ -560,12 +559,12 @@ export default function Home() {
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        A
+                        D
                       </div>
                     </div>
                     <div className="ml-4">
-                      <p className="text-lg font-semibold text-gray-900">Alex Thompson</p>
-                      <p className="text-gray-600">Data Scientist at Netflix</p>
+                      <p className="text-lg font-semibold text-gray-900">Daniel Ibeh</p>
+                      
                     </div>
                   </div>
                 </div>

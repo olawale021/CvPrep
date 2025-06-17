@@ -50,11 +50,11 @@ export default function SavedResumesPage() {
   // Filter resumes based on search and filter type
   const filteredResumes = savedResumes.filter(resume => {
     const matchesSearch = resume.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         resume.job_description?.toLowerCase().includes(searchQuery.toLowerCase());
+                        resume.job_description?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesFilter = filterType === 'all' || 
-                         (filterType === 'favorites' && resume.is_favorite) ||
-                         (filterType === 'primary' && resume.is_primary);
+                        (filterType === 'favorites' && resume.is_favorite) ||
+                        (filterType === 'primary' && resume.is_primary);
     
     return matchesSearch && matchesFilter;
   });
