@@ -85,7 +85,7 @@ export default function ResumeUploadForm({
       >
         {isScoring ? (
           <>
-            <div className="h-4 w-4 mr-1 sm:mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+            <div className="h-4 w-4 mr-1 sm:mr-2 bg-white/30 rounded animate-pulse"></div>
             <span className="hidden sm:inline">Processing...</span>
             <span className="sm:hidden">Processing</span>
           </>

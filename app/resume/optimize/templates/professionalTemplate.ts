@@ -5,8 +5,9 @@ import { ResumeData, ResumeResponse } from "../types";
  * Generates a professional style resume PDF with clean formatting
  */
 export const generateProfessionalTemplate = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => {
-  // Extract contact details from the full response
-  const contactDetails = resumeResponse?.contact_details || 
+  // Extract contact details from resumeData first, then fall back to resumeResponse
+  const contactDetails = resumeData.contact_details || 
+                         resumeResponse?.contact_details || 
                          resumeResponse?.data?.contact_details || 
                          {};
   const userName = contactDetails.name || "";

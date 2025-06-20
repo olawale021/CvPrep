@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface LoadingStateProps {
@@ -47,7 +47,7 @@ export default function LoadingState({ type }: LoadingStateProps) {
             </div>
           </>
         ) : (
-          <Loader className="h-10 w-10 text-blue-500 animate-spin mb-4" />
+          <div className="h-10 w-10 bg-blue-500 rounded animate-pulse mb-4" />
         )}
       </div>
       

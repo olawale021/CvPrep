@@ -1,12 +1,10 @@
 import { cn } from "../../../lib/core/utils";
-import { LoadingSpinner } from "./LoadingSpinner";
 
 interface LoadingCardProps {
-  title?: string;
-  description?: string;
   className?: string;
   size?: "sm" | "md" | "lg";
   variant?: "card" | "inline" | "overlay";
+  showDescription?: boolean;
 }
 
 const sizeClasses = {
@@ -16,17 +14,16 @@ const sizeClasses = {
 };
 
 export function LoadingCard({ 
-  title = "Loading...",
-  description,
   className,
   size = "md",
-  variant = "card"
+  variant = "card",
+  showDescription = true
 }: LoadingCardProps) {
   if (variant === "inline") {
     return (
       <div className={cn("flex items-center space-x-3", className)}>
-        <LoadingSpinner size="sm" variant="primary" />
-        <span className="text-gray-600">{title}</span>
+        <div className="h-4 w-4 bg-blue-600 rounded animate-pulse" />
+        <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
       </div>
     );
   }
@@ -38,10 +35,10 @@ export function LoadingCard({
         className
       )}>
         <div className="text-center">
-          <LoadingSpinner size="lg" variant="primary" className="mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
-          {description && (
-            <p className="text-gray-600 max-w-md">{description}</p>
+          <div className="h-8 w-8 bg-blue-600 rounded animate-pulse mb-4 mx-auto" />
+          <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-2 mx-auto"></div>
+          {showDescription && (
+            <div className="h-4 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
           )}
         </div>
       </div>
@@ -54,10 +51,10 @@ export function LoadingCard({
       sizeClasses[size],
       className
     )}>
-      <LoadingSpinner size="lg" variant="primary" className="mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
-      {description && (
-        <p className="text-gray-600 max-w-md">{description}</p>
+      <div className="h-8 w-8 bg-blue-600 rounded animate-pulse mb-4" />
+      <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
+      {showDescription && (
+        <div className="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
       )}
     </div>
   );

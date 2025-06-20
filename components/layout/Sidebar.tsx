@@ -345,8 +345,8 @@ export default function Sidebar({ className = "" }: SidebarProps) {
                   <div className="ml-8 mt-2 space-y-2">
                     {isLoading && (
                       <div className="flex items-center space-x-2 py-2 px-3">
-                        <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-sm text-slate-400 font-medium">Loading resumes...</span>
+                        <div className="w-4 h-4 bg-blue-400 rounded animate-pulse"></div>
+                        <div className="h-3 w-24 bg-slate-400 rounded animate-pulse"></div>
                       </div>
                     )}
                     

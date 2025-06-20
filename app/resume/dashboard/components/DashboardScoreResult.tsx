@@ -164,7 +164,7 @@ export default function DashboardScoreResult({
             >
               {isOptimizing ? (
                 <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <div className="h-4 w-4 mr-2 bg-white/30 rounded animate-pulse" />
                   Optimizing...
                 </>
               ) : (

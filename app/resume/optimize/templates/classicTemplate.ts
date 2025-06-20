@@ -5,8 +5,9 @@ import { ResumeData, ResumeResponse } from "../types";
  * Generates a classic style resume PDF with multi-page support and optimized spacing
  */
 export const generateClassicTemplate = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => {
-  // Extract contact details from the full response
-  const contactDetails = resumeResponse?.contact_details || 
+  // Extract contact details from resumeData first, then fall back to resumeResponse
+  const contactDetails = resumeData.contact_details || 
+                         resumeResponse?.contact_details || 
                          resumeResponse?.data?.contact_details || 
                          {};
   const userName = contactDetails.name || "";
@@ -256,47 +257,75 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   const phone = extractedPhone || userPhone || resumeData.contact_details?.phone || "";
   const location = extractedLocation || userLocation || resumeData.contact_details?.location || "";
   
-  // Create compact contact line
+  // Create compact contact line with location first, then email, then phone
   const contactParts = [];
+  if (location) contactParts.push(location.replace(/\n/g, ' ').trim());
   if (email) contactParts.push(email);
   if (phone) contactParts.push(phone);
-  if (location) contactParts.push(location.replace(/\n/g, ' ').trim());
   
   if (contactParts.length > 0) {
     const contactLine = contactParts.join(' • ');
     pdf.text(contactLine, pageWidth / 2, yPos, { align: 'center' });
-    yPos += Math.round(3 * spacingMultiplier); // Dynamic spacing
+    yPos += Math.round(4 * spacingMultiplier); // Slightly more spacing
   }
   
-  yPos += Math.round(2 * spacingMultiplier); // Dynamic spacing before line
+  yPos += Math.round(3 * spacingMultiplier); // More spacing before line
   
   // Horizontal line
   pdf.setDrawColor(26, 86, 219);
   pdf.setLineWidth(0.5);
   pdf.line(margin, yPos, pageWidth - margin, yPos);
   
-  yPos += Math.round(3 * spacingMultiplier); // Dynamic spacing
+  yPos += Math.round(4 * spacingMultiplier); // More spacing after line
   
   // SECTION: PROFESSIONAL SUMMARY - Dynamic spacing
   if (resumeData.summary) {
-    const summaryLines = pdf.splitTextToSize(resumeData.summary, contentWidth);
-    const summaryHeight = estimateSectionHeight(summaryLines.length + 1, 10, 3.5);
+    // Set font size first to ensure accurate text measurement
+    pdf.setFontSize(11 + fontSizeBoost); // Set font size before measuring
+    pdf.setFont(mainFont, 'normal');
+    
+    // Use a slightly smaller width to ensure text doesn't overflow
+    const summaryWidth = contentWidth - 2; // 2mm safety margin
+    const summaryLines = pdf.splitTextToSize(resumeData.summary, summaryWidth);
+    const summaryHeight = estimateSectionHeight(summaryLines.length + 1, 11, 4);
     checkPageBreak(summaryHeight);
     
+    // Header
     pdf.setFontSize(14 + fontSizeBoost); // Dynamic font size
     pdf.setTextColor(26, 86, 219);
     pdf.setFont(mainFont, 'bold');
     pdf.text("PROFESSIONAL SUMMARY", margin, yPos);
     
-    yPos += Math.round(4 * spacingMultiplier); // Dynamic spacing
+    yPos += Math.round(5 * spacingMultiplier); // More spacing after header
+    
+    // Summary content
     pdf.setFontSize(11 + fontSizeBoost); // Dynamic font size
     pdf.setTextColor(45, 55, 72);
     pdf.setFont(mainFont, 'normal');
     
-    pdf.text(summaryLines, margin, yPos);
-    yPos += summaryLines.length * (3.5 * spacingMultiplier); // Dynamic line spacing
+    // Render summary with proper line spacing and ensure it fits within margins
+    summaryLines.forEach((line: string, index: number) => {
+      // Ensure the line doesn't exceed the page width
+      const lineWidth = pdf.getTextWidth(line);
+      if (lineWidth > summaryWidth) {
+        // If line is still too long, split it further
+        const subLines = pdf.splitTextToSize(line, summaryWidth - 1);
+        subLines.forEach((subLine: string, subIndex: number) => {
+          pdf.text(subLine, margin, yPos);
+          if (subIndex < subLines.length - 1) {
+            yPos += Math.round(4 * spacingMultiplier);
+          }
+        });
+      } else {
+        pdf.text(line, margin, yPos);
+      }
+      
+      if (index < summaryLines.length - 1) {
+        yPos += Math.round(4 * spacingMultiplier); // Better line spacing
+      }
+    });
     
-    yPos += Math.round(6 * spacingMultiplier); // Increased base section spacing
+    yPos += Math.round(8 * spacingMultiplier); // More spacing after summary
     
     // Add extra spacing between major sections when there's lots of space
     if (hasLotsOfSpace) {

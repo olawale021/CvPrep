@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Loader2, Upload } from "lucide-react";
+import { AlertCircle, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { cn } from "../../../lib/core/utils";
@@ -232,7 +232,7 @@ export function ResumeUploadDialog({ open, onOpenChange, onSuccess }: ResumeUplo
           >
             {isUploading ? (
               <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <div className="mr-2 h-5 w-5 bg-white/30 rounded animate-pulse" />
                 Uploading...
               </>
             ) : (

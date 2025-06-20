@@ -4,9 +4,9 @@ import { MessageCircle, Send } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { Button } from "../../ui/base/Button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../ui/composite/Dialog";
 import { Label } from "../../ui/base/Label";
 import { Textarea } from "../../ui/base/Textarea";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../ui/composite/Dialog";
 import { useToast } from "../../ui/feedback/use-toast";
 
 type FeedbackType = "bug" | "feature" | "improvement" | "other";
@@ -251,7 +251,7 @@ export default function FeedbackWidget() {
               >
                 {isSubmitting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    <div className="w-4 h-4 bg-white/30 rounded animate-pulse mr-2" />
                     Submitting...
                   </>
                 ) : (

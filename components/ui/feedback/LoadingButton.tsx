@@ -1,6 +1,5 @@
 import { cn } from "../../../lib/core/utils";
 import { Button, ButtonProps } from "../base/Button";
-import { LoadingSpinner } from "./LoadingSpinner";
 
 interface LoadingButtonProps extends ButtonProps {
   loading?: boolean;
@@ -27,11 +26,7 @@ export function LoadingButton({
       {...props}
     >
       {loading && (
-        <LoadingSpinner 
-          size="sm" 
-          variant="white" 
-          className="mr-2" 
-        />
+        <div className="h-4 w-4 bg-white/30 rounded animate-pulse mr-2" />
       )}
       {loading ? (loadingText || "Loading...") : children}
     </Button>

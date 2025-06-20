@@ -1,16 +1,16 @@
 "use client";
 
-import { HelpCircle, Info, Loader2, MessageSquare, Send, Users } from "lucide-react";
+import { HelpCircle, Info, MessageSquare, Send, Users } from "lucide-react";
 import React, { useRef, useState } from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/composite/accordion";
+import { ResumeUpload } from "../../components/features/resume/ResumeUpload";
+import Sidebar from "../../components/layout/Sidebar";
 import { Alert, AlertDescription } from "../../components/ui/base/Alert";
 import { Badge } from "../../components/ui/base/Badge";
 import { Button } from "../../components/ui/base/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/base/Card";
 import { Input } from "../../components/ui/base/Input";
-import { ResumeUpload } from "../../components/features/resume/ResumeUpload";
-import Sidebar from "../../components/layout/Sidebar";
 import { Textarea } from "../../components/ui/base/Textarea";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/composite/accordion";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/auth/supabaseClient";
 
@@ -100,9 +100,12 @@ export default function InterviewPrep() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading...</p>
+        <div className="text-center max-w-md mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="h-12 w-12 bg-gray-200 rounded-full animate-pulse mx-auto mb-4"></div>
+            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mx-auto mb-2"></div>
+            <div className="h-4 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
+          </div>
         </div>
       </div>
     );
@@ -500,7 +503,7 @@ export default function InterviewPrep() {
                   >
                     {loading ? (
                       <>
-                        <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-4 h-4 mr-2 bg-white/30 rounded animate-pulse"></div>
                         Generating Questions...
                       </>
                     ) : (
@@ -769,8 +772,8 @@ export default function InterviewPrep() {
                 <CardContent>
                   {tipsLoading ? (
                     <div className="flex flex-col items-center justify-center py-12">
-                      <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-                      <p className="text-gray-600">Loading answer tips...</p>
+                      <div className="w-8 h-8 bg-gray-200 rounded animate-pulse mb-4"></div>
+                      <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
                     </div>
                   ) : answerTips ? (
                     <div className="space-y-6">
@@ -904,7 +907,7 @@ export default function InterviewPrep() {
                       >
                         {simulationLoading ? (
                           <>
-                            <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-4 h-4 mr-2 bg-white/30 rounded animate-pulse"></div>
                             Analyzing...
                           </>
                         ) : (

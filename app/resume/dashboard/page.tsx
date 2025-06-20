@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Loader2, Sparkles } from "lucide-react";
+import { FileText, Sparkles } from "lucide-react";
 import { FormEvent, useRef, useState } from "react";
 import { SaveResumeDialog } from "../../../components/features/resume/SaveResumeDialog";
 import Sidebar from "../../../components/layout/Sidebar";
@@ -286,9 +286,12 @@ export default function ResumeDashboard() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading...</p>
+        <div className="text-center max-w-md mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="h-12 w-12 bg-gray-200 rounded-full animate-pulse mx-auto mb-4"></div>
+            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mx-auto mb-2"></div>
+            <div className="h-4 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
+          </div>
         </div>
       </div>
     );
@@ -561,7 +564,7 @@ export default function ResumeDashboard() {
                           >
                             {optimizeOperation.isLoading ? (
                               <>
-                                <div className="h-3 w-3 sm:h-4 sm:w-4 mr-1 inline animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                                <div className="h-3 w-3 sm:h-4 sm:w-4 mr-1 inline bg-white/30 rounded animate-pulse"></div>
                                 <span className="hidden sm:inline">Optimizing...</span>
                                 <span className="sm:hidden">...</span>
                               </>
@@ -589,7 +592,7 @@ export default function ResumeDashboard() {
                   {optimizeOperation.isLoading && (
                     <div className="p-3 sm:p-4 bg-blue-50 border-b">
                       <div className="flex items-center justify-center space-x-2 sm:space-x-3">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                        <div className="h-4 w-4 bg-blue-600 rounded animate-pulse"></div>
                         <span className="text-blue-800 text-xs sm:text-sm">Optimizing your resume...</span>
                       </div>
                     </div>
@@ -626,8 +629,8 @@ export default function ResumeDashboard() {
                   {isScoring && !scoreResult ? (
                     <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
                       <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
-                        <div className="h-4 w-4 sm:h-5 sm:w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-                        <span className="text-gray-600 text-sm sm:text-base">Scoring your resume...</span>
+                        <div className="h-4 w-4 sm:h-5 sm:w-5 bg-blue-600 rounded animate-pulse"></div>
+                        <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
                       </div>
                       <div className="space-y-3 sm:space-y-4">
                         <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse"></div>

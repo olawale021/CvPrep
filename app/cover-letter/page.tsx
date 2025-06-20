@@ -1,12 +1,12 @@
 "use client";
 
-import { Check, ClipboardCopy, Download, FileText, Loader2, Send } from "lucide-react";
+import { Check, ClipboardCopy, Download, FileText, Send } from "lucide-react";
 import React, { useRef, useState } from "react";
-import { Button } from "../../components/ui/base/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/base/Card";
 import { JobDescriptionInput } from "../../components/features/resume/JobDescriptionInput";
 import { ResumeUpload } from "../../components/features/resume/ResumeUpload";
 import Sidebar from "../../components/layout/Sidebar";
+import { Button } from "../../components/ui/base/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/base/Card";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/auth/supabaseClient";
 
@@ -36,9 +36,12 @@ export default function CoverLetterPage() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading...</p>
+        <div className="text-center max-w-md mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="h-12 w-12 bg-gray-200 rounded-full animate-pulse mx-auto mb-4"></div>
+            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mx-auto mb-2"></div>
+            <div className="h-4 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
+          </div>
         </div>
       </div>
     );
@@ -208,7 +211,7 @@ export default function CoverLetterPage() {
                   >
                     {isGenerating ? (
                       <>
-                        <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-4 h-4 mr-2 bg-white/30 rounded animate-pulse"></div>
                         Generating...
                       </>
                     ) : (

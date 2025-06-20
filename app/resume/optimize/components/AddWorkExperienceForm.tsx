@@ -241,7 +241,7 @@ export default function AddWorkExperienceForm({
               >
                 {isLoading ? (
                   <>
-                    <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                    <div className="h-4 w-4 mr-2 bg-white/30 rounded animate-pulse" />
                     Adding Experience...
                   </>
                 ) : (

@@ -1,4 +1,4 @@
-import { Crown, Loader2, Save, Star } from 'lucide-react';
+import { Crown, Save, Star } from 'lucide-react';
 import React, { useState } from 'react';
 import { GeneratedResumeData, SaveResumeRequest, SavedResumeFormData } from '../../../types/api/savedResume';
 import { Button } from '../../ui/base/Button';
@@ -203,7 +203,7 @@ export function SaveResumeDialog({
           >
             {isSubmitting || isSaving ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <div className="h-4 w-4 bg-white/30 rounded animate-pulse mr-2" />
                 Saving...
               </>
             ) : (

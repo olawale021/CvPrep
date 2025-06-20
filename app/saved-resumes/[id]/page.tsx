@@ -8,7 +8,6 @@ import {
   Crown,
   Eye,
   FileText,
-  Loader2,
   Star,
   Trash2
 } from 'lucide-react';
@@ -143,9 +142,12 @@ export default function SavedResumeViewPage() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading...</p>
+        <div className="text-center max-w-md mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="h-12 w-12 bg-gray-200 rounded-full animate-pulse mx-auto mb-4"></div>
+            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mx-auto mb-2"></div>
+            <div className="h-4 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
+          </div>
         </div>
       </div>
     );
@@ -398,7 +400,7 @@ export default function SavedResumeViewPage() {
             >
               {deleteResumeMutation.isPending ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <div className="h-4 w-4 mr-2 bg-white/30 rounded animate-pulse" />
                   Deleting...
                 </>
               ) : (

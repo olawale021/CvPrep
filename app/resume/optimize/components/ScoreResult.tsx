@@ -1,9 +1,9 @@
-import { AlertCircle, ArrowRight, Check, ExternalLink, FileText, Loader, Plus, Sparkles, Star } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, ExternalLink, FileText, Plus, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Button } from "../../../../components/ui/base/Button";
-import { ResumeScore } from "../../../../lib/services/resume/scoreResume";
 import { supabase } from "../../../../lib/auth/supabaseClient";
+import { ResumeScore } from "../../../../lib/services/resume/scoreResume";
 import AddWorkExperienceForm from "./AddWorkExperienceForm";
 
 interface UpdatedResumeData {
@@ -438,7 +438,7 @@ export default function ScoreResult({
         ) : loading ? (
           <div className="mt-4">
             <div className="w-full bg-blue-100 text-blue-800 py-2 px-3 rounded-md text-sm flex items-center justify-center">
-              <Loader className="h-4 w-4 mr-2 animate-spin" />
+              <div className="h-4 w-4 mr-2 bg-blue-800 rounded animate-pulse" />
               Your resume is being optimized
             </div>
           </div>
@@ -451,7 +451,7 @@ export default function ScoreResult({
             >
               {loading ? (
                 <>
-                  <Loader className="h-4 w-4 mr-2 animate-spin" />
+                  <div className="h-4 w-4 mr-2 bg-white/30 rounded animate-pulse" />
                   Optimizing Resume
                 </>
               ) : (

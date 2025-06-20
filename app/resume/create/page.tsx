@@ -44,6 +44,12 @@ interface Project {
 }
 
 interface CreateResumeFormData {
+  // Personal Information
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  location: string;
+  // Job and Content
   jobDescription: string;
   currentSummary: string;
   workExperience: WorkExperience[];
@@ -58,6 +64,12 @@ export default function CreateResumePage() {
   const router = useRouter();
   
   const [formData, setFormData] = useState<CreateResumeFormData>({
+    // Personal Information
+    fullName: '',
+    email: user?.email || '',
+    phoneNumber: '',
+    location: '',
+    // Job and Content
     jobDescription: '',
     currentSummary: '',
     workExperience: [{ company: '', title: '', dateRange: '' }],
@@ -125,20 +137,31 @@ export default function CreateResumePage() {
     },
     {
       onSuccess: (resume) => {
-        setGeneratedResume(resume);
-        // Create mock resume response for compatibility
-        setResumeResponse({
-          data: resume,
-          original: resume,
+        // Add contact information to the resume data itself
+        const resumeWithContact = {
+          ...resume,
           contact_details: {
-            name: '',
-            email: '',
-            phone_number: '',
-            location: ''
+            name: formData.fullName,
+            email: formData.email,
+            phone: formData.phoneNumber,
+            location: formData.location
+          }
+        };
+        
+        setGeneratedResume(resumeWithContact);
+        // Create resume response with actual contact details
+        setResumeResponse({
+          data: resumeWithContact,
+          original: resumeWithContact,
+          contact_details: {
+            name: formData.fullName,
+            email: formData.email,
+            phone_number: formData.phoneNumber,
+            location: formData.location
           }
         });
         // Score the generated resume
-        scoreGeneratedResume(resume);
+        scoreGeneratedResume(resumeWithContact);
       },
       onError: (error) => {
         setError(error.message);
@@ -158,11 +181,23 @@ export default function CreateResumePage() {
               <div className="h-4 w-96 bg-gray-200 rounded animate-pulse"></div>
             </div>
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <div className="space-y-8">
-                <div className="space-y-4">
-                  <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-32 w-full bg-gray-200 rounded animate-pulse"></div>
-                </div>
+                              <div className="space-y-8">
+                  {/* Personal Information Skeleton */}
+                  <div className="space-y-4">
+                    <div className="h-6 w-40 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="h-10 w-full bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-10 w-full bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-10 w-full bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-10 w-full bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Job Description Skeleton */}
+                  <div className="space-y-4">
+                    <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-32 w-full bg-gray-200 rounded animate-pulse"></div>
+                  </div>
                 <div className="space-y-4">
                   <div className="h-6 w-36 bg-gray-200 rounded animate-pulse"></div>
                   <div className="h-24 w-full bg-gray-200 rounded animate-pulse"></div>
@@ -345,7 +380,16 @@ export default function CreateResumePage() {
           certifications: generatedResume.certifications || []
         };
         
-        const mergedData = { ...safeResponse };
+        const mergedData = { 
+          ...safeResponse,
+          // Ensure contact information is always included
+          contact_details: {
+            name: formData.fullName,
+            email: formData.email,
+            phone: formData.phoneNumber,
+            location: formData.location
+          }
+        };
         if (editableResume) {
           if (editableResume.summary) mergedData.summary = editableResume.summary;
           if (editableResume.skills) mergedData.skills = editableResume.skills;
@@ -353,6 +397,15 @@ export default function CreateResumePage() {
           if (editableResume.education) mergedData.education = editableResume.education;
           if (editableResume.projects) mergedData.projects = editableResume.projects;
           if (editableResume.certifications) mergedData.certifications = editableResume.certifications;
+          // Preserve contact details if they exist in editable resume, otherwise keep form data
+          if (editableResume.contact_details) {
+            mergedData.contact_details = {
+              name: editableResume.contact_details.name || formData.fullName,
+              email: editableResume.contact_details.email || formData.email,
+              phone: editableResume.contact_details.phone || formData.phoneNumber,
+              location: editableResume.contact_details.location || formData.location
+            };
+          }
         }
         
         await downloadPdf(mergedData, resumeResponse);
@@ -364,6 +417,12 @@ export default function CreateResumePage() {
 
   const handleReset = () => {
     setFormData({
+      // Personal Information
+      fullName: '',
+      email: user?.email || '',
+      phoneNumber: '',
+      location: '',
+      // Job and Content
       jobDescription: '',
       currentSummary: '',
       workExperience: [{ company: '', title: '', dateRange: '' }],
@@ -388,6 +447,12 @@ export default function CreateResumePage() {
     try {
       // Transform form data to match the expected format
       const transformedFormData = {
+        // Personal Information
+        fullName: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        location: formData.location,
+        // Job and Content
         jobDescription: formData.jobDescription,
         currentSummary: formData.currentSummary,
         workExperience: formData.workExperience,
@@ -450,6 +515,11 @@ export default function CreateResumePage() {
   // Helper function to create resume text from generated data
   const createResumeText = (resumeData: ResumeData): string => {
     let resumeText = '';
+    
+    // Contact Information
+    resumeText += `${formData.fullName}\n`;
+    resumeText += `${formData.email} | ${formData.phoneNumber}\n`;
+    resumeText += `${formData.location}\n\n`;
     
     // Summary
     if (resumeData.summary) {
@@ -516,6 +586,72 @@ export default function CreateResumePage() {
           {!generatedResume && !isLoading && (
             <div className="max-w-4xl mx-auto">
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                
+                {/* Personal Information Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm sm:text-lg">
+                      <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      Personal Information
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">
+                      Enter your contact details that will appear at the top of your resume.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3 sm:space-y-4">
+                    <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+                      <div>
+                        <Label htmlFor="fullName" className="text-xs sm:text-sm text-black">Full Name *</Label>
+                        <Input
+                          id="fullName"
+                          placeholder="John Doe"
+                          value={formData.fullName}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('fullName', e.target.value)}
+                          required
+                          className="text-xs sm:text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="email" className="text-xs sm:text-sm text-black">Email Address *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="john.doe@email.com"
+                          value={formData.email}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('email', e.target.value)}
+                          required
+                          className="text-xs sm:text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="phoneNumber" className="text-xs sm:text-sm text-black">Phone Number *</Label>
+                        <Input
+                          id="phoneNumber"
+                          type="tel"
+                          placeholder="+1 (555) 123-4567"
+                          value={formData.phoneNumber}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('phoneNumber', e.target.value)}
+                          required
+                          className="text-xs sm:text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="location" className="text-xs sm:text-sm text-black">Location *</Label>
+                        <Input
+                          id="location"
+                          placeholder="London, UK"
+                          value={formData.location}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('location', e.target.value)}
+                          required
+                          className="text-xs sm:text-sm"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">City, Country (e.g., New York, USA)</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
                 
                 {/* Job Description Card */}
                 <Card>
