@@ -3,8 +3,8 @@
 import { Session, User } from '@supabase/supabase-js';
 // import { useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState } from 'react';
-import logger from '../lib/core/logger';
 import { supabase } from '../lib/auth/supabaseClient';
+import logger from '../lib/core/logger';
 
 // Type for your app's user
 export type AppUser = {
@@ -157,9 +157,10 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
     try {
       // Get the correct base URL based on environment
       const getBaseUrl = () => {
-        // In production, use Vercel domain
+        // In production, use custom domain or Vercel domain
         if (process.env.NODE_ENV === 'production') {
-          return process.env.NEXTAUTH_URL || window.location.origin;
+          // Use NEXTAUTH_URL if set, otherwise use NEXT_PUBLIC_SITE_URL, otherwise fall back to window.location.origin
+          return process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
         }
         // In development, use localhost
         return window.location.origin;
@@ -181,6 +182,10 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
         provider: 'google',
         options: {
           redirectTo,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
       

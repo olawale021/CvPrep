@@ -161,8 +161,6 @@ npm run build
 - `/api/resume/optimize` - AI-powered resume optimization
 - `/api/user` - User management operations
 
-```
-
 ## Contributing
 
 1. Fork the repository
