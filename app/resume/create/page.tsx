@@ -965,86 +965,55 @@ export default function CreateResumePage() {
             </div>
           )}
 
-          {/* Loading State - Mobile Optimized */}
+          {/* Loading State - Centered */}
           {isLoading && !generatedResume && (
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
-                <div className="text-center mb-6">
-                  <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mx-auto mb-2"></div>
-                  <div className="h-4 w-72 bg-gray-200 rounded animate-pulse mx-auto"></div>
-                </div>
-                
-                {/* Resume Content Skeleton */}
-                <div className="space-y-6">
-                  {/* Header Section */}
-                  <div className="space-y-3">
-                    <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-4 w-56 bg-gray-200 rounded animate-pulse"></div>
+            <div className="flex items-center justify-center min-h-[60vh] px-4">
+              <div className="text-center">
+                {/* AI Generation Message */}
+                <div className="mb-8">
+                  <div className="p-4 bg-blue-50 rounded-full mb-6 w-fit mx-auto">
+                    <Sparkles className="h-8 w-8 text-blue-500" />
                   </div>
-                  
-                  {/* Summary Section */}
-                  <div className="space-y-3">
-                    <div className="h-6 w-40 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="space-y-2">
-                      <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
-                      <div className="h-4 w-5/6 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="h-4 w-4/5 bg-gray-200 rounded animate-pulse"></div>
-                    </div>
-                  </div>
-                  
-                  {/* Experience Section */}
-                  <div className="space-y-4">
-                    <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="space-y-4">
-                      {Array.from({ length: 2 }).map((_, i) => (
-                        <div key={i} className="border border-gray-200 rounded-lg p-4">
-                          <div className="space-y-2">
-                            <div className="h-5 w-56 bg-gray-200 rounded animate-pulse"></div>
-                            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-                            <div className="space-y-1 mt-3">
-                              <div className="h-3 w-full bg-gray-200 rounded animate-pulse"></div>
-                              <div className="h-3 w-4/5 bg-gray-200 rounded animate-pulse"></div>
-                              <div className="h-3 w-5/6 bg-gray-200 rounded animate-pulse"></div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Skills Section */}
-                  <div className="space-y-3">
-                    <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-                        <div className="space-y-1">
-                          <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
-                          <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
-                          <div className="h-3 w-18 bg-gray-200 rounded animate-pulse"></div>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="h-4 w-28 bg-gray-200 rounded animate-pulse"></div>
-                        <div className="space-y-1">
-                          <div className="h-3 w-22 bg-gray-200 rounded animate-pulse"></div>
-                          <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
-                          <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                    AI is generating your professional resume...
+                  </h3>
+                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                    Please wait while we create a tailored resume based on your information and job requirements.
+                  </p>
                 </div>
                 
                 {/* Progress indicator */}
-                <div className="mt-8 text-center">
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
-                    <div className="h-2 w-2 bg-blue-300 rounded-full animate-pulse animation-delay-100"></div>
-                    <div className="h-2 w-2 bg-blue-200 rounded-full animate-pulse animation-delay-200"></div>
+                <div className="flex items-center justify-center space-x-2 mb-8">
+                  <div className="h-3 w-3 bg-blue-500 rounded-full animate-pulse"></div>
+                  <div className="h-3 w-3 bg-blue-300 rounded-full animate-pulse animation-delay-100"></div>
+                  <div className="h-3 w-3 bg-blue-200 rounded-full animate-pulse animation-delay-200"></div>
+                </div>
+                
+                {/* Compact Resume Preview Skeleton */}
+                <div className="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
+                  <div className="space-y-4">
+                    {/* Header */}
+                    <div className="space-y-2">
+                      <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                      <div className="h-3 w-32 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                    </div>
+                    
+                    {/* Content Lines */}
+                    <div className="space-y-2 pt-4">
+                      <div className="h-3 w-full bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-3 w-5/6 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                      <div className="h-3 w-4/5 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                    </div>
+                    
+                    {/* Sections */}
+                    <div className="space-y-3 pt-4">
+                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                      <div className="space-y-1">
+                        <div className="h-3 w-full bg-gray-200 rounded animate-pulse"></div>
+                        <div className="h-3 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 mt-2">AI is generating your professional resume...</p>
                 </div>
               </div>
             </div>
