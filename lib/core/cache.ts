@@ -220,9 +220,11 @@ class CacheManager {
       
       localStorage.setItem(`cache:${key}`, JSON.stringify(entry));
     } catch (error) {
-      console.warn('Failed to store in localStorage:', error);
-      // Fallback to memory cache
-      this.setMemoryCache(key, data, config);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown storage error';
+      console.error('Failed to store in localStorage:', error);
+      
+      // Don't silently fallback - throw the error so calling code knows storage failed
+      throw new Error(`localStorage caching failed: ${errorMessage}. Data not cached.`);
     }
   }
 
@@ -253,7 +255,7 @@ class CacheManager {
    */
   private async setServiceWorkerCache(key: string, data: any, config: CacheConfig): Promise<void> {
     if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
-      return this.setMemoryCache(key, data, config);
+      throw new Error('Service Worker not available or not registered');
     }
 
     try {
@@ -268,8 +270,11 @@ class CacheManager {
       
       await cache.put(key, response);
     } catch (error) {
-      console.warn('Failed to store in service worker cache:', error);
-      this.setMemoryCache(key, data, config);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown cache error';
+      console.error('Failed to store in service worker cache:', error);
+      
+      // Don't silently fallback - throw the error
+      throw new Error(`Service Worker caching failed: ${errorMessage}. Data not cached.`);
     }
   }
 

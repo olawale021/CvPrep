@@ -3,6 +3,13 @@ import { getServerUser } from '../../../lib/auth/supabase-server';
 import { supabaseAdmin } from '../../../lib/auth/supabaseClient';
 
 export async function GET(req: NextRequest) {
+  // Disable debug endpoint in production
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({
+      error: 'Debug endpoint disabled in production'
+    }, { status: 404 });
+  }
+
   try {
     // Get user using proper SSR authentication
     const { user, error: authError } = await getServerUser(req);

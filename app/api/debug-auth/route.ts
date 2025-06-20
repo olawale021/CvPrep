@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient, getServerUser } from '../../../lib/auth/supabase-server';
 
 export async function GET(req: NextRequest) {
+  // Disable debug endpoint in production
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({
+      error: 'Debug endpoint disabled in production'
+    }, { status: 404 });
+  }
+
   try {
     // Get all cookies for debugging
     const allCookies = req.cookies.getAll();

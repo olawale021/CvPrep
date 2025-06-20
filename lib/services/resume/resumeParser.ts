@@ -346,29 +346,21 @@ export async function structure_resume(text: string): Promise<StructuredResume> 
         Projects: Array.isArray(parsed.Projects) ? parsed.Projects : []
       };
     } catch (parseError) {
+      const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parse error';
       console.error("Failed to parse structured resume:", {
-        error: parseError instanceof Error ? parseError.message : 'Unknown parse error',
-        content: response.choices[0].message.content?.substring(0, 500) + '...' // First 500 chars for debugging
+        error: errorMessage,
+        content: response.choices[0].message.content?.substring(0, 500) + '...'
       });
-      return { 
-        Summary: "",
-        "Work Experience": [],
-        "Technical Skills": [],
-        Education: [],
-        Certifications: [],
-        Projects: []
-      };
+      
+      // Don't return empty data - throw the actual error
+      throw new Error(`Failed to parse resume structure: ${errorMessage}. Please try again.`);
     }
-  } catch (e) {
-    console.error("Resume structuring error:", e);
-    return { 
-      Summary: "",
-      "Work Experience": [],
-      "Technical Skills": [],
-      Education: [],
-      Certifications: [],
-      Projects: []
-    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error("Resume structuring error:", error);
+    
+    // Don't return empty data - throw the actual error
+    throw new Error(`Resume processing failed: ${errorMessage}`);
   }
 }
 

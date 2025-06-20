@@ -78,7 +78,7 @@ function parseSimulationResponse(content: string): SimulationFeedback {
     // Parse the JSON
     const result = JSON.parse(cleanContent);
     
-    // Validate and return with fallbacks
+    // Validate and return - throw error if invalid structure
     const feedback: SimulationFeedback = {
       answer_feedback: Array.isArray(result.answer_feedback) ? result.answer_feedback.map((item: {
         question?: string;
@@ -88,45 +88,43 @@ function parseSimulationResponse(content: string): SimulationFeedback {
         better_answer?: string;
       }, index: number) => ({
         question: typeof item.question === 'string' ? item.question : `Question ${index + 1}`,
-        strengths: Array.isArray(item.strengths) ? item.strengths : ["Your answer showed effort and thought"],
-        improvements: Array.isArray(item.improvements) ? item.improvements : ["Consider providing more specific examples"],
-        score: typeof item.score === 'number' && item.score >= 1 && item.score <= 10 ? item.score : 5,
-        better_answer: typeof item.better_answer === 'string' ? item.better_answer : "Consider expanding your answer with specific examples and quantifiable results."
+        strengths: Array.isArray(item.strengths) ? item.strengths : [],
+        improvements: Array.isArray(item.improvements) ? item.improvements : [],
+        score: typeof item.score === 'number' && item.score >= 1 && item.score <= 10 ? item.score : 0,
+        better_answer: typeof item.better_answer === 'string' ? item.better_answer : ''
       })) : [],
       overall_evaluation: {
         score: typeof result.overall_evaluation?.score === 'number' && 
                result.overall_evaluation.score >= 1 && 
                result.overall_evaluation.score <= 10 ? 
-               result.overall_evaluation.score : 5,
+               result.overall_evaluation.score : 0,
         strengths: Array.isArray(result.overall_evaluation?.strengths) ? 
-                  result.overall_evaluation.strengths : 
-                  ["Shows enthusiasm for the role", "Demonstrates relevant experience"],
+                  result.overall_evaluation.strengths : [],
         improvements: Array.isArray(result.overall_evaluation?.improvements) ? 
-                     result.overall_evaluation.improvements : 
-                     ["Provide more specific examples", "Quantify achievements when possible"],
+                     result.overall_evaluation.improvements : [],
         recommendation: typeof result.overall_evaluation?.recommendation === 'string' ? 
-                       result.overall_evaluation.recommendation : 
-                       "Practice providing more detailed examples and connecting your experience to the job requirements."
+                       result.overall_evaluation.recommendation : ''
       }
     };
+    
+    // Validate that we have meaningful feedback
+    const hasValidFeedback = feedback.answer_feedback.length > 0 && 
+                            feedback.overall_evaluation.score > 0;
+    
+    if (!hasValidFeedback) {
+      throw new Error('No valid simulation feedback found in AI response');
+    }
     
     return feedback;
   } catch (parseError) {
+    const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parse error';
     console.error("Failed to parse simulation feedback JSON:", {
-      error: parseError instanceof Error ? parseError.message : 'Unknown parse error',
+      error: errorMessage,
       content: content.substring(0, 500) + '...'
     });
     
-    // Return default feedback if parsing fails
-    return {
-      answer_feedback: [],
-      overall_evaluation: {
-        score: 5,
-        strengths: ["Shows enthusiasm for the role", "Demonstrates relevant experience"],
-        improvements: ["Provide more specific examples", "Quantify achievements when possible"],
-        recommendation: "Practice providing more detailed examples and connecting your experience to the job requirements."
-      }
-    };
+    // Don't return default feedback - throw the actual error
+    throw new Error(`Failed to generate simulation feedback: ${errorMessage}. Please try again.`);
   }
 }
 
@@ -137,8 +135,12 @@ export async function simulateInterview(
 ): Promise<SimulationFeedback> {
   try {
     // Validate inputs
-    if (!jobDescription || !questions.length || !answers.length) {
-      throw new Error("Job description, questions, and answers are required");
+    if (!jobDescription || jobDescription.trim().length === 0) {
+      throw new Error("Job description is required for interview simulation");
+    }
+
+    if (!questions.length || !answers.length) {
+      throw new Error("Questions and answers are required for interview simulation");
     }
 
     if (questions.length !== answers.length) {
@@ -174,7 +176,7 @@ export async function simulateInterview(
     // Handle possible null content
     const content = response.choices[0].message.content;
     if (!content) {
-      throw new Error("Empty response from OpenAI");
+      throw new Error("Empty response from OpenAI API");
     }
     
     // Parse and validate the response
@@ -182,23 +184,10 @@ export async function simulateInterview(
     
     return feedback;
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error("Error simulating interview:", error);
     
-    // Return default feedback if everything fails
-    return {
-      answer_feedback: questions.map((question) => ({
-        question: question.trim(),
-        strengths: ["Shows effort and thought in answering"],
-        improvements: ["Consider providing more specific examples", "Connect your experience more directly to the role"],
-        score: 5,
-        better_answer: "Consider expanding your answer with specific examples and quantifiable results that demonstrate your capabilities for this role."
-      })),
-      overall_evaluation: {
-        score: 5,
-        strengths: ["Shows enthusiasm for the role", "Demonstrates relevant experience"],
-        improvements: ["Provide more specific examples", "Quantify achievements when possible"],
-        recommendation: "Practice providing more detailed examples and connecting your experience to the job requirements."
-      }
-    };
+    // Don't return default feedback - throw the actual error
+    throw new Error(`Interview simulation failed: ${errorMessage}`);
   }
 } 

@@ -6,76 +6,83 @@ import { Badge } from "../../../components/ui/base/Badge";
 import { Button } from "../../../components/ui/base/Button";
 import { Card } from "../../../components/ui/base/Card";
 import { useAuth } from "../../../context/AuthContext";
+import { isAdminEmail } from "../../../lib/auth/adminConfig";
 
-interface Feedback {
+interface FeedbackItem {
   id: string;
-  type: "bug" | "feature" | "improvement" | "other";
-  priority: "low" | "medium" | "high";
+  user_id: string;
+  category: string;
+  type: 'bug' | 'feature' | 'improvement' | 'other';
+  rating: number;
   title: string;
   description: string;
-  user_agent: string;
-  url: string;
-  user_id?: string;
   user_email?: string;
-  status: "new" | "in_progress" | "resolved" | "closed";
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high' | 'critical';
   created_at: string;
   updated_at: string;
+  admin_notes?: string;
+  user_name?: string;
+  url?: string;
+  user_agent?: string;
 }
 
-const typeIcons = {
-  bug: "🐛",
-  feature: "💡",
-  improvement: "⚡",
-  other: "💬",
-};
-
 const priorityColors = {
-  low: "bg-green-100 text-green-800 border-green-300",
-  medium: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  high: "bg-red-100 text-red-800 border-red-300",
+  low: "bg-green-100 text-green-800",
+  medium: "bg-yellow-100 text-yellow-800", 
+  high: "bg-orange-100 text-orange-800",
+  critical: "bg-red-100 text-red-800"
 };
 
 const statusColors = {
-  new: "bg-blue-100 text-blue-800 border-blue-300",
-  in_progress: "bg-purple-100 text-purple-800 border-purple-300",
-  resolved: "bg-green-100 text-green-800 border-green-300",
-  closed: "bg-gray-100 text-gray-800 border-gray-300",
+  open: "bg-blue-100 text-blue-800",
+  in_progress: "bg-purple-100 text-purple-800",
+  resolved: "bg-green-100 text-green-800", 
+  closed: "bg-gray-100 text-gray-800"
+};
+
+const typeIcons = {
+  bug: "🐛",
+  feature: "✨", 
+  improvement: "🔧",
+  other: "💬"
 };
 
 export default function AdminFeedbackPage() {
   const { user } = useAuth();
-  const [feedback, setFeedback] = useState<Feedback[]>([]);
+  const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "new" | "in_progress" | "resolved">("new");
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
+  // Move all hooks before any early returns
   const fetchFeedback = useCallback(async () => {
     try {
-      const status = filter === "all" ? "" : filter;
+      const status = selectedStatus === "all" ? "" : selectedStatus;
       const response = await fetch(`/api/feedback${status ? `?status=${status}` : ""}`);
       
       if (response.ok) {
         const data = await response.json();
-        setFeedback(data);
+        setFeedback(data.feedback || []);
       }
-    } catch (error) {
-      console.error("Error fetching feedback:", error);
+    } catch (err) {
+      console.error('Error fetching feedback:', err);
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [selectedStatus]);
 
   useEffect(() => {
     fetchFeedback();
   }, [fetchFeedback]);
 
-  // Simple admin check - you should implement proper role-based access control
-  if (!user || (!user.email?.includes("admin") && user.email !== "olawalefilani112@gmail.com")) {
+  // Admin access check using centralized configuration
+  if (!user || !isAdminEmail(user.email)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600">You don&rsquo;t have permission to view this page.</p>
+          <p className="text-gray-600">You don&apos;t have permission to view this page.</p>
         </div>
       </div>
     );
@@ -120,7 +127,7 @@ export default function AdminFeedbackPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">New Items</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {feedback.filter(f => f.status === "new").length}
+                  {feedback.filter(f => f.status === "open").length}
                 </p>
               </div>
             </div>
@@ -158,11 +165,11 @@ export default function AdminFeedbackPage() {
         {/* Filters */}
         <div className="mb-6">
           <div className="flex gap-2">
-            {["all", "new", "in_progress", "resolved"].map((status) => (
+            {["all", "open", "in_progress", "resolved"].map((status) => (
               <Button
                 key={status}
-                variant={filter === status ? "default" : "outline"}
-                onClick={() => setFilter(status as "all" | "new" | "in_progress" | "resolved")}
+                variant={selectedStatus === status ? "default" : "outline"}
+                onClick={() => setSelectedStatus(status as "all" | "open" | "in_progress" | "resolved")}
                 className="capitalize"
               >
                 {status.replace("_", " ")}

@@ -21,10 +21,19 @@ const useToast = () => {
         : 'bg-green-600 text-white'
     }`;
     
-    toastElement.innerHTML = `
-      <div class="font-semibold">${options.title}</div>
-      ${options.description ? `<div class="text-sm mt-1">${options.description}</div>` : ''}
-    `;
+    // Create title element safely
+    const titleElement = document.createElement('div');
+    titleElement.className = 'font-semibold';
+    titleElement.textContent = options.title;
+    toastElement.appendChild(titleElement);
+    
+    // Create description element safely if provided
+    if (options.description) {
+      const descriptionElement = document.createElement('div');
+      descriptionElement.className = 'text-sm mt-1';
+      descriptionElement.textContent = options.description;
+      toastElement.appendChild(descriptionElement);
+    }
     
     document.body.appendChild(toastElement);
     
@@ -62,7 +71,7 @@ export function ResumeUploadDialog({ open, onOpenChange, onSuccess }: ResumeUplo
       const validation = validateResumeFile(selectedFile);
       
       if (!validation.valid) {
-        setValidationError(validation.error);
+        setValidationError(validation.error || "Invalid file");
         setFile(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";

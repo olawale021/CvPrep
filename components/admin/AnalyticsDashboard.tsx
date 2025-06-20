@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { isAdminEmail } from "../../lib/auth/adminConfig";
 import { Badge } from "../ui/base/Badge";
 import { Button } from "../ui/base/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/base/Card";
@@ -55,9 +56,7 @@ export function AnalyticsDashboard() {
   const [environment, setEnvironment] = useState<'production' | 'development'>('production');
 
   // Check if user is admin
-  const isAdmin = appUser?.email?.includes('admin') || 
-                  appUser?.email === 'olawalefilani112@gmail.com' || 
-                  appUser?.type === 'premium';
+  const isAdmin = isAdminEmail(appUser?.email);
 
   const fetchAnalytics = useCallback(async () => {
     try {

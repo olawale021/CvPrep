@@ -112,7 +112,9 @@ class ErrorReportingService {
   }
 
   private async sendToAPI(report: ErrorReport): Promise<void> {
-    if (!this.config.apiEndpoint) return;
+    if (!this.config.apiEndpoint) {
+      throw new Error('Error reporting API endpoint not configured');
+    }
 
     try {
       const response = await fetch(this.config.apiEndpoint, {
@@ -124,11 +126,17 @@ class ErrorReportingService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status}: Failed to send error report to API`);
       }
     } catch (error) {
-      console.warn('Failed to send error report to API:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Failed to send error report to API:', error);
+      
+      // Save to localStorage as backup but still throw the error
       this.saveToLocalStorage(report);
+      
+      // Don't silently fail - throw the error so calling code knows reporting failed
+      throw new Error(`Error reporting failed: ${errorMessage}. Report saved locally as backup.`);
     }
   }
 
@@ -152,14 +160,26 @@ class ErrorReportingService {
   }
 
   private sendBeacon(report: ErrorReport): void {
-    if (!this.config.enableBeacon || typeof navigator === 'undefined' || !navigator.sendBeacon) return;
-    if (!this.config.apiEndpoint) return;
+    if (!this.config.enableBeacon || typeof navigator === 'undefined' || !navigator.sendBeacon) {
+      throw new Error('Beacon API not available or not enabled');
+    }
+    if (!this.config.apiEndpoint) {
+      throw new Error('Error reporting API endpoint not configured for beacon');
+    }
 
     try {
       const blob = new Blob([JSON.stringify(report)], { type: 'application/json' });
-      navigator.sendBeacon(this.config.apiEndpoint, blob);
+      const success = navigator.sendBeacon(this.config.apiEndpoint, blob);
+      
+      if (!success) {
+        throw new Error('Beacon send failed - browser rejected the request');
+      }
     } catch (error) {
-      console.warn('Failed to send error report via beacon:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Failed to send error report via beacon:', error);
+      
+      // Don't silently fail - throw the error
+      throw new Error(`Beacon error reporting failed: ${errorMessage}`);
     }
   }
 
@@ -327,3 +347,4 @@ const errorReporting = new ErrorReportingService({
 export default errorReporting;
 export { ErrorReportingService };
 export type { ErrorContext, ErrorReport, ErrorReportingConfig };
+

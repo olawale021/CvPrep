@@ -88,8 +88,17 @@ export function UsageTracker() {
         const data = await response.json();
         setUsage(data);
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to load usage data' }));
-        setError(errorData.error || `Error ${response.status}`);
+        // Parse error response properly without silent fallback
+        let errorMessage = `Error ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (parseError) {
+          // If JSON parsing fails, use the status-based message
+          console.error('Failed to parse error response:', parseError);
+        }
+        
+        setError(errorMessage);
         
         // Set default data if API fails
         setUsage({

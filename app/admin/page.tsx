@@ -2,22 +2,23 @@
 
 import { AlertCircle, BarChart3, MessageSquare, Settings, Users } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnalyticsDashboard } from "../../components/admin/AnalyticsDashboard";
 import Sidebar from "../../components/layout/Sidebar";
 import { Badge } from "../../components/ui/base/Badge";
 import { Button } from "../../components/ui/base/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/base/Card";
 import { useAuth } from "../../context/AuthContext";
+import { isAdminEmail } from "../../lib/auth/adminConfig";
 
-type AdminTab = "dashboard" | "users" | "feedback";
+type AdminTab = "dashboard" | "users" | "analytics" | "settings" | "feedback";
 
 export default function AdminPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
 
-  // Admin access check
-  if (!user || (!user.email?.includes("admin") && user.email !== "olawalefilani112@gmail.com")) {
+  // Admin access check using centralized configuration
+  if (!user || !isAdminEmail(user.email)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -211,21 +212,26 @@ function UserManagement() {
   const [pagination, setPagination] = useState({ total: 0, limit: 50, offset: 0 });
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUsers = async (search = searchTerm) => {
+  const fetchUsers = useCallback(async (search = searchTerm) => {
     setLoading(true);
     setError(null);
+    
     try {
       const params = new URLSearchParams({
-        limit: pagination.limit.toString(),
-        offset: pagination.offset.toString(),
+        limit: '50',
+        offset: '0',
         ...(search && { search })
       });
       
       const response = await fetch(`/api/admin/users?${params}`);
+      
       if (response.ok) {
         const data = await response.json();
         setUsers(data.users || []);
-        setPagination(data.pagination || pagination);
+        setPagination(prev => ({
+          ...prev,
+          total: data.total || 0
+        }));
       } else {
         const errorData = await response.json();
         const errorMessage = errorData.details || errorData.error || response.statusText;
@@ -239,12 +245,12 @@ function UserManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm]);
 
   // Auto-fetch users when component mounts
   useEffect(() => {
     fetchUsers();
-  }, []); // Empty dependency array to run only on mount
+  }, [fetchUsers]);
 
   const resetUserUsage = async (userId: string, userEmail: string) => {
     if (!confirm(`Reset usage for ${userEmail}? This will clear their daily rate limits.`)) {
@@ -344,7 +350,7 @@ function UserManagement() {
           {users.length === 0 && !loading ? (
             <div className="text-center py-8">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No users found. Click "Refresh Users" to load data.</p>
+              <p className="text-gray-600">No users found. Click &#34;Refresh Users&ldquo; to load data.</p>
             </div>
           ) : loading ? (
             <div className="text-center py-8">

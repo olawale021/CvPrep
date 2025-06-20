@@ -59,7 +59,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
       console.log('Resetting modern template to classic for non-premium user');
       setSelectedTemplate('classic');
     }
-  }, [isPremium, selectedTemplate, setSelectedTemplate, appUser?.type, isLoading]);
+  }, [isPremium, selectedTemplate, setSelectedTemplate, appUser, isLoading]);
 
   return (
     <div className="mt-4 mb-6">

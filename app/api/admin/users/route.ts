@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isUserAdmin } from '../../../../lib/auth/adminConfig';
 import { getServerUser } from '../../../../lib/auth/supabase-server';
 import { supabaseAdmin } from '../../../../lib/auth/supabaseClient';
 
@@ -28,14 +29,12 @@ export async function GET(req: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    // Admin check: database type is 'admin', email contains 'admin', or specific admin email
-    // Allow admin access even if user is not in database yet (for email-based admin check)
-    const isAdminByType = userData?.type === 'admin';
-    const isAdminByEmail = user.email?.includes('admin') || user.email === 'olawalefilani112@gmail.com';
-    const isAdmin = isAdminByType || isAdminByEmail;
+    // Use centralized admin check
+    const isAdmin = isUserAdmin({
+      email: user.email,
+      type: userData?.type
+    });
 
-    // Only require userData to exist if we're checking database-based admin status
-    // Allow email-based admin access even without database record
     if (!isAdmin) {
       return NextResponse.json({ 
         success: false, 

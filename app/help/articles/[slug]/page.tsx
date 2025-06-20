@@ -1,25 +1,25 @@
 "use client";
 
 import {
-  AlertTriangle,
-  ArrowLeft,
-  ArrowRight,
-  BookOpen,
-  CheckCircle,
-  Clock,
-  Eye,
-  Heart,
-  Info,
-  MessageSquare,
-  Share2,
-  ThumbsUp
+    AlertTriangle,
+    ArrowLeft,
+    ArrowRight,
+    BookOpen,
+    CheckCircle,
+    Clock,
+    Eye,
+    Heart,
+    Info,
+    MessageSquare,
+    Share2,
+    ThumbsUp
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import Sidebar from "../../../../components/layout/Sidebar";
 import { Button } from "../../../../components/ui/base/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/base/Card";
-import Sidebar from "../../../../components/layout/Sidebar";
 
 // Types
 interface ArticleContentItem {
@@ -463,7 +463,7 @@ export default function ArticlePage() {
                 {item.items.map((listItem: string, i: number) => (
                   <li key={i} className="flex items-start">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    <span className="text-gray-700" dangerouslySetInnerHTML={{ __html: listItem }} />
+                    <span className="text-gray-700">{listItem}</span>
                   </li>
                 ))}
               </ul>

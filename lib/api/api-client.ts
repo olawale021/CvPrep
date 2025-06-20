@@ -175,8 +175,8 @@ class CachedApiClient {
     
     // Check cache for GET requests
     if (this.shouldCache(method, processedConfig)) {
-      const cacheStrategy = typeof processedConfig.cache === 'string' 
-        ? processedConfig.cache 
+      const cacheStrategy = typeof processedConfig.cache === 'string'
+        ? processedConfig.cache
         : this.getCacheStrategy(url);
       
       const cacheKey = this.generateCacheKey(url, processedConfig);
@@ -204,8 +204,8 @@ class CachedApiClient {
 
     // Add body for non-GET requests
     if (method !== 'GET' && processedConfig.body) {
-      requestOptions.body = typeof processedConfig.body === 'string' 
-        ? processedConfig.body 
+      requestOptions.body = typeof processedConfig.body === 'string'
+        ? processedConfig.body
         : JSON.stringify(processedConfig.body);
     }
 
@@ -223,7 +223,13 @@ class CachedApiClient {
           : response.status >= 200 && response.status < 300;
         
         if (!isValidStatus) {
-          const errorData = await response.json().catch(() => ({}));
+          let errorData: any;
+          try {
+            errorData = await response.json();
+          } catch (parseError) {
+            // Don't silently fallback - throw with parsing context
+            throw new Error(`HTTP ${response.status}: ${response.statusText} (Error response could not be parsed: ${parseError instanceof Error ? parseError.message : 'Unknown parse error'})`);
+          }
           throw new Error(`HTTP ${response.status}: ${errorData.message || response.statusText}`);
         }
 
@@ -242,8 +248,8 @@ class CachedApiClient {
 
         // Cache successful GET responses
         if (this.shouldCache(method, processedConfig) && response.ok) {
-          const cacheStrategy = typeof processedConfig.cache === 'string' 
-            ? processedConfig.cache 
+          const cacheStrategy = typeof processedConfig.cache === 'string'
+            ? processedConfig.cache
             : this.getCacheStrategy(url);
           
           const cacheKey = this.generateCacheKey(url, processedConfig);

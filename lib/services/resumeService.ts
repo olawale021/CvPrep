@@ -1,5 +1,6 @@
-import logger from '../core/logger';
 import { supabase } from '../auth/supabaseClient';
+import { sanitizeFilename, validateFileUpload } from '../core/inputSanitization';
+import logger from '../core/logger';
 
 // Resume bucket name
 const RESUME_BUCKET = 'resumes';
@@ -35,29 +36,21 @@ export interface ResumeUploadParams {
   isPrimary?: boolean;
 }
 
-type ValidationResult = { valid: true } | { valid: false; error: string };
+export interface ValidationResult {
+  valid: boolean;
+  error?: string;
+}
 
 /**
- * Validate resume file before upload
+ * Enhanced validate resume file with better security checks
  */
 export function validateResumeFile(file: File): ValidationResult {
-  // Check file size
-  if (file.size > MAX_FILE_SIZE) {
-    return {
-      valid: false,
-      error: `File size exceeds the maximum allowed size of ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
-    };
-  }
-
-  // Check file type
-  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-    return {
-      valid: false,
-      error: 'File type not supported. Please upload a PDF, DOC, DOCX, or ODT file.',
-    };
-  }
-
-  return { valid: true };
+  // Use the enhanced validation from input sanitization module
+  return validateFileUpload(file, {
+    maxSize: MAX_FILE_SIZE,
+    allowedTypes: ALLOWED_MIME_TYPES,
+    allowedExtensions: ['.pdf', '.doc', '.docx', '.odt']
+  });
 }
 
 /**
@@ -78,10 +71,11 @@ export async function uploadResume(params: ResumeUploadParams): Promise<{ succes
       return { success: false, error: validation.error };
     }
 
-    // Create a unique file name
+    // Create a unique file name with sanitization
     const timestamp = new Date().getTime();
     const fileExt = file.name.split('.').pop();
-    const fileName = `${userId}-${timestamp}.${fileExt}`;
+    const sanitizedOriginalName = sanitizeFilename(file.name.split('.').slice(0, -1).join('.'));
+    const fileName = `${userId}-${timestamp}-${sanitizedOriginalName}.${fileExt}`;
     const filePath = `${userId}/${fileName}`;
 
     // Upload file to Supabase Storage

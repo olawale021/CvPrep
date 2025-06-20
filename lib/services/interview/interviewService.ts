@@ -29,47 +29,21 @@ export interface InterviewMetadata {
 
 // Helper to truncate text to avoid token limits
 function truncateText(text: string, maxLength: number = 8000): string {
-  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+  if (text.length <= maxLength) {
+    return text;
+  }
+  
+  // Try to truncate at a sentence boundary near the limit
+  const truncated = text.substring(0, maxLength);
+  const lastSentence = truncated.lastIndexOf('.');
+  const lastNewline = truncated.lastIndexOf('\n');
+  
+  // Use the last sentence or newline boundary, or just truncate at the limit
+  const cutPoint = Math.max(lastSentence, lastNewline);
+  return cutPoint > maxLength * 0.8 ? text.substring(0, cutPoint + 1) : truncated + '...';
 }
 
-// Default fallback questions
-const DEFAULT_QUESTIONS: InterviewQuestionsResponse = {
-  technical_questions: [
-    "Can you describe your experience with the technologies mentioned in the job description?",
-    "How do you stay updated with the latest developments in your field?",
-    "Describe a technical challenge you faced and how you solved it.",
-    "What is your approach to debugging complex issues?",
-    "How do you ensure code quality in your projects?"
-  ],
-  behavioral_questions: [
-    "Tell me about a time when you had to work under pressure.",
-    "Describe a situation where you had to work with a difficult team member.",
-    "How do you handle constructive criticism?",
-    "Tell me about a time when you had to learn something new quickly.",
-    "Describe a situation where you had to make a difficult decision."
-  ],
-  situational_questions: [
-    "How would you approach a project with a tight deadline?",
-    "What would you do if you disagreed with your manager's decision?",
-    "How would you handle a situation where you don't know how to solve a problem?",
-    "If you discovered a critical bug in production, how would you handle it?",
-    "How would you prioritize tasks when everything seems urgent?"
-  ],
-  role_specific_questions: [
-    "Why are you interested in this particular role?",
-    "How do you see yourself contributing to this position?",
-    "What aspects of this job excite you the most?",
-    "What do you think will be your biggest challenge in this role?",
-    "How does this role align with your career goals?"
-  ],
-  culture_fit_questions: [
-    "What type of work environment do you thrive in?",
-    "How do you prefer to receive feedback?",
-    "What motivates you to do your best work?",
-    "How do you handle work-life balance?",
-    "What values are most important to you in a workplace?"
-  ]
-};
+// Helper to truncate text to avoid token limits
 
 function createPromptWithResume(
   jobDescription: string,
@@ -196,24 +170,31 @@ function parseInterviewQuestionsResponse(content: string): InterviewQuestionsRes
       throw new Error('Invalid questions object structure');
     }
     
-    // Ensure all expected categories exist with fallbacks
+    // Ensure all expected categories exist - throw error if missing
     const result: InterviewQuestionsResponse = {
-      technical_questions: Array.isArray(questions.technical_questions) ? questions.technical_questions : DEFAULT_QUESTIONS.technical_questions,
-      behavioral_questions: Array.isArray(questions.behavioral_questions) ? questions.behavioral_questions : DEFAULT_QUESTIONS.behavioral_questions,
-      situational_questions: Array.isArray(questions.situational_questions) ? questions.situational_questions : DEFAULT_QUESTIONS.situational_questions,
-      role_specific_questions: Array.isArray(questions.role_specific_questions) ? questions.role_specific_questions : DEFAULT_QUESTIONS.role_specific_questions,
-      culture_fit_questions: Array.isArray(questions.culture_fit_questions) ? questions.culture_fit_questions : DEFAULT_QUESTIONS.culture_fit_questions
+      technical_questions: Array.isArray(questions.technical_questions) ? questions.technical_questions : [],
+      behavioral_questions: Array.isArray(questions.behavioral_questions) ? questions.behavioral_questions : [],
+      situational_questions: Array.isArray(questions.situational_questions) ? questions.situational_questions : [],
+      role_specific_questions: Array.isArray(questions.role_specific_questions) ? questions.role_specific_questions : [],
+      culture_fit_questions: Array.isArray(questions.culture_fit_questions) ? questions.culture_fit_questions : []
     };
+    
+    // Validate that we have at least some questions
+    const totalQuestions = Object.values(result).reduce((sum, arr) => sum + arr.length, 0);
+    if (totalQuestions === 0) {
+      throw new Error('No valid questions found in AI response');
+    }
     
     return result;
   } catch (parseError) {
+    const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parse error';
     console.error("Failed to parse interview questions JSON:", {
-      error: parseError instanceof Error ? parseError.message : 'Unknown parse error',
-      content: content.substring(0, 500) + '...' // First 500 chars for debugging
+      error: errorMessage,
+      content: content.substring(0, 500) + '...'
     });
     
-    // Return default questions if parsing fails
-    return DEFAULT_QUESTIONS;
+    // Don't return default questions - throw the actual error
+    throw new Error(`Failed to generate interview questions: ${errorMessage}. Please try again.`);
   }
 }
 
@@ -254,7 +235,7 @@ export async function generateInterviewQuestions(
     // Handle possible null content
     const content = response.choices[0].message.content;
     if (!content) {
-      throw new Error("Empty response from OpenAI");
+      throw new Error("Empty response from OpenAI API");
     }
     
     // Parse and validate the response
@@ -270,17 +251,10 @@ export async function generateInterviewQuestions(
       }
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error("Error generating interview questions:", error);
     
-    // Return default questions if everything fails
-    return {
-      questions: DEFAULT_QUESTIONS,
-      metadata: {
-        job_analyzed: false,
-        resume_analyzed: false,
-        question_count: questionCount,
-        categories: 5
-      }
-    };
+    // Don't return default questions - throw the actual error
+    throw new Error(`Interview question generation failed: ${errorMessage}`);
   }
 } 
