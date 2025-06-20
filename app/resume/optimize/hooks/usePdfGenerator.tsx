@@ -22,19 +22,31 @@ export function usePdfGenerator() {
    * Generate a PDF based on the selected template
    */
   const generatePdfDocument = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null, template: ResumeTemplate = "classic") => {
+    console.log('generatePdfDocument called with:', { 
+      template, 
+      isPremium, 
+      userType: appUser?.type,
+      hasResumeData: !!resumeData 
+    });
+    
     if (!resumeData) return null; // Return null if no data
     
     // Check if template is allowed for user's subscription
     if (!isTemplateAllowed(template, isPremium)) {
+      console.error('Template not allowed:', { template, isPremium });
       setError("This template requires a premium subscription");
       throw new Error("Premium subscription required for this template");
     }
     
     try {
       setIsPdfGenerating(true);
-      return await generatePdf(resumeData, resumeResponse, template);
+      console.log('Calling generatePdf with template:', template);
+      const result = await generatePdf(resumeData, resumeResponse, template);
+      console.log('generatePdf result:', { success: !!result, template });
+      return result;
     } catch (error) {
       console.error("Error generating PDF:", error);
+      console.error("Template that failed:", template);
       setError("Failed to generate PDF. Please try again.");
       return null;
     } finally {
@@ -46,10 +58,13 @@ export function usePdfGenerator() {
    * Generate a preview of the PDF
    */
   const generatePreview = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => {
+    console.log('generatePreview called with template:', selectedTemplate);
+    
     if (!resumeData) return;
     
     // Check if template is allowed for user's subscription
     if (!isTemplateAllowed(selectedTemplate, isPremium)) {
+      console.error('Preview template not allowed:', { selectedTemplate, isPremium });
       setError("This template requires a premium subscription");
       return;
     }
@@ -88,22 +103,36 @@ export function usePdfGenerator() {
    * Download the PDF
    */
   const downloadPdf = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => {
+    console.log('downloadPdf called with:', { 
+      selectedTemplate, 
+      isPremium, 
+      userType: appUser?.type,
+      hasResumeData: !!resumeData 
+    });
+    
     if (!resumeData) return;
     
     // Check if template is allowed for user's subscription
     if (!isTemplateAllowed(selectedTemplate, isPremium)) {
+      console.error('Download template not allowed:', { selectedTemplate, isPremium });
       setError("This template requires a premium subscription");
       return;
     }
     
     try {
       setIsPdfGenerating(true);
+      console.log('Starting PDF generation for download with template:', selectedTemplate);
       const pdf = await generatePdfDocument(resumeData, resumeResponse, selectedTemplate);
-      if (!pdf) throw new Error("Failed to generate PDF");
+      if (!pdf) {
+        console.error('PDF generation returned null for template:', selectedTemplate);
+        throw new Error("Failed to generate PDF");
+      }
+      console.log('PDF generated successfully, saving with template:', selectedTemplate);
       pdf.save('optimized-resume.pdf');
     } catch (err) {
       setError('Failed to download PDF');
-      console.error(err);
+      console.error('Download PDF error:', err);
+      console.error('Failed template:', selectedTemplate);
     } finally {
       setIsPdfGenerating(false);
     }

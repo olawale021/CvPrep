@@ -22,13 +22,21 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user is admin
-    const { data: userData, error: userError } = await supabaseAdmin
+    const { data: userData } = await supabaseAdmin
       .from('users')
       .select('type')
       .eq('id', user.id)
       .single();
 
-    if (userError || !userData || userData.type !== 'admin') {
+    // Admin check: database type is 'admin', email contains 'admin', or specific admin email
+    // Allow admin access even if user is not in database yet (for email-based admin check)
+    const isAdminByType = userData?.type === 'admin';
+    const isAdminByEmail = user.email?.includes('admin') || user.email === 'olawalefilani112@gmail.com';
+    const isAdmin = isAdminByType || isAdminByEmail;
+
+    // Only require userData to exist if we're checking database-based admin status
+    // Allow email-based admin access even without database record
+    if (!isAdmin) {
       return NextResponse.json({ 
         success: false, 
         error: 'Admin access required' 

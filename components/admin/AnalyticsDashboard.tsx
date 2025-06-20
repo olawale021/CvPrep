@@ -55,7 +55,9 @@ export function AnalyticsDashboard() {
   const [environment, setEnvironment] = useState<'production' | 'development'>('production');
 
   // Check if user is admin
-  const isAdmin = appUser?.email?.includes('admin') || appUser?.type === 'premium';
+  const isAdmin = appUser?.email?.includes('admin') || 
+                  appUser?.email === 'olawalefilani112@gmail.com' || 
+                  appUser?.type === 'premium';
 
   const fetchAnalytics = useCallback(async () => {
     try {

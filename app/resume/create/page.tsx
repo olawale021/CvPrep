@@ -75,9 +75,12 @@ export default function CreateResumePage() {
   const [isScoring, setIsScoring] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
-  const { isPdfGenerating, downloadPdf } = usePdfGenerator();
   const { saveResume } = useSavedResumes();
   const { toast } = useToast();
+
+  // Use a single PDF generator instance for the entire page
+  const pdfGenerator = usePdfGenerator();
+  const { isPdfGenerating, downloadPdf, selectedTemplate } = pdfGenerator;
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -299,6 +302,8 @@ export default function CreateResumePage() {
   };
 
   const handleDownloadPdf = async (editableResume?: ResumeData) => {
+    console.log('Create handleDownloadPdf called with selectedTemplate:', selectedTemplate);
+    
     if (generatedResume && resumeResponse) {
       try {
         const safeResponse = {
@@ -847,6 +852,7 @@ export default function CreateResumePage() {
                           handleDownloadPdf={handleDownloadPdf}
                           isPdfGenerating={isPdfGenerating}
                           onSaveResume={() => setShowSaveDialog(true)}
+                          pdfGenerator={pdfGenerator}
                         />
                       </ResumeEditProvider>
                     </ErrorBoundary>

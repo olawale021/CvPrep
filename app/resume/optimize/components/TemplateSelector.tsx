@@ -34,16 +34,32 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   ];
 
   // const { user } = useUser();
-  const { appUser } = useAuth();
+  const { appUser, isLoading } = useAuth();
   const isPremium = appUser?.type === "premium";
   const [showUpgrade, setShowUpgrade] = useState(false);
   
-  // Reset to classic template if non-premium user somehow has modern template selected
+  // Debug logging and proper dependency management
   useEffect(() => {
-    if (!isPremium && selectedTemplate === 'modern') {
+    console.log('TemplateSelector - Auth state:', { 
+      isPremium, 
+      selectedTemplate, 
+      userType: appUser?.type,
+      isLoading,
+      appUser: !!appUser
+    });
+    
+    // Don't reset during auth loading to prevent race conditions
+    if (isLoading) {
+      console.log('Auth still loading, skipping template reset');
+      return;
+    }
+    
+    // Only reset if user is definitively non-premium (not undefined/loading) and has modern template
+    if (isPremium === false && selectedTemplate === 'modern') {
+      console.log('Resetting modern template to classic for non-premium user');
       setSelectedTemplate('classic');
     }
-  }, [isPremium, selectedTemplate, setSelectedTemplate]);
+  }, [isPremium, selectedTemplate, setSelectedTemplate, appUser?.type, isLoading]);
 
   return (
     <div className="mt-4 mb-6">
@@ -61,6 +77,12 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                 ${locked ? 'opacity-60 pointer-events-auto' : ''}
               `}
               onClick={() => {
+                console.log('Template clicked:', { 
+                  templateId: template.id, 
+                  locked, 
+                  isPremium, 
+                  currentSelected: selectedTemplate 
+                });
                 if (locked) {
                   setShowUpgrade(true);
                 } else {

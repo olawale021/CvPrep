@@ -2,9 +2,9 @@
 
 import { FileText } from "lucide-react";
 import React, { FormEvent, useState } from "react";
-import { ErrorBoundary } from "../../../components/ui/feedback/ErrorBoundary";
 import { SaveResumeDialog } from "../../../components/features/resume/SaveResumeDialog";
 import Sidebar from "../../../components/layout/Sidebar";
+import { ErrorBoundary } from "../../../components/ui/feedback/ErrorBoundary";
 import { useToast } from "../../../components/ui/feedback/use-toast";
 import { useAuth } from "../../../context/AuthContext";
 import { useSavedResumes } from "../../../hooks/api/useSavedResumes";
@@ -65,9 +65,13 @@ export default function OptimizeResume() {
     handleOptimize,
   } = useResumeOptimizer();
 
-  const { isPdfGenerating, downloadPdf } = usePdfGenerator();
+  // Use a single PDF generator instance for the entire page
+  const pdfGenerator = usePdfGenerator();
+  const { isPdfGenerating, downloadPdf, selectedTemplate } = pdfGenerator;
 
   const handleDownloadPdf = async (editableResume?: ResumeData) => {
+    console.log('handleDownloadPdf called with current selectedTemplate:', selectedTemplate);
+    
     if (response && resumeResponse) {
       try {
         // Create a deep copy and ensure all required fields exist
@@ -251,6 +255,7 @@ export default function OptimizeResume() {
                           handleDownloadPdf={handleDownloadPdf}
                           isPdfGenerating={isPdfGenerating}
                           onSaveResume={() => setShowSaveDialog(true)}
+                          pdfGenerator={pdfGenerator}
                         />
                       </ResumeEditProvider>
                     </ErrorBoundary>

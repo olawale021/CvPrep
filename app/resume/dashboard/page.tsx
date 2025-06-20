@@ -2,16 +2,16 @@
 
 import { FileText, Loader2, Sparkles } from "lucide-react";
 import { FormEvent, useRef, useState } from "react";
-import { Button } from "../../../components/ui/base/Button";
-import { ErrorBoundary } from "../../../components/ui/feedback/ErrorBoundary";
 import { SaveResumeDialog } from "../../../components/features/resume/SaveResumeDialog";
 import Sidebar from "../../../components/layout/Sidebar";
+import { Button } from "../../../components/ui/base/Button";
+import { ErrorBoundary } from "../../../components/ui/feedback/ErrorBoundary";
 import { useToast } from "../../../components/ui/feedback/use-toast";
 import { useAuth } from "../../../context/AuthContext";
-import { useAsyncOperation } from "../../../hooks/ui/useAsyncOperation";
 import { useSavedResumes } from "../../../hooks/api/useSavedResumes";
-import { ResumeScore } from "../../../lib/services/resume/scoreResume";
+import { useAsyncOperation } from "../../../hooks/ui/useAsyncOperation";
 import { supabase } from "../../../lib/auth/supabaseClient";
+import { ResumeScore } from "../../../lib/services/resume/scoreResume";
 import { SaveResumeRequest } from "../../../types/api/savedResume";
 import ErrorMessage from "../optimize/components/ErrorMessage";
 import LoadingState from "../optimize/components/LoadingState";
@@ -40,7 +40,9 @@ export default function ResumeDashboard() {
   const [isScoring, setIsScoring] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { isPdfGenerating, downloadPdf } = usePdfGenerator();
+  // Use a single PDF generator instance for the entire page
+  const pdfGenerator = usePdfGenerator();
+  const { isPdfGenerating, downloadPdf, selectedTemplate } = pdfGenerator;
 
   // All async operations
   const analyzeOperation = useAsyncOperation(
@@ -352,6 +354,8 @@ export default function ResumeDashboard() {
   };
 
   const handleDownloadPdf = async (editableResume?: ResumeData) => {
+    console.log('Dashboard handleDownloadPdf called with selectedTemplate:', selectedTemplate);
+    
     const currentResume = showOptimized ? optimizedResume : originalResumeData;
     if (currentResume && resumeResponse) {
       try {
@@ -604,6 +608,7 @@ export default function ResumeDashboard() {
                           handleDownloadPdf={handleDownloadPdf}
                           isPdfGenerating={isPdfGenerating}
                           onSaveResume={() => setShowSaveDialog(true)}
+                          pdfGenerator={pdfGenerator}
                         />
                       </ResumeEditProvider>
                     </ErrorBoundary>

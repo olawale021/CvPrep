@@ -1,16 +1,16 @@
 'use client';
 
 import {
-    ArrowLeft,
-    Calendar,
-    ChevronDown,
-    ChevronUp,
-    Crown,
-    Eye,
-    FileText,
-    Loader2,
-    Star,
-    Trash2
+  ArrowLeft,
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  Crown,
+  Eye,
+  FileText,
+  Loader2,
+  Star,
+  Trash2
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -35,7 +35,10 @@ export default function SavedResumeViewPage() {
   const { data: savedResume, isLoading: loading, error } = useSavedResume(id as string);
   const deleteResumeMutation = useDeleteResume();
   const updateResumeMutation = useUpdateResume();
-  const { downloadPdf, isPdfGenerating } = usePdfGenerator();
+  
+  // Use a single PDF generator instance for the entire page
+  const pdfGenerator = usePdfGenerator();
+  const { downloadPdf, isPdfGenerating, selectedTemplate } = pdfGenerator;
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showJobDescription, setShowJobDescription] = useState(false);
@@ -69,6 +72,8 @@ export default function SavedResumeViewPage() {
   };
 
   const handleDownloadPdf = async (editableResume?: ResumeData) => {
+    console.log('SavedResume handleDownloadPdf called with selectedTemplate:', selectedTemplate);
+    
     if (!savedResume) return;
 
     try {
@@ -200,7 +205,7 @@ export default function SavedResumeViewPage() {
                 onClick={() => router.push('/saved-resumes')}
                 variant="outline"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="h-4 w-4 mr-2 text-black" />
                 Back to Saved Resumes
               </Button>
             </div>
@@ -223,7 +228,7 @@ export default function SavedResumeViewPage() {
               onClick={() => router.push('/saved-resumes')}
               className="mb-4 -ml-2"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="h-4 w-4 mr-2 text-black" />
               Back to Saved Resumes
             </Button>
             
@@ -336,6 +341,7 @@ export default function SavedResumeViewPage() {
                 response={convertToResumeData(savedResume)}
                 handleDownloadPdf={handleDownloadPdf}
                 isPdfGenerating={isPdfGenerating}
+                pdfGenerator={pdfGenerator}
               />
             </CardContent>
           </Card>

@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import logger from '../lib/core/logger';
 import { supabase } from '../lib/auth/supabaseClient';
 
-// Type for your app's user (from your DB)
+// Type for your app's user
 export type AppUser = {
   id: string;
   email: string;

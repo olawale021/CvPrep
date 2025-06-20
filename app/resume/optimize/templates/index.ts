@@ -20,20 +20,29 @@ export const generatePdf = async (
   resumeResponse: ResumeResponse | null, 
   template: ResumeTemplate = "classic"
 ): Promise<jsPDF | null> => {
-  if (!resumeData) return null;
+  console.log('generatePdf called with template:', template);
+  
+  if (!resumeData) {
+    console.error('generatePdf: No resume data provided');
+    return null;
+  }
   
   try {
     // Get the appropriate template generator function
     const templateGenerator = templateRegistry[template];
     if (!templateGenerator) {
-      console.error(`Template "${template}" not found`);
+      console.error(`Template "${template}" not found in registry`);
+      console.log('Available templates:', Object.keys(templateRegistry));
       return null;
     }
     
+    console.log(`Calling ${template} template generator`);
     // Generate the PDF using the selected template
-    return await templateGenerator(resumeData, resumeResponse);
+    const result = await templateGenerator(resumeData, resumeResponse);
+    console.log(`${template} template generator completed:`, { success: !!result });
+    return result;
   } catch (error) {
-    console.error("Error generating PDF:", error);
+    console.error(`Error generating PDF with ${template} template:`, error);
     return null;
   }
 }; 

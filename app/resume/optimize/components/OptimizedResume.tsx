@@ -18,6 +18,7 @@ interface OptimizedResumeProps {
   handleDownloadPdf: (editableResume?: ResumeData) => void;
   isPdfGenerating: boolean;
   onSaveResume?: () => void;
+  pdfGenerator?: ReturnType<typeof usePdfGenerator>;
 }
 
 interface OptimizedResumeContentProps {
@@ -30,13 +31,15 @@ interface OptimizedResumeContentProps {
   setActiveTab: (value: string) => void;
   resumeContentRef: React.RefObject<HTMLDivElement | null>;
   onSaveResume?: () => void;
+  pdfGenerator?: ReturnType<typeof usePdfGenerator>;
 }
 
 export default function OptimizedResume({
   response,
   handleDownloadPdf,
   isPdfGenerating,
-  onSaveResume
+  onSaveResume,
+  pdfGenerator
 }: OptimizedResumeProps) {
   const [activeTab, setActiveTab] = useState<string>("summary");
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -61,6 +64,7 @@ export default function OptimizedResume({
         setActiveTab={setActiveTab}
         resumeContentRef={resumeContentRef}
         onSaveResume={onSaveResume}
+        pdfGenerator={pdfGenerator}
       />
     </ResumeEditProvider>
   );
@@ -75,12 +79,24 @@ function OptimizedResumeContent({
   activeTab,
   setActiveTab,
   resumeContentRef,
-  onSaveResume
+  onSaveResume,
+  pdfGenerator
 }: OptimizedResumeContentProps) {
   const { editableResume } = useResumeEdit();
-  const { generatePreview, previewUrl, selectedTemplate, setSelectedTemplate } = usePdfGenerator();
+  
+  // Use the shared PDF generator if provided, otherwise create a new one
+  const localPdfGenerator = usePdfGenerator();
+  const activePdfGenerator = pdfGenerator || localPdfGenerator;
+  const { generatePreview, previewUrl, selectedTemplate, setSelectedTemplate } = activePdfGenerator;
+  
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  
+  console.log('OptimizedResumeContent - Using PDF generator:', {
+    isShared: !!pdfGenerator,
+    selectedTemplate,
+    isPdfGenerating
+  });
   
   const handlePreview = async () => {
     setIsPreviewLoading(true);

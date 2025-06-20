@@ -69,7 +69,7 @@ export default function AdminFeedbackPage() {
   }, [fetchFeedback]);
 
   // Simple admin check - you should implement proper role-based access control
-  if (!user || !user.email?.includes("admin")) {
+  if (!user || (!user.email?.includes("admin") && user.email !== "olawalefilani112@gmail.com")) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
