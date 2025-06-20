@@ -1,4 +1,5 @@
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Josefin_Sans, Noto_Serif } from "next/font/google";
 import ClientProviders from "../components/providers/ClientProviders";
@@ -36,6 +37,7 @@ export default function RootLayout({
       >
         <ClientProviders>{children}</ClientProviders>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
