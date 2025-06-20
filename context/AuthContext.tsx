@@ -157,10 +157,10 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
     try {
       // Get the correct base URL based on environment
       const getBaseUrl = () => {
-        // In production, use custom domain or Vercel domain
+        // In production, use the deployed domain
         if (process.env.NODE_ENV === 'production') {
-          // Use NEXTAUTH_URL if set, otherwise use NEXT_PUBLIC_SITE_URL, otherwise fall back to window.location.origin
-          return process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+          // For your Vercel deployment, use the known domain
+          return 'https://cvprep.vercel.app';
         }
         // In development, use localhost
         return window.location.origin;
