@@ -177,10 +177,36 @@ export default function SavedResumeViewPage() {
       <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
         <Sidebar />
         <div className="flex-1 p-4 md:p-6 pt-16 md:pt-6">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-              <p className="text-gray-600">Loading resume...</p>
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-6">
+              <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-4"></div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 w-96 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-8 w-20 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-8 w-24 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <div className="space-y-6">
+                <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
+                <div className="space-y-3">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                  ))}
+                </div>
+                <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+                <div className="space-y-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -226,9 +252,9 @@ export default function SavedResumeViewPage() {
             <Button 
               variant="ghost" 
               onClick={() => router.push('/saved-resumes')}
-              className="mb-4 -ml-2"
+              className="mb-4 -ml-2 text-black hover:text-black"
             >
-              <ArrowLeft className="h-4 w-4 mr-2 text-black" />
+              <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Saved Resumes
             </Button>
             

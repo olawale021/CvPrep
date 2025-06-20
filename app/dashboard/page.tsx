@@ -4,14 +4,14 @@ import { CalendarDays, Clock, FileText, Heart, Sparkles, Star } from "lucide-rea
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "../../components/ui/base/Button";
-import Sidebar from "../../components/layout/Sidebar";
 import { UsageTracker } from "../../components/features/dashboard/UsageTracker";
+import Sidebar from "../../components/layout/Sidebar";
+import { Button } from "../../components/ui/base/Button";
 import { useAuth } from "../../context/AuthContext";
 import { useSavedResumes } from "../../hooks/api/useSavedResumes";
 
 export default function Dashboard() {
-  const { user, isLoading, authError } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
   const [redirecting, setRedirecting] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
@@ -19,14 +19,14 @@ export default function Dashboard() {
   // Get saved resumes
   const { savedResumes, loading: resumesLoading, error: resumesError } = useSavedResumes();
   
-  // Handle redirect to home if not authenticated and finished loading
+  // Handle redirect to login if not authenticated and finished loading
   useEffect(() => {
     // Only redirect if not loading, no user, and we haven't tried redirecting yet
     if (!isLoading && !user && !redirecting && sessionChecked) {
       setRedirecting(true);
       
-      // Use replace instead of push to avoid browser history issues
-      router.replace("/");
+      // Redirect to login instead of home
+      router.replace("/login");
     }
     
     // Mark session as checked once loading is complete
@@ -45,43 +45,125 @@ export default function Dashboard() {
   // Show loading state when authentication is pending
   if (isLoading || !sessionChecked) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-        <div className="bg-white rounded-xl shadow-sm p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 mx-auto mb-4 relative">
-            <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+      <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+        {/* Sidebar Skeleton - Hidden on mobile, visible on desktop */}
+        <div className="hidden md:block w-64 bg-gray-200 animate-pulse"></div>
+        
+        {/* Main Content */}
+        <main className="flex-1 p-4 md:p-6 pt-16 md:pt-6 overflow-x-hidden">
+          <div className="max-w-7xl mx-auto">
+            {/* Welcome Header Skeleton - Responsive text sizes */}
+            <div className="mb-8 md:mb-10">
+              <div className="h-6 md:h-8 w-64 md:w-80 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-3 md:h-4 w-72 md:w-96 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Usage Tracker Skeleton - Responsive padding */}
+            <div className="mb-8 md:mb-10">
+              <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-5 md:h-6 w-24 md:w-32 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-6 md:h-8 w-16 md:w-20 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="h-2 w-full bg-gray-200 rounded animate-pulse mb-2"></div>
+                <div className="h-3 md:h-4 w-36 md:w-48 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+            
+            {/* Quick Actions Section Skeleton - Responsive grid and padding */}
+            <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 lg:p-8 border border-gray-200 mb-8 md:mb-10">
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-6 md:h-8 w-48 md:w-80 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              
+              {/* Responsive grid: 1 column on mobile, 3 on desktop */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                {/* Primary Action Skeleton - Full width on mobile, 2 columns on desktop */}
+                <div className="md:col-span-2">
+                  <div className="bg-gray-300 rounded-xl md:rounded-2xl p-4 md:p-6 h-40 md:h-48">
+                    <div className="flex items-center justify-between mb-3 md:mb-4">
+                      <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-400 rounded-lg md:rounded-xl animate-pulse"></div>
+                      <div className="h-4 md:h-6 w-20 md:w-24 bg-gray-400 rounded animate-pulse"></div>
+                    </div>
+                    <div className="h-6 md:h-8 w-48 md:w-64 bg-gray-400 rounded animate-pulse mb-2"></div>
+                    <div className="h-3 md:h-4 w-full bg-gray-400 rounded animate-pulse mb-3 md:mb-4"></div>
+                    <div className="h-4 md:h-6 w-24 md:w-32 bg-gray-400 rounded animate-pulse"></div>
+                  </div>
+                </div>
+                
+                {/* Secondary Actions Skeleton - Stack on mobile, column on desktop */}
+                <div className="space-y-3 md:space-y-4">
+                  <div className="bg-gray-200 rounded-lg md:rounded-xl p-3 md:p-4 h-20 md:h-24">
+                    <div className="flex items-center gap-2 md:gap-3 mb-2">
+                      <div className="w-7 h-7 md:w-9 md:h-9 bg-gray-300 rounded-md md:rounded-lg animate-pulse"></div>
+                      <div className="h-4 md:h-5 w-24 md:w-32 bg-gray-300 rounded animate-pulse"></div>
+                    </div>
+                    <div className="h-3 md:h-4 w-32 md:w-40 bg-gray-300 rounded animate-pulse"></div>
+                  </div>
+
+                  <div className="bg-gray-200 rounded-lg md:rounded-xl p-3 md:p-4 h-20 md:h-24">
+                    <div className="flex items-center gap-2 md:gap-3 mb-2">
+                      <div className="w-7 h-7 md:w-9 md:h-9 bg-gray-300 rounded-md md:rounded-lg animate-pulse"></div>
+                      <div className="h-4 md:h-5 w-28 md:w-36 bg-gray-300 rounded animate-pulse"></div>
+                    </div>
+                    <div className="h-3 md:h-4 w-36 md:w-44 bg-gray-300 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Bottom Section Grid Skeleton - Stack on mobile, side-by-side on large screens */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+              {/* Saved Resumes Section Skeleton - Full width on mobile/tablet, 2/3 on large screens */}
+              <div className="lg:col-span-2 bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 lg:p-8 border border-gray-200">
+                <div className="flex items-center justify-between mb-4 md:mb-6">
+                  <div className="h-5 md:h-7 w-32 md:w-40 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-3 md:h-4 w-12 md:w-16 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                
+                <div className="space-y-3 md:space-y-4">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="border border-gray-200 rounded-lg p-3 md:p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 md:h-5 w-2/3 md:w-3/4 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-3 md:h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-2 md:h-3 w-1/3 md:w-1/2 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                        <div className="h-3 md:h-4 w-10 md:w-12 bg-gray-200 rounded animate-pulse ml-3 md:ml-4"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Upcoming Section Skeleton - Full width on mobile/tablet, 1/3 on large screens */}
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 lg:p-8 border border-gray-200">
+                <div className="flex items-center justify-between mb-4 md:mb-6">
+                  <div className="h-5 md:h-7 w-20 md:w-24 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-3 md:h-4 w-16 md:w-20 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                
+                <div className="flex flex-col items-center justify-center py-6 md:py-8 lg:py-12 text-center">
+                  <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded-xl md:rounded-2xl mb-3 md:mb-4 animate-pulse"></div>
+                  <div className="h-4 md:h-6 w-24 md:w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-3 md:h-4 w-36 md:w-48 bg-gray-200 rounded animate-pulse mb-3 md:mb-4"></div>
+                  <div className="h-6 md:h-8 w-20 md:w-24 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Loading Dashboard</h3>
-          <p className="text-gray-600">Setting up your personalized workspace...</p>
-        </div>
+        </main>
       </div>
     );
   }
   
-  // Show minimal UI when not authenticated
+  // If not authenticated, redirect to login (this should rarely show due to middleware)
   if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Dashboard Access</h1>
-          <p className="text-gray-600 mb-6">
-            Please sign in to access your dashboard.
-          </p>
-          <div className="space-y-4">
-            <Button
-              onClick={() => router.replace("/")}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
-              Return to Home
-            </Button>
-            
-            {authError && (
-              <p className="text-red-600 text-sm mt-4">{authError}</p>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+    // Immediately redirect to login
+    router.replace("/login");
+    return null;
   }
 
   return (
@@ -111,16 +193,16 @@ export default function Dashboard() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Primary Action */}
-              <Link href="/resume/dashboard" className="md:col-span-2 block group">
+              <Link href="/resume/create" className="md:col-span-2 block group">
                 <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                   <div className="flex items-center justify-between mb-4">
                     <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
-                      <Sparkles className="h-8 w-8 text-white" />
+                      <FileText className="h-8 w-8 text-white" />
                     </div>
-                    <div className="text-blue-100 text-sm font-medium">🔥 Most Popular</div>
+                    <div className="text-blue-100 text-sm font-medium">🚀 Start Here</div>
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">Optimize My Resume</h3>
-                  <p className="text-blue-100 mb-4">Upload your resume and get AI-powered optimization with instant scoring</p>
+                  <h3 className="text-2xl font-bold mb-2">Create Resume</h3>
+                  <p className="text-blue-100 mb-4">Build a professional resume from scratch with AI-powered assistance</p>
                   <div className="flex items-center text-blue-100 font-medium">
                     <span>Get Started</span>
                     <span className="ml-2 transform group-hover:translate-x-1 transition-transform">→</span>
@@ -130,15 +212,15 @@ export default function Dashboard() {
               
               {/* Secondary Actions */}
               <div className="space-y-4">
-                <Link href="/resume/create" className="block group">
+                <Link href="/resume/dashboard" className="block group">
                   <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="bg-blue-100 p-2 rounded-lg">
-                        <FileText className="h-5 w-5 text-blue-600" />
+                      <div className="bg-purple-100 p-2 rounded-lg">
+                        <Sparkles className="h-5 w-5 text-purple-600" />
                       </div>
-                      <h3 className="font-bold text-gray-900 group-hover:text-blue-600">Create Resume</h3>
+                      <h3 className="font-bold text-gray-900 group-hover:text-purple-600">Optimize Resume</h3>
                     </div>
-                    <p className="text-sm text-gray-600">Build a new resume from scratch</p>
+                    <p className="text-sm text-gray-600">Upload and optimize existing resume</p>
                   </div>
                 </Link>
 
@@ -179,11 +261,19 @@ export default function Dashboard() {
               
               {/* Loading State */}
               {resumesLoading && (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-center">
-                    <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                    <p className="text-gray-600 text-sm">Loading your resumes...</p>
-                  </div>
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 space-y-2">
+                          <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-3 w-1/2 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                        <div className="h-4 w-12 bg-gray-200 rounded animate-pulse ml-4"></div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Award, Briefcase, FileText, GraduationCap, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react';
+import { Award, Briefcase, FileText, GraduationCap, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { FormEvent, useEffect, useState } from 'react';
 import { SaveResumeDialog } from '../../../components/features/resume/SaveResumeDialog';
@@ -20,7 +20,6 @@ import { ResumeScore } from '../../../lib/services/resume/scoreResume';
 import { SaveResumeRequest } from '../../../types/api/savedResume';
 import DashboardScoreResult from '../dashboard/components/DashboardScoreResult';
 import ErrorMessage from '../optimize/components/ErrorMessage';
-import LoadingState from '../optimize/components/LoadingState';
 import OptimizedResume from '../optimize/components/OptimizedResume';
 import { ResumeEditProvider } from '../optimize/context/ResumeEditContext';
 import { usePdfGenerator } from '../optimize/hooks/usePdfGenerator';
@@ -150,10 +149,40 @@ export default function CreateResumePage() {
   // Show loading while checking auth or redirecting
   if (authLoading || !user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading...</p>
+      <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+        <div className="w-64 bg-gray-200 animate-pulse"></div>
+        <div className="flex-1 p-4 md:p-6 pt-16 md:pt-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-8">
+              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-4 w-96 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-32 w-full bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="space-y-4">
+                  <div className="h-6 w-36 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-24 w-full bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-20 w-full bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="h-6 w-28 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-20 w-full bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <div className="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -783,7 +812,7 @@ export default function CreateResumePage() {
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin mr-1 sm:mr-2" />
+                        <div className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 bg-white/30 rounded-sm animate-pulse"></div>
                         <span className="hidden sm:inline">Generating Resume...</span>
                         <span className="sm:hidden">Generating...</span>
                       </>
@@ -803,7 +832,85 @@ export default function CreateResumePage() {
           {/* Loading State - Mobile Optimized */}
           {isLoading && !generatedResume && (
             <div className="max-w-4xl mx-auto">
-              <LoadingState type="optimizing" />
+              <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
+                <div className="text-center mb-6">
+                  <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mx-auto mb-2"></div>
+                  <div className="h-4 w-72 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                </div>
+                
+                {/* Resume Content Skeleton */}
+                <div className="space-y-6">
+                  {/* Header Section */}
+                  <div className="space-y-3">
+                    <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-56 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  
+                  {/* Summary Section */}
+                  <div className="space-y-3">
+                    <div className="h-6 w-40 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="space-y-2">
+                      <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-4 w-5/6 bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-4 w-4/5 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Experience Section */}
+                  <div className="space-y-4">
+                    <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="space-y-4">
+                      {Array.from({ length: 2 }).map((_, i) => (
+                        <div key={i} className="border border-gray-200 rounded-lg p-4">
+                          <div className="space-y-2">
+                            <div className="h-5 w-56 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="space-y-1 mt-3">
+                              <div className="h-3 w-full bg-gray-200 rounded animate-pulse"></div>
+                              <div className="h-3 w-4/5 bg-gray-200 rounded animate-pulse"></div>
+                              <div className="h-3 w-5/6 bg-gray-200 rounded animate-pulse"></div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Skills Section */}
+                  <div className="space-y-3">
+                    <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="space-y-1">
+                          <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-3 w-18 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 w-28 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="space-y-1">
+                          <div className="h-3 w-22 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Progress indicator */}
+                <div className="mt-8 text-center">
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <div className="h-2 w-2 bg-blue-300 rounded-full animate-pulse animation-delay-100"></div>
+                    <div className="h-2 w-2 bg-blue-200 rounded-full animate-pulse animation-delay-200"></div>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">AI is generating your professional resume...</p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -869,14 +976,52 @@ export default function CreateResumePage() {
                 }>
                   {isScoring && !scoreResult ? (
                     <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
-                      <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
-                        <div className="h-4 w-4 sm:h-5 sm:w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-                        <span className="text-gray-600 text-sm sm:text-base">Scoring your resume...</span>
+                      {/* Header */}
+                      <div className="flex items-center space-x-2 mb-4">
+                        <div className="h-5 w-5 bg-blue-200 rounded animate-pulse"></div>
+                        <div className="h-5 w-32 bg-gray-200 rounded animate-pulse"></div>
                       </div>
-                      <div className="space-y-3 sm:space-y-4">
-                        <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse"></div>
-                        <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
-                        <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
+                      
+                      {/* Score Circle Skeleton */}
+                      <div className="text-center mb-6">
+                        <div className="w-24 h-24 mx-auto bg-gray-200 rounded-full animate-pulse mb-3"></div>
+                        <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                      </div>
+                      
+                      {/* Score Breakdown */}
+                      <div className="space-y-4">
+                        <div className="h-5 w-36 bg-gray-200 rounded animate-pulse"></div>
+                        
+                        {/* Individual Score Items */}
+                        {Array.from({ length: 4 }).map((_, i) => (
+                          <div key={i} className="flex items-center justify-between py-2">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                              <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                            </div>
+                            <div className="h-4 w-8 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Suggestions Section */}
+                      <div className="mt-6 pt-4 border-t border-gray-200">
+                        <div className="h-5 w-28 bg-gray-200 rounded animate-pulse mb-3"></div>
+                        <div className="space-y-2">
+                          <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-4 w-5/6 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-4 w-4/5 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                      </div>
+                      
+                      {/* Progress indicator */}
+                      <div className="mt-6 text-center">
+                        <div className="flex items-center justify-center space-x-1">
+                          <div className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+                          <div className="h-1.5 w-1.5 bg-blue-300 rounded-full animate-pulse animation-delay-100"></div>
+                          <div className="h-1.5 w-1.5 bg-blue-200 rounded-full animate-pulse animation-delay-200"></div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">Analyzing resume match...</p>
                       </div>
                     </div>
                   ) : scoreResult ? (

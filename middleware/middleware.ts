@@ -38,7 +38,6 @@ export async function middleware(request: NextRequest) {
     '/api/auth',
     '/api/webhook',
     '/auth/callback',
-    '/dashboard',
   ];
   
   // Check if the current path is a public path

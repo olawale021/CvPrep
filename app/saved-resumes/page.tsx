@@ -1,32 +1,32 @@
 'use client';
 
 import {
-    Calendar,
-    Crown,
-    Download,
-    Edit,
-    Eye,
-    FileText,
-    Loader2,
-    MoreVertical,
-    Search,
-    Star,
-    Trash2
+  Calendar,
+  Crown,
+  Download,
+  Edit,
+  Eye,
+  FileText,
+  Loader2,
+  MoreVertical,
+  Search,
+  Star,
+  Trash2
 } from 'lucide-react';
 import { useState } from 'react';
+import Sidebar from '../../components/layout/Sidebar';
 import { Badge } from '../../components/ui/base/Badge';
 import { Button } from '../../components/ui/base/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/base/Card';
+import { Input } from '../../components/ui/base/Input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/composite/Dialog';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from '../../components/ui/composite/DropdownMenu';
-import { Input } from '../../components/ui/base/Input';
-import Sidebar from '../../components/layout/Sidebar';
 import { useAuth } from '../../context/AuthContext';
 import { useSavedResumesCached } from '../../hooks/api/useSavedResumesCached';
 import { SavedResumeListItem } from '../../types/api/savedResume';
@@ -99,10 +99,28 @@ export default function SavedResumesPage() {
   // Redirect to login if not authenticated
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading...</p>
+      <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+        <div className="w-64 bg-gray-200 animate-pulse"></div>
+        <div className="flex-1 p-4 md:p-6 pt-16 md:pt-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-6">
+              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-4 w-96 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md p-6">
+                  <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse mb-3"></div>
+                  <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse mb-4"></div>
+                  <div className="flex justify-between">
+                    <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-8 w-20 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -189,11 +207,18 @@ export default function SavedResumesPage() {
 
           {/* Loading State */}
           {loading && (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-                <p className="text-gray-600">Loading your saved resumes...</p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md p-6">
+                  <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse mb-3"></div>
+                  <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse mb-4"></div>
+                  <div className="flex justify-between">
+                    <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-8 w-20 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
