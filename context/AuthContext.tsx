@@ -160,7 +160,7 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
         // In production, use the deployed domain
         if (process.env.NODE_ENV === 'production') {
           // For your Vercel deployment, use the known domain
-          return 'https://cvprep.vercel.app';
+          return 'https://cvprep.app';
         }
         // In development, use localhost
         return window.location.origin;
