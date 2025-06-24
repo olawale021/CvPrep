@@ -469,23 +469,17 @@ export const generateProfessionalTemplate = async (resumeData: ResumeData, resum
     });
   }
   
-  // Add footer to all pages
-  for (let page = 1; page <= currentPage; page++) {
-    if (page > 1) {
-      pdf.setPage(page);
-    }
-    
-    // Footer with generation date and page number
-    pdf.setFontSize(8);
-    pdf.setTextColor(120, 120, 120);
-    pdf.setFont(mainFont, 'italic');
-    
-    const currentDate = new Date().toLocaleDateString();
-    const footerText = `Resume generated on ${currentDate} · CvPrep.ai`;
-    
-    pdf.text(footerText, margin, pageHeight - 10);
-    
-    if (currentPage > 1) {
+  // Add page numbers to multi-page documents
+  if (currentPage > 1) {
+    for (let page = 1; page <= currentPage; page++) {
+      if (page > 1) {
+        pdf.setPage(page);
+      }
+      
+      // Page number only
+      pdf.setFontSize(8);
+      pdf.setTextColor(120, 120, 120);
+      pdf.setFont(mainFont, 'italic');
       pdf.text(`Page ${page} of ${currentPage}`, pageWidth - margin - 20, pageHeight - 10);
     }
   }

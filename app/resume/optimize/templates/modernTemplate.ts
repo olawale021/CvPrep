@@ -601,26 +601,17 @@ export const generateModernTemplate = async (resumeData: ResumeData, resumeRespo
       });
   }
 
-  // Add footer with generation date and page number
-  const currentDate = new Date().toLocaleDateString();
-  pdf.setFontSize(7);
-  pdf.setTextColor(150, 150, 150);
-  pdf.setFont(mainFont, 'italic');
-  
-  // Add page number on first page
-  pdf.text(`Page 1 of ${currentPage}`, pageWidth - margin - 15, pageHeight - 10);
-  
-  const footerText = `Resume generated on ${currentDate} · CvPrep.app`;
-  const footerWidth = pdf.getTextWidth(footerText);
-  pdf.text(footerText, (pageWidth - footerWidth) / 2, pageHeight - 10);
-  
-  // Update page numbers on all pages
-  for (let i = 1; i <= currentPage; i++) {
-    if (i > 1) {
-      pdf.setPage(i);
-      pdf.setFontSize(7);
-      pdf.setTextColor(150, 150, 150);
-      pdf.setFont(mainFont, 'italic');
+  // Add page numbers to multi-page documents
+  if (currentPage > 1) {
+    pdf.setFontSize(7);
+    pdf.setTextColor(150, 150, 150);
+    pdf.setFont(mainFont, 'italic');
+    
+    // Add page numbers to all pages
+    for (let i = 1; i <= currentPage; i++) {
+      if (i > 1) {
+        pdf.setPage(i);
+      }
       pdf.text(`Page ${i} of ${currentPage}`, pageWidth - margin - 15, pageHeight - 10);
     }
   }
