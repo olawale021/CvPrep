@@ -11,6 +11,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { useSavedResumes } from "../../../hooks/api/useSavedResumes";
 import { useAsyncOperation } from "../../../hooks/ui/useAsyncOperation";
 import { supabase } from "../../../lib/auth/supabaseClient";
+import { showFeedbackNotification } from "../../../lib/core/utils";
 import { ResumeScore } from "../../../lib/services/resume/scoreResume";
 import { SaveResumeRequest } from "../../../types/api/savedResume";
 import ErrorMessage from "../optimize/components/ErrorMessage";
@@ -170,6 +171,9 @@ export default function ResumeDashboard() {
         setError(null);
         // Automatically score the optimized resume
         scoreOptimizedResume(optimizedData, jobDescription);
+        
+        // Show feedback notification after successful resume optimization
+        showFeedbackNotification(toast, "optimized your resume");
       },
       onError: (error) => {
         setError(error.message);

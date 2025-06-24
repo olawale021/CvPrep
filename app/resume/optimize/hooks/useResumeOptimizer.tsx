@@ -1,9 +1,12 @@
 import { FormEvent, useRef, useState } from "react";
-import { ResumeScore } from "../../../../lib/services/resume/scoreResume";
+import { useToast } from "../../../../components/ui/feedback/use-toast";
 import { supabase } from "../../../../lib/auth/supabaseClient";
+import { showFeedbackNotification } from "../../../../lib/core/utils";
+import { ResumeScore } from "../../../../lib/services/resume/scoreResume";
 import { ApiEducationItem, ApiProjectItem, ApiResumeResponse, ApiWorkExperienceItem, ResumeData, ResumeResponse } from "../types";
 
 export function useResumeOptimizer() {
+  const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState("");
   const [scoreResult, setScoreResult] = useState<ResumeScore | null>(null);
@@ -192,6 +195,9 @@ export function useResumeOptimizer() {
       
       // Score optimized resume
       await scoreOptimizedResume(structuredData, jobDescription);
+      
+      // Show feedback notification after successful optimization
+      showFeedbackNotification(toast, "optimized your resume");
 
     } catch (e: unknown) {
       console.error("Optimization error:", e);

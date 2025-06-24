@@ -57,4 +57,22 @@ function oauthIdToMaskedId(oauthId: string): string {
   const lastPart = oauthId.substring(oauthId.length - 4);
   
   return `${firstPart}...${lastPart}`;
+}
+
+/**
+ * Shows a feedback notification toast to encourage users to provide feedback
+ * @param toast - The toast function from useToast hook
+ * @param action - The action that was completed (e.g., "created resume", "optimized resume", "generated cover letter")
+ */
+export function showFeedbackNotification(
+  toast: (props: { title: string; description: string; duration?: number }) => void,
+  action: string
+) {
+  setTimeout(() => {
+    toast({
+      title: "🎉 Great job!",
+      description: `You've successfully ${action}! Love the experience? Click the chat icon below to share your feedback and help us improve.`,
+      duration: 8000, // Show for 8 seconds
+    });
+  }, 2000); // Show after 2 seconds delay
 } 

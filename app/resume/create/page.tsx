@@ -24,6 +24,7 @@ import OptimizedResume from '../optimize/components/OptimizedResume';
 import { ResumeEditProvider } from '../optimize/context/ResumeEditContext';
 import { usePdfGenerator } from '../optimize/hooks/usePdfGenerator';
 import { ResumeData, ResumeResponse } from '../optimize/types';
+import { showFeedbackNotification } from '../../../lib/core/utils';
 
 interface WorkExperience {
   company: string;
@@ -162,6 +163,9 @@ export default function CreateResumePage() {
         });
         // Score the generated resume
         scoreGeneratedResume(resumeWithContact);
+
+        // Show feedback notification after successful resume creation
+        showFeedbackNotification(toast, "created your professional resume");
       },
       onError: (error) => {
         setError(error.message);

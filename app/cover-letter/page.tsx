@@ -114,6 +114,30 @@ export default function CoverLetterPage() {
       if (data?.cover_letter) {
         setCoverLetter(data.cover_letter);
         setActiveTab("result");
+        
+        // Show feedback notification after successful cover letter generation
+        setTimeout(() => {
+          const toastElement = document.createElement('div');
+          toastElement.className = 'fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm bg-green-600 text-white animate-slide-in';
+          
+          const titleElement = document.createElement('div');
+          titleElement.className = 'font-semibold';
+          titleElement.textContent = '🎉 Great job!';
+          toastElement.appendChild(titleElement);
+          
+          const descriptionElement = document.createElement('div');
+          descriptionElement.className = 'text-sm mt-1';
+          descriptionElement.textContent = "You've successfully generated your cover letter! Love the experience? Click the chat icon below to share your feedback and help us improve.";
+          toastElement.appendChild(descriptionElement);
+          
+          document.body.appendChild(toastElement);
+          
+          setTimeout(() => {
+            if (document.body.contains(toastElement)) {
+              document.body.removeChild(toastElement);
+            }
+          }, 8000);
+        }, 2000);
       } else {
         throw new Error("Failed to generate cover letter.");
       }
