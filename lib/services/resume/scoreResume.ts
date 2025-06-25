@@ -91,25 +91,39 @@ ${optimizedJob}
 Extract and return JSON with:
 {
   "resume_summary": "2-3 sentence professional summary from resume",
-  "resume_skills": ["skill1", "skill2", "..."] (max 20 technical/professional skills),
-  "resume_experience": "brief experience overview focusing on recent roles and achievements",
-  "job_required_skills": ["skill1", "skill2", "..."] (max 15 required skills from job),
-  "job_preferred_skills": ["skill1", "skill2", "..."] (max 10 preferred skills from job),
-  "job_keywords": ["keyword1", "keyword2", "..."] (max 15 important terms/technologies),
+  "resume_skills": ["all technical AND soft skills found in the resume, including both technical and soft skills sections"],
+  "resume_experience": "brief experience overview focusing on recent roles, achievements, and specific project experience (e.g., live airfield projects, site experience, etc.)",
+  "job_required_skills": ["skill1", "skill2", "..."],
+  "job_preferred_skills": ["skill1", "skill2", "..."],
+  "job_keywords": ["keyword1", "keyword2", "..."],
   "experience_level": "experience requirement (years/level) from job description"
 }
 
-Focus on accuracy and speed. Extract only the most relevant information.`;
+CRITICAL INSTRUCTIONS FOR RESUME SKILLS:
+- Extract ALL skills from the resume, including:
+  * Technical skills (programming languages, tools, technologies, standards like ICAO, CAP168, EASA)
+  * Soft skills (communication, leadership, teamwork, problem-solving, time management, etc.)
+  * Professional skills (project management, client relationship management, business development)
+- Look for skills in ALL sections: Skills, Technical Skills, Soft Skills, Core Competencies, Strengths, etc.
+- If you see phrases like "Excellent Communication Skills", extract "Communication Skills" or "Communication"
+- If you see "Planning and Organizational Skills", extract both "Planning" and "Organizational Skills"
+
+CRITICAL INSTRUCTIONS FOR RESUME EXPERIENCE:
+- Include specific project types and environments mentioned (e.g., "live airfield projects", "site supervision", "field experience")
+- Mention any specialized experience that matches job requirements
+- Include years of experience and specific domains worked in
+
+Focus on accuracy and completeness. Extract ALL relevant skills and experience details.`;
 
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: 'You are a fast, accurate resume and job parser. Return concise, structured data in JSON format.' },
+        { role: 'system', content: 'You are a comprehensive resume and job parser. Extract ALL skills (technical AND soft) and detailed experience information. Return complete, structured data in JSON format.' },
         { role: 'user', content: prompt }
       ],
       temperature: 0.1,
-      max_tokens: 2000,
+      max_tokens: 2500,
       response_format: { type: "json_object" }
     }, {
       timeout: 30000
@@ -118,9 +132,38 @@ Focus on accuracy and speed. Extract only the most relevant information.`;
     const content = response.choices[0].message.content || '';
     const result = JSON.parse(content);
     
+    // Ensure we have comprehensive skills extraction
+    const resumeSkills = Array.isArray(result.resume_skills) ? [...result.resume_skills] : [];
+    
+    // Fallback: If soft skills seem missing, try to extract them from the resume text
+    if (resumeSkills.length < 5 || !resumeSkills.some((skill: string) => 
+      skill.toLowerCase().includes('communication') || 
+      skill.toLowerCase().includes('teamwork') || 
+      skill.toLowerCase().includes('leadership') ||
+      skill.toLowerCase().includes('problem') ||
+      skill.toLowerCase().includes('time management')
+    )) {
+      // Add common soft skills if they appear in the resume text
+      const resumeLower = optimizedResume.toLowerCase();
+      const potentialSoftSkills = [
+        'Communication Skills', 'Teamwork', 'Leadership', 'Problem Solving',
+        'Time Management', 'Attention to Detail', 'Client Relationship Management',
+        'Planning', 'Organizational Skills', 'Multitasking', 'Adaptability',
+        'Critical Thinking', 'Collaboration', 'Project Coordination'
+      ];
+      
+      potentialSoftSkills.forEach((skill: string) => {
+        const skillWords = skill.toLowerCase().split(' ');
+        if (skillWords.every((word: string) => resumeLower.includes(word)) && 
+            !resumeSkills.some((existing: string) => existing.toLowerCase().includes(skill.toLowerCase()))) {
+          resumeSkills.push(skill);
+        }
+      });
+    }
+    
     return {
       resume_summary: result.resume_summary || '',
-      resume_skills: Array.isArray(result.resume_skills) ? result.resume_skills.slice(0, 20) : [],
+      resume_skills: resumeSkills.slice(0, 25), // Increased limit for comprehensive skills
       resume_experience: result.resume_experience || '',
       job_required_skills: Array.isArray(result.job_required_skills) ? result.job_required_skills.slice(0, 15) : [],
       job_preferred_skills: Array.isArray(result.job_preferred_skills) ? result.job_preferred_skills.slice(0, 10) : [],
@@ -145,6 +188,38 @@ const openaiApiKey = process.env.OPENAI_API_KEY;
 let openai: OpenAI | null = null;
 if (openaiApiKey) {
   openai = new OpenAI({ apiKey: openaiApiKey });
+}
+
+/**
+ * Helper function to check if an experience or qualification requirement is met
+ */
+function isExperienceRequirementMet(
+  skillLower: string, 
+  resumeExperience: string, 
+  resumeSkills: string[], 
+  matchedSkillsLower: string[]
+): boolean {
+  if (!skillLower.includes('experience') && !skillLower.includes('qualification')) {
+    return false;
+  }
+  
+  const resumeExperienceLower = resumeExperience.toLowerCase();
+  const resumeSkillsText = resumeSkills.join(' ').toLowerCase();
+  
+  // Extract key components from the experience requirement
+  const experienceKeywords = skillLower
+    .replace(/(experience|qualification|skills?|knowledge|abilities?)/gi, '')
+    .split(/\s+/)
+    .filter((word: string) => word.length > 2)
+    .filter((word: string) => !['on', 'in', 'with', 'of', 'the', 'and', 'or'].includes(word));
+  
+  // Check if the experience keywords are found in resume experience or skills
+  return experienceKeywords.length > 0 && 
+    experienceKeywords.some((keyword: string) => 
+      resumeExperienceLower.includes(keyword) || 
+      resumeSkillsText.includes(keyword) ||
+      matchedSkillsLower.some((matchedSkill: string) => matchedSkill.includes(keyword))
+    );
 }
 
 export async function scoreResume(resumeText: string, jobDescription: string): Promise<ResumeScore> {
@@ -183,6 +258,12 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
       };
     }
 
+    // Debug logging for initial parsed skills
+    console.log('Job required skills:', parsedData.job_required_skills);
+    console.log('Job preferred skills:', parsedData.job_preferred_skills);
+    console.log('Job keywords:', parsedData.job_keywords);
+    console.log('Resume skills:', parsedData.resume_skills);
+
     // Create comprehensive skill list for filtering
     const allJobSkills = [
       ...parsedData.job_required_skills,
@@ -220,6 +301,11 @@ Return JSON:
   "alternative_positions": ["2 job titles if score < 40"]
 }
 
+IMPORTANT:
+- If a missing skill is a phrase (e.g., "Knowledge of ICAO, CAP168 and EASA design standards"), only include it in missing_skills if at least one of its key components is truly missing from the resume.
+- If all components are present, do NOT include the phrase as missing.
+- Do not return as missing any skill that is already present in the resume, even if phrased differently.
+
 Be accurate but fast. Focus on measurable skill matches.`;
 
     // OPTIMIZED OpenAI call: Reduced token usage and faster processing
@@ -240,14 +326,109 @@ Be accurate but fast. Focus on measurable skill matches.`;
       const content = response.choices[0].message.content || '';
       const score_data = JSON.parse(content);
       
+      // Get matched skills and normalize them
+      const matchedSkills = (score_data.matched_skills || []).map((skill: string) => skill.trim());
+      const matchedSkillsLower = matchedSkills.map((skill: string) => skill.toLowerCase().trim());
+      
       // Filter missing skills to only include those actually from job requirements
-      const filteredMissingSkills = (score_data.missing_skills || []).filter((skill: string) =>
-        allJobSkills.includes(skill.toLowerCase().trim())
-      );
+      // AND exclude any skills that are already in matched skills
+      const filteredMissingSkills = (score_data.missing_skills || []).filter((skill: string) => {
+        const skillLower = skill.toLowerCase().trim();
+        
+        // First check if it's a valid job skill
+        const isJobSkill = allJobSkills.some(jobSkill => 
+          jobSkill.includes(skillLower) || 
+          skillLower.includes(jobSkill) ||
+          jobSkill === skillLower
+        );
+        
+        if (!isJobSkill) return false;
+        
+        // EXPERIENCE/QUALIFICATION PHRASE MATCHING
+        if (isExperienceRequirementMet(skillLower, parsedData.resume_experience, parsedData.resume_skills, matchedSkillsLower)) {
+          return false; // Experience requirement is met
+        }
+        
+        // PHRASE/COMPOUND SKILL MATCHING
+        const phraseComponents = skillLower
+          .replace(/(knowledge of|skills in|abilities in|experience with)/gi, '')
+          .split(/,|and|\(|\)|\//)
+          .map(s => s.trim())
+          .filter(Boolean)
+          .filter(s => s.length > 2);
+
+        if (
+          phraseComponents.length > 1 &&
+          phraseComponents.every(comp =>
+            matchedSkillsLower.some((matchedSkill: string) =>
+              matchedSkill.includes(comp) || comp.includes(matchedSkill)
+            )
+          )
+        ) {
+          return false; // All components are present, so not missing
+        }
+        
+        // Then check if it's NOT already in matched skills (avoid duplicates)
+        const isAlreadyMatched = matchedSkillsLower.some((matchedSkill: string) => {
+          // Exact matches
+          if (matchedSkill.includes(skillLower) || 
+              skillLower.includes(matchedSkill) ||
+              matchedSkill === skillLower) {
+            return true;
+          }
+          
+          // Handle common variations (spaces, punctuation)
+          if ((skillLower.replace(/\s+/g, '') === matchedSkill.replace(/\s+/g, '')) ||
+              (skillLower.replace(/[^\w]/g, '') === matchedSkill.replace(/[^\w]/g, ''))) {
+            return true;
+          }
+          
+          // Handle specific skill variations that are commonly mismatched
+          const skillWords = skillLower.split(/\s+/);
+          const matchedWords = matchedSkill.split(/\s+/);
+          
+          // Check for key word overlaps (at least 2 significant words match)
+          const significantWords = skillWords.filter(word => 
+            word.length > 3 && !['and', 'the', 'of', 'for', 'with', 'both'].includes(word)
+          );
+          const matchedSignificantWords = matchedWords.filter(word => 
+            word.length > 3 && !['and', 'the', 'of', 'for', 'with', 'both'].includes(word)
+          );
+          
+          if (significantWords.length >= 2 && matchedSignificantWords.length >= 2) {
+            const commonWords = significantWords.filter(word => 
+              matchedSignificantWords.some(mWord => 
+                word.includes(mWord) || mWord.includes(word) || word === mWord
+              )
+            );
+            if (commonWords.length >= 2) {
+              return true;
+            }
+          }
+          
+          // Handle specific common equivalents
+          if ((skillLower.includes('client facing') && matchedSkill.includes('client relationship')) ||
+              (skillLower.includes('client relationship') && matchedSkill.includes('client facing')) ||
+              (skillLower.includes('communication skills') && matchedSkill.includes('communication')) ||
+              (skillLower.includes('communication') && matchedSkill.includes('communication skills')) ||
+              (skillLower.includes('planning') && skillLower.includes('organisational') && 
+               matchedSkill.includes('planning') && matchedSkill.includes('organizational'))) {
+            return true;
+          }
+          
+          return false;
+        });
+        
+        return !isAlreadyMatched;
+      });
+
+      // Debug logging
+      console.log('Matched skills (lowercased):', matchedSkillsLower);
+      console.log('Filtered missing skills:', filteredMissingSkills);
 
       // Validate and return optimized results
       const validated_data: ResumeScore = {
-        matched_skills: (score_data.matched_skills || []).slice(0, 15),
+        matched_skills: matchedSkills.slice(0, 15),
         missing_skills: filteredMissingSkills.slice(0, 10), 
         recommendations: (score_data.recommendations || ["Enhance resume with relevant skills"]).slice(0, 3),
         match_percentage: Math.min(100, Math.max(0, score_data.match_score || 25)),
@@ -350,6 +531,12 @@ export async function scoreOptimizedResume(resumeText: string, jobDescription: s
       };
     }
 
+    // Debug logging for initial parsed skills
+    console.log('Job required skills:', parsedData.job_required_skills);
+    console.log('Job preferred skills:', parsedData.job_preferred_skills);
+    console.log('Job keywords:', parsedData.job_keywords);
+    console.log('Resume skills:', parsedData.resume_skills);
+
     // Create comprehensive skill list for filtering
     const allJobSkills = [
       ...parsedData.job_required_skills,
@@ -381,8 +568,8 @@ VALIDATION CRITERIA (Stricter):
 Return JSON:
 {
   "match_score": 90-100 (expected for optimized),
-  "matched_skills": ["all skills found in resume"],
-  "missing_skills": ["genuinely missing skills - should be 0-2"],
+  "matched_skills": ["all skills found in resume - check technical AND soft skills"],
+  "missing_skills": ["genuinely missing skills - should be 0-2. NEVER include skills already in matched_skills"],
   "recommendations": ["max 2 minor improvements"],
   "optimization_validation": {
   "achieved_zero_missing": boolean,
@@ -391,7 +578,12 @@ Return JSON:
   }
 }
 
-Be thorough in finding skills before marking as missing.`;
+IMPORTANT:
+- If a missing skill is a phrase (e.g., "Knowledge of ICAO, CAP168 and EASA design standards"), only include it in missing_skills if at least one of its key components is truly missing from the resume.
+- If all components are present, do NOT include the phrase as missing.
+- Do not return as missing any skill that is already present in the resume, even if phrased differently.
+
+CRITICAL: Be thorough in finding skills before marking as missing. Check BOTH technical AND soft skills sections. NEVER put the same skill in both matched_skills and missing_skills.`;
 
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -410,14 +602,109 @@ Be thorough in finding skills before marking as missing.`;
       const content = response.choices[0].message.content || '';
       const score_data = JSON.parse(content);
       
-      // Filter missing skills
-      const filteredMissingSkills = (score_data.missing_skills || []).filter((skill: string) =>
-        allJobSkills.includes(skill.toLowerCase().trim())
-      );
+      // Get matched skills and normalize them
+      const matchedSkills = (score_data.matched_skills || []).map((skill: string) => skill.trim());
+      const matchedSkillsLower = matchedSkills.map((skill: string) => skill.toLowerCase().trim());
+      
+      // Filter missing skills to only include those actually from job requirements
+      // AND exclude any skills that are already in matched skills
+      const filteredMissingSkills = (score_data.missing_skills || []).filter((skill: string) => {
+        const skillLower = skill.toLowerCase().trim();
+        
+        // First check if it's a valid job skill
+        const isJobSkill = allJobSkills.some(jobSkill => 
+          jobSkill.includes(skillLower) || 
+          skillLower.includes(jobSkill) ||
+          jobSkill === skillLower
+        );
+        
+        if (!isJobSkill) return false;
+        
+        // EXPERIENCE/QUALIFICATION PHRASE MATCHING
+        if (isExperienceRequirementMet(skillLower, parsedData.resume_experience, parsedData.resume_skills, matchedSkillsLower)) {
+          return false; // Experience requirement is met
+        }
+        
+        // PHRASE/COMPOUND SKILL MATCHING
+        const phraseComponents = skillLower
+          .replace(/(knowledge of|skills in|abilities in|experience with)/gi, '')
+          .split(/,|and|\(|\)|\//)
+          .map(s => s.trim())
+          .filter(Boolean)
+          .filter(s => s.length > 2);
+
+        if (
+          phraseComponents.length > 1 &&
+          phraseComponents.every(comp =>
+            matchedSkillsLower.some((matchedSkill: string) =>
+              matchedSkill.includes(comp) || comp.includes(matchedSkill)
+            )
+          )
+        ) {
+          return false; // All components are present, so not missing
+        }
+        
+        // Then check if it's NOT already in matched skills (avoid duplicates)
+        const isAlreadyMatched = matchedSkillsLower.some((matchedSkill: string) => {
+          // Exact matches
+          if (matchedSkill.includes(skillLower) || 
+              skillLower.includes(matchedSkill) ||
+              matchedSkill === skillLower) {
+            return true;
+          }
+          
+          // Handle common variations (spaces, punctuation)
+          if ((skillLower.replace(/\s+/g, '') === matchedSkill.replace(/\s+/g, '')) ||
+              (skillLower.replace(/[^\w]/g, '') === matchedSkill.replace(/[^\w]/g, ''))) {
+            return true;
+          }
+          
+          // Handle specific skill variations that are commonly mismatched
+          const skillWords = skillLower.split(/\s+/);
+          const matchedWords = matchedSkill.split(/\s+/);
+          
+          // Check for key word overlaps (at least 2 significant words match)
+          const significantWords = skillWords.filter(word => 
+            word.length > 3 && !['and', 'the', 'of', 'for', 'with', 'both'].includes(word)
+          );
+          const matchedSignificantWords = matchedWords.filter(word => 
+            word.length > 3 && !['and', 'the', 'of', 'for', 'with', 'both'].includes(word)
+          );
+          
+          if (significantWords.length >= 2 && matchedSignificantWords.length >= 2) {
+            const commonWords = significantWords.filter(word => 
+              matchedSignificantWords.some(mWord => 
+                word.includes(mWord) || mWord.includes(word) || word === mWord
+              )
+            );
+            if (commonWords.length >= 2) {
+              return true;
+            }
+          }
+          
+          // Handle specific common equivalents
+          if ((skillLower.includes('client facing') && matchedSkill.includes('client relationship')) ||
+              (skillLower.includes('client relationship') && matchedSkill.includes('client facing')) ||
+              (skillLower.includes('communication skills') && matchedSkill.includes('communication')) ||
+              (skillLower.includes('communication') && matchedSkill.includes('communication skills')) ||
+              (skillLower.includes('planning') && skillLower.includes('organisational') && 
+               matchedSkill.includes('planning') && matchedSkill.includes('organizational'))) {
+            return true;
+          }
+          
+          return false;
+        });
+        
+        return !isAlreadyMatched;
+      });
+
+      // Debug logging
+      console.log('Matched skills (lowercased):', matchedSkillsLower);
+      console.log('Filtered missing skills:', filteredMissingSkills);
 
       // Enhanced validation for optimized resumes
       const validated_data: ResumeScore = {
-        matched_skills: (score_data.matched_skills || []).slice(0, 20),
+        matched_skills: matchedSkills.slice(0, 20),
         missing_skills: filteredMissingSkills.slice(0, 5),
         recommendations: (score_data.recommendations || []).slice(0, 2),
         match_percentage: Math.min(100, Math.max(85, score_data.match_score || 90)),
@@ -431,7 +718,7 @@ Be thorough in finding skills before marking as missing.`;
         optimization_validation: score_data.optimization_validation || {
           achieved_zero_missing: filteredMissingSkills.length === 0,
           meets_target_score: (score_data.match_score || 90) >= 90,
-          skills_demonstrated: 0
+          skills_demonstrated: matchedSkills.length
         }
       };
 

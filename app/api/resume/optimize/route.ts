@@ -47,6 +47,10 @@ export async function POST(req: NextRequest) {
       const job = formData.get('job') as string || '';
       if (!job) throw new Error('No job description provided');
       
+      // Get missing skills from the form data (optional)
+      const missingSkillsStr = formData.get('missing_skills') as string || '';
+      const missingSkills = missingSkillsStr ? JSON.parse(missingSkillsStr) : [];
+      
       console.log('Optimize API: File and job validation passed', {
         fileName: file.name,
         fileSize: file.size,
@@ -92,7 +96,7 @@ export async function POST(req: NextRequest) {
       
       const [optimized, structuredResume] = await Promise.all([
         // Start optimization without waiting for structuring
-        optimizeResume(text, job, undefined), // Pass undefined initially for faster start
+        optimizeResume(text, job, undefined, missingSkills), // Pass missing skills to optimization
         // Run structuring in parallel
         structure_resume(text)
       ]);

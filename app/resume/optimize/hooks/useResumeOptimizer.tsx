@@ -78,6 +78,11 @@ export function useResumeOptimizer() {
       form.append("file", file);
       form.append("job", jobDescription);
       
+      // Include missing skills from the original analysis if available
+      if (scoreResult?.missing_skills && scoreResult.missing_skills.length > 0) {
+        form.append("missing_skills", JSON.stringify(scoreResult.missing_skills));
+      }
+      
       const headers: Record<string, string> = {};
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -271,11 +276,25 @@ export function useResumeOptimizer() {
       });
     }
     
-    if (resumeData.skills && resumeData.skills.technical_skills) {
+    if (resumeData.skills) {
       resumeText += 'SKILLS\n';
-      resumeData.skills.technical_skills.forEach((skill: string) => {
-        resumeText += `• ${skill}\n`;
-      });
+      
+      // Add technical skills
+      if (resumeData.skills.technical_skills && resumeData.skills.technical_skills.length > 0) {
+        resumeText += 'Technical Skills:\n';
+        resumeData.skills.technical_skills.forEach((skill: string) => {
+          resumeText += `• ${skill}\n`;
+        });
+      }
+      
+      // Add soft skills
+      if (resumeData.skills.soft_skills && resumeData.skills.soft_skills.length > 0) {
+        resumeText += 'Soft Skills:\n';
+        resumeData.skills.soft_skills.forEach((skill: string) => {
+          resumeText += `• ${skill}\n`;
+        });
+      }
+      
       resumeText += '\n';
     }
     

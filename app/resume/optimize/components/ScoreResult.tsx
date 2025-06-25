@@ -1,4 +1,4 @@
-import { AlertCircle, ArrowRight, Check, ExternalLink, FileText, Plus, Sparkles, Star } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, ExternalLink, FileText, Plus, Sparkles, Star, X } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Button } from "../../../../components/ui/base/Button";
@@ -73,6 +73,14 @@ export default function ScoreResult({
   const [showAddExperienceForm, setShowAddExperienceForm] = useState(false);
   const [addingExperience, setAddingExperience] = useState(false);
   const [updatedResumeData, setUpdatedResumeData] = useState<UpdatedResumeData | null>(null);
+
+  // Debug: Log the scoreResult to see what data we're receiving
+  console.log('ScoreResult data:', {
+    matched_skills: scoreResult.matched_skills,
+    missing_skills: scoreResult.missing_skills,
+    match_score: scoreResult.match_score,
+    fullData: scoreResult
+  });
 
   useEffect(() => {
     const checkMobile = () => {
@@ -245,85 +253,115 @@ export default function ScoreResult({
 
   return (
     <>
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 ease-in-out">
-      <div className="p-4 bg-white border-b flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <FileText className="h-5 w-5 text-gray-600" />
-          <h2 className="text-lg font-semibold text-black">Resume Match Score</h2>
-        </div>
-        
-        {loading && (
-          <div className="flex items-center text-blue-600 text-sm">
-            <Sparkles className="h-4 w-4 mr-1.5 animate-pulse" />
-            <span>Optimizing...</span>
-          </div>
-        )}
-      </div>
-      
-      <div className={`p-4 sm:p-5 ${loading ? 'bg-blue-50/30' : ''}`}>
-        {/* Modern Circular Score Gauge */}
-        <div className="flex flex-col items-center justify-center mb-4">
-          <div className="relative w-32 h-32 sm:w-40 sm:h-40">
-            {/* SVG Gauge */}
-            <svg viewBox="0 0 200 200" className="w-full h-full">
-              {/* Background circle */}
-              <circle
-                cx="100"
-                cy="100"
-                r="80"
-                fill="none"
-                stroke="#f3f4f6"
-                strokeWidth="16"
-              />
-              
-              {/* Score arc */}
-              <circle
-                cx="100"
-                cy="100"
-                r="80"
-                fill="none"
-                stroke={scoreResult.match_score >= 40 ? "#10b981" : "#f43f5e"}
-                strokeWidth="16"
-                strokeDasharray={`${(scoreResult.match_score / 100) * 502} 502`}
-                strokeDashoffset={-126}
-                strokeLinecap="round"
-                transform="rotate(-90 100 100)"
-              />
-              
-              {/* Score text */}
-              <text
-                x="100"
-                y="90"
-                textAnchor="middle"
-                fontSize="48"
-                fontWeight="700"
-                fill={scoreResult.match_score >= 40 ? "#10b981" : "#f43f5e"}
-              >
-                {Math.round(scoreResult.match_score)}
-              </text>
-              <text
-                x="100"
-                y="120"
-                textAnchor="middle"
-                fontSize="18"
-                fill="#6b7280"
-              >
-                out of 100
-              </text>
-            </svg>
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-300 ease-in-out">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center text-white">
+            <div className="p-2 bg-white/20 rounded-lg mr-3">
+              <FileText className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">Resume Analysis</h2>
+              <p className="text-blue-100 text-sm">AI-powered evaluation results</p>
+            </div>
           </div>
           
-          <div className="flex items-center justify-center mt-2">
-            <div className="flex">
+          {loading && (
+            <div className="flex items-center text-white text-sm bg-white/20 px-3 py-1 rounded-full">
+              <Sparkles className="h-4 w-4 mr-1.5 animate-pulse" />
+              <span>Optimizing...</span>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className={`p-6 md:p-8 ${loading ? 'bg-gradient-to-b from-blue-50/50 to-purple-50/50' : ''}`}>
+        {/* Enhanced Score Display */}
+        <div className="flex flex-col items-center justify-center mb-8">
+          <div className="relative mb-4">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full blur-xl opacity-30 animate-pulse"></div>
+            
+            <div className="relative w-40 h-40 md:w-48 md:h-48">
+              <svg viewBox="0 0 200 200" className="w-full h-full">
+                {/* Background circle */}
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="80"
+                  fill="none"
+                  stroke="#e5e7eb"
+                  strokeWidth="12"
+                />
+                
+                {/* Score arc with gradient */}
+                <defs>
+                  <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor={scoreResult.match_score >= 70 ? "#10b981" : scoreResult.match_score >= 40 ? "#f59e0b" : "#ef4444"} />
+                    <stop offset="100%" stopColor={scoreResult.match_score >= 70 ? "#059669" : scoreResult.match_score >= 40 ? "#d97706" : "#dc2626"} />
+                  </linearGradient>
+                </defs>
+                
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="80"
+                  fill="none"
+                  stroke="url(#scoreGradient)"
+                  strokeWidth="12"
+                  strokeDasharray={`${(scoreResult.match_score / 100) * 502} 502`}
+                  strokeDashoffset={-126}
+                  strokeLinecap="round"
+                  transform="rotate(-90 100 100)"
+                  className="transition-all duration-1000 ease-out"
+                />
+                
+                {/* Score text */}
+                <text
+                  x="100"
+                  y="85"
+                  textAnchor="middle"
+                  fontSize="42"
+                  fontWeight="800"
+                  fill={scoreResult.match_score >= 70 ? "#10b981" : scoreResult.match_score >= 40 ? "#f59e0b" : "#ef4444"}
+                  className="font-mono"
+                >
+                  {Math.round(scoreResult.match_score)}
+                </text>
+                <text
+                  x="100"
+                  y="105"
+                  textAnchor="middle"
+                  fontSize="14"
+                  fill="#6b7280"
+                  fontWeight="600"
+                >
+                  MATCH SCORE
+                </text>
+                <text
+                  x="100"
+                  y="125"
+                  textAnchor="middle"
+                  fontSize="12"
+                  fill="#9ca3af"
+                >
+                  out of 100
+                </text>
+              </svg>
+            </div>
+          </div>
+          
+          {/* Rating and Badge */}
+          <div className="flex flex-col items-center space-y-3">
+            <div className="flex items-center space-x-2">
               {[1, 2, 3, 4, 5].map((star: number) => {
                 const rating = getStarRating(scoreResult.match_score);
                 const fullStar = star <= Math.floor(rating);
                 const halfStar = !fullStar && star === Math.ceil(rating) && rating % 1 >= 0.3;
                 
                 return (
-                  <div key={star} className="w-4 h-4 sm:w-5 sm:h-5 mx-0.5">
+                  <div key={star} className="w-5 h-5 md:w-6 md:h-6">
                     {fullStar ? (
-                      <Star className="w-full h-full fill-yellow-400 text-yellow-400" />
+                      <Star className="w-full h-full fill-yellow-400 text-yellow-400 drop-shadow-sm" />
                     ) : halfStar ? (
                       <div className="relative">
                         <Star className="absolute w-full h-full text-gray-300" />
@@ -337,45 +375,157 @@ export default function ScoreResult({
                   </div>
                 );
               })}
+              <span className="ml-2 text-sm font-medium text-gray-600">
+                {getStarRating(scoreResult.match_score).toFixed(1)} / 5.0
+              </span>
             </div>
-            <span className="ml-2 text-xs sm:text-sm text-gray-500">
-              {getStarRating(scoreResult.match_score).toFixed(1)} Rating
-            </span>
+            
+            <div className={`px-4 py-2 rounded-full text-sm font-semibold ${
+              scoreResult.match_score >= 70 
+                ? 'bg-green-100 text-green-800 border border-green-200' 
+                : scoreResult.match_score >= 40 
+                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' 
+                  : 'bg-red-100 text-red-800 border border-red-200'
+            }`}>
+              {scoreResult.match_score >= 70 ? 'Excellent Match' : 
+               scoreResult.match_score >= 40 ? 'Good Match' : 'Needs Improvement'}
+            </div>
           </div>
         </div>
         
-        {/* Skills Analysis - Tabs for desktop, accordion for mobile */}
-        <div className="mb-4">
-          <h3 className="font-medium text-gray-800 mb-2">Skills Analysis</h3>
+        {/* Enhanced Skills Analysis */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <div className="p-1 bg-blue-100 rounded-lg mr-2">
+              <Check className="h-4 w-4 text-blue-600" />
+            </div>
+            Skills Analysis
+          </h3>
           
-          <div className="grid grid-cols-1 gap-2 sm:gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Matched Skills */}
             {scoreResult.matched_skills && scoreResult.matched_skills.length > 0 && (
-              <div className="bg-green-50 border rounded-lg p-2 sm:p-3">
-                <h4 className="font-semibold text-gray-700 mb-1 flex items-center text-xs sm:text-sm">
-                  <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-green-500" />
-                  Matched Skills ({scoreResult.matched_skills.length})
-                </h4>
-                <div className="sm:max-h-24 sm:overflow-y-auto sm:scrollbar-thin sm:scrollbar-thumb-gray-300">
-                  <ul className="space-y-1 pl-2 text-xs">
-                    {(isMobile ? scoreResult.matched_skills : scoreResult.matched_skills.slice(0, 5)).map((skill: string, index: number) => (
-                      <li key={index} className="flex items-start">
-                        <span className="inline-flex items-center justify-center rounded-full bg-green-100 text-green-600 mr-1.5 flex-shrink-0 p-0.5">
-                          <Check className="h-2 w-2" />
-                        </span>
-                        <span className="text-gray-700">{skill}</span>
-                      </li>
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-green-800 flex items-center text-sm">
+                    <div className="p-1 bg-green-200 rounded-full mr-2">
+                      <Check className="h-3 w-3 text-green-700" />
+                    </div>
+                    Matched Skills
+                  </h4>
+                  <span className="bg-green-200 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                    {scoreResult.matched_skills.length}
+                  </span>
+                </div>
+                
+                <div className="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-green-300">
+                  <div className="flex flex-wrap gap-1.5">
+                    {scoreResult.matched_skills.slice(0, isMobile ? 10 : 15).map((skill: string, index: number) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200"
+                      >
+                        <Check className="h-2.5 w-2.5 mr-1" />
+                        {skill}
+                      </span>
                     ))}
-                    {!isMobile && scoreResult.matched_skills.length > 5 && (
-                      <li className="text-xs text-gray-500 italic pl-4">
-                        +{scoreResult.matched_skills.length - 5} more
-                      </li>
+                    {scoreResult.matched_skills.length > (isMobile ? 10 : 15) && (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-200 text-green-700">
+                        +{scoreResult.matched_skills.length - (isMobile ? 10 : 15)} more
+                      </span>
                     )}
-                  </ul>
+                  </div>
                 </div>
               </div>
             )}
+
+            {/* Missing Skills */}
+            {scoreResult.missing_skills && scoreResult.missing_skills.length > 0 && (
+              <div className="bg-gradient-to-br from-red-50 to-rose-50 border border-red-200 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-red-800 flex items-center text-sm">
+                    <div className="p-1 bg-red-200 rounded-full mr-2">
+                      <AlertCircle className="h-3 w-3 text-red-700" />
+                    </div>
+                    Missing Skills
+                  </h4>
+                  <span className="bg-red-200 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
+                    {scoreResult.missing_skills.length}
+                  </span>
+                </div>
+                
+                <div className="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-red-300">
+                  <div className="flex flex-wrap gap-1.5">
+                    {scoreResult.missing_skills.slice(0, isMobile ? 10 : 15).map((skill: string, index: number) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200"
+                      >
+                        <X className="h-2.5 w-2.5 mr-1" />
+                        {skill}
+                      </span>
+                    ))}
+                    {scoreResult.missing_skills.length > (isMobile ? 10 : 15) && (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-200 text-red-700">
+                        +{scoreResult.missing_skills.length - (isMobile ? 10 : 15)} more
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                {scoreResult.missing_skills.length > 0 && (
+                  <div className="mt-3 p-2 bg-red-100 rounded-lg">
+                    <p className="text-xs text-red-700 flex items-start">
+                      <AlertCircle className="h-3 w-3 mr-1 mt-0.5 flex-shrink-0" />
+                      Consider adding these skills to your resume or highlighting relevant experience that demonstrates these competencies.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Skills Summary */}
+          {(scoreResult.matched_skills?.length > 0 || scoreResult.missing_skills?.length > 0) && (
+            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-green-600">
+                      {scoreResult.matched_skills?.length || 0}
+                    </div>
+                    <div className="text-xs text-gray-600">Matched</div>
+                  </div>
+                  <div className="w-px h-8 bg-gray-300"></div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-red-600">
+                      {scoreResult.missing_skills?.length || 0}
+                    </div>
+                    <div className="text-xs text-gray-600">Missing</div>
+                  </div>
+                  <div className="w-px h-8 bg-gray-300"></div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-blue-600">
+                      {Math.round(((scoreResult.matched_skills?.length || 0) / ((scoreResult.matched_skills?.length || 0) + (scoreResult.missing_skills?.length || 0))) * 100) || 0}%
+                    </div>
+                    <div className="text-xs text-gray-600">Coverage</div>
+                  </div>
+                </div>
+                
+                <div className="text-right">
+                  <div className="text-sm font-medium text-gray-700">Skills Match Rate</div>
+                  <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
+                    <div 
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                      style={{ 
+                        width: `${Math.round(((scoreResult.matched_skills?.length || 0) / ((scoreResult.matched_skills?.length || 0) + (scoreResult.missing_skills?.length || 0))) * 100) || 0}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Recommendations */}

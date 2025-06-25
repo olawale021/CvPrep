@@ -523,14 +523,11 @@ export default function ResumeDashboard() {
           )}
 
           {/* Loading State - Mobile Optimized */}
-          {isLoading && !currentResumeData && (
-            <div className="max-w-4xl mx-auto">
-              <LoadingState type="optimizing" />
+          {(isLoading && !currentResumeData) || optimizeOperation.isLoading ? (
+            <div className="max-w-full mx-auto">
+              <LoadingState type="dashboard" />
             </div>
-          )}
-
-          {/* Analysis Results Layout - Mobile Optimized */}
-          {currentResumeData && (
+          ) : currentResumeData && !optimizeOperation.isLoading ? (
             <div className="flex flex-col lg:flex-row lg:gap-6 min-h-[calc(100vh-200px)]">
               {/* Left Column - Resume Data */}
               <div className="w-full lg:w-[60%] mb-4 sm:mb-6 lg:mb-0">
@@ -567,11 +564,17 @@ export default function ResumeDashboard() {
                             className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 px-2 sm:px-4 rounded-lg transition-colors disabled:bg-blue-300 whitespace-nowrap"
                           >
                             {optimizeOperation.isLoading ? (
-                              <>
-                                <div className="h-3 w-3 sm:h-4 sm:w-4 mr-1 inline bg-white/30 rounded animate-pulse"></div>
-                                <span className="hidden sm:inline">Optimizing...</span>
-                                <span className="sm:hidden">...</span>
-                              </>
+                              <div className="flex items-center space-x-1 sm:space-x-2">
+                                <div className="flex space-x-0.5">
+                                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/60 rounded-full animate-pulse"></div>
+                                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/40 rounded-full animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/60 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                                </div>
+                                <div className="flex space-x-0.5 sm:space-x-1">
+                                  <div className="h-2.5 sm:h-3 w-8 sm:w-12 bg-white/30 rounded animate-pulse"></div>
+                                  <div className="hidden sm:block h-3 w-8 bg-white/20 rounded animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                                </div>
+                              </div>
                             ) : (
                               <>
                                 <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1 inline" />
@@ -591,16 +594,6 @@ export default function ResumeDashboard() {
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Optimization Status - Mobile Optimized */}
-                  {optimizeOperation.isLoading && (
-                    <div className="p-3 sm:p-4 bg-blue-50 border-b">
-                      <div className="flex items-center justify-center space-x-2 sm:space-x-3">
-                        <div className="h-4 w-4 bg-blue-600 rounded animate-pulse"></div>
-                        <span className="text-blue-800 text-xs sm:text-sm">Optimizing your resume...</span>
-                      </div>
-                    </div>
-                  )}
                   
                   {/* Resume Content - Mobile Optimized */}
                   <div className="p-3 sm:p-6 overflow-y-auto max-h-[calc(100vh-300px)]">
@@ -660,10 +653,10 @@ export default function ResumeDashboard() {
                 </ErrorBoundary>
               </div>
             </div>
-          )}
+          ) : null}
 
           {/* Empty State - Mobile Optimized */}
-          {!currentResumeData && !isLoading && (
+          {!currentResumeData && !isLoading && !optimizeOperation.isLoading && (
             <div className="max-w-2xl mx-auto text-center py-8 sm:py-12 px-4 sm:px-0">
               <div className="p-3 sm:p-4 bg-blue-50 rounded-full mb-4 sm:mb-6 w-fit mx-auto">
                 <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />

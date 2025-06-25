@@ -92,11 +92,11 @@ function OptimizedResumeContent({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   
-  console.log('OptimizedResumeContent - Using PDF generator:', {
-    isShared: !!pdfGenerator,
-    selectedTemplate,
-    isPdfGenerating
-  });
+  // console.log('OptimizedResumeContent - Using PDF generator:', {
+  //   isShared: !!pdfGenerator,
+  //   selectedTemplate,
+  //   isPdfGenerating
+  // });
   
   const handlePreview = async () => {
     setIsPreviewLoading(true);

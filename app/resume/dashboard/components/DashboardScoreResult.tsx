@@ -134,7 +134,77 @@ export default function DashboardScoreResult({
               )}
             </div>
           </div>
+
+          {/* Missing Skills */}
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <X className="h-4 w-4 text-red-500" />
+              <h4 className="font-medium text-gray-900">Missing Skills</h4>
+              <span className="text-sm text-gray-500">({scoreResult.missing_skills?.length || 0})</span>
+            </div>
+            <div className="space-y-1 max-h-32 overflow-y-auto">
+              {scoreResult.missing_skills && scoreResult.missing_skills.length > 0 ? (
+                scoreResult.missing_skills.map((skill, index) => (
+                  <div key={index} className="flex items-center space-x-2 text-sm">
+                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                    <span className="text-gray-700">{skill}</span>
+                  </div>
+                ))
+              ) : (
+                <span className="text-sm text-gray-500 italic">No missing skills - great job!</span>
+              )}
+            </div>
+            {scoreResult.missing_skills && scoreResult.missing_skills.length > 0 && (
+              <div className="mt-2 p-2 bg-red-50 rounded-md">
+                <p className="text-xs text-red-700">
+                  Consider adding these skills to improve your match score.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Skills Summary */}
+        {(scoreResult.matched_skills?.length > 0 || scoreResult.missing_skills?.length > 0) && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-6">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-green-600">
+                    {scoreResult.matched_skills?.length || 0}
+                  </div>
+                  <div className="text-xs text-gray-600">Matched</div>
+                </div>
+                <div className="w-px h-8 bg-gray-300"></div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-red-600">
+                    {scoreResult.missing_skills?.length || 0}
+                  </div>
+                  <div className="text-xs text-gray-600">Missing</div>
+                </div>
+                <div className="w-px h-8 bg-gray-300"></div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-blue-600">
+                    {Math.round(((scoreResult.matched_skills?.length || 0) / ((scoreResult.matched_skills?.length || 0) + (scoreResult.missing_skills?.length || 0))) * 100) || 0}%
+                  </div>
+                  <div className="text-xs text-gray-600">Coverage</div>
+                </div>
+              </div>
+              
+              <div className="text-right">
+                <div className="text-sm font-medium text-gray-700">Skills Match</div>
+                <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
+                  <div 
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${Math.round(((scoreResult.matched_skills?.length || 0) / ((scoreResult.matched_skills?.length || 0) + (scoreResult.missing_skills?.length || 0))) * 100) || 0}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Recommendations */}
         {scoreResult.recommendations && scoreResult.recommendations.length > 0 && (
@@ -163,10 +233,17 @@ export default function DashboardScoreResult({
               className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
             >
               {isOptimizing ? (
-                <>
-                  <div className="h-4 w-4 mr-2 bg-white/30 rounded animate-pulse" />
-                  Optimizing...
-                </>
+                <div className="flex items-center space-x-2">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-white/40 rounded-full animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                  <div className="flex space-x-1">
+                    <div className="h-3 w-16 bg-white/30 rounded animate-pulse"></div>
+                    <div className="h-3 w-12 bg-white/20 rounded animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                  </div>
+                </div>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4 mr-2" />

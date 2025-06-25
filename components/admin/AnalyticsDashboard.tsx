@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { isAdminEmail } from "../../lib/auth/adminConfig";
 import { Badge } from "../ui/base/Badge";
 import { Button } from "../ui/base/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/base/Card";
@@ -49,14 +48,30 @@ interface DashboardData {
 }
 
 export function AnalyticsDashboard() {
-  const { appUser } = useAuth();
+  const { user } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [environment, setEnvironment] = useState<'production' | 'development'>('production');
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
-  // Check if user is admin
-  const isAdmin = isAdminEmail(appUser?.email);
+  // Check admin status via server-side API
+  const checkAdminStatus = useCallback(async () => {
+    if (!user) {
+      setIsAdmin(false);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/check');
+      const data = await response.json();
+      setIsAdmin(data.isAdmin);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
+    }
+  }, [user]);
 
   const fetchAnalytics = useCallback(async () => {
     try {
@@ -83,31 +98,26 @@ export function AnalyticsDashboard() {
     }
   }, [environment]);
 
+  // Check admin status on mount
   useEffect(() => {
-    if (isAdmin) {
+    checkAdminStatus();
+  }, [checkAdminStatus]);
+
+  // Fetch analytics when admin status is confirmed
+  useEffect(() => {
+    if (isAdmin === true) {
       fetchAnalytics();
-    } else {
+    } else if (isAdmin === false) {
       setLoading(false);
     }
   }, [isAdmin, fetchAnalytics]);
 
-  if (!isAdmin) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h3>
-          <p className="text-gray-600">Admin privileges required to view analytics.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (loading) {
+  if (isAdmin === null || loading) {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
-          <div className="animate-pulse h-10 w-32 bg-gray-200 rounded"></div>
+          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
@@ -124,6 +134,19 @@ export function AnalyticsDashboard() {
       </div>
     );
   }
+
+  if (!isAdmin) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h3>
+          <p className="text-gray-600">Admin privileges required to view analytics.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+
 
   if (error) {
     return (

@@ -230,7 +230,7 @@ function extractStructuredDataManually(content: string): Partial<OptimizedResume
   return result;
 }
 
-export async function optimizeResume(resumeText: string, jobDescription: string, structuredResume?: StructuredResume | null): Promise<OptimizedResume> {
+export async function optimizeResume(resumeText: string, jobDescription: string, structuredResume?: StructuredResume | null, missingSkills?: string[]): Promise<OptimizedResume> {
   if (!openai) {
     return {
       optimized_text: resumeText,
@@ -246,8 +246,22 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
     ]);
     
     // OPTIMIZATION: Streamlined prompt for faster processing while maintaining quality
+    const missingSkillsSection = missingSkills && missingSkills.length > 0 ? `
+    
+    **CRITICAL: MISSING SKILLS TO INTEGRATE**
+    The original resume analysis identified these missing skills that MUST be added:
+    ${missingSkills.map(skill => `- ${skill}`).join('\n')}
+    
+    These skills MUST be:
+    1. Added to the technical_skills or soft_skills sections
+    2. Demonstrated in at least one work experience bullet point
+    3. Naturally integrated into the professional summary
+    
+    The goal is to eliminate ALL missing skills from the original analysis.
+    ` : '';
+
     const prompt = `
-    Optimize this resume to match the job description. For each section:
+    Optimize this resume to match the job description. For each section:${missingSkillsSection}
     
     1. SUMMARY/PROFILE:
        Write a compelling 3-4 sentence professional summary that:
@@ -259,6 +273,10 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
     2. SKILLS:
        - Only include skills that are explicitly required or preferred in the job description, or that are industry-standard for this role.
        - Do NOT include any skills that are not relevant to the job description.
+       - CRITICAL: Properly categorize skills into technical_skills and soft_skills:
+         * TECHNICAL SKILLS: Tools, software, technologies, methodologies, standards, certifications, programming languages
+         * SOFT SKILLS: Communication, leadership, teamwork, problem-solving, time management, client relations, collaboration
+       - MANDATORY: You MUST have both technical_skills AND soft_skills sections with appropriate skills in each
        - The goal is to have ZERO irrelevant skills in the final resume.
     
     3. WORK EXPERIENCE:
@@ -311,14 +329,19 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
          ]
     
     CRITICAL CATEGORIZATION RULES - FOLLOW THESE STRICTLY:
-    - TECHNICAL SKILLS = ONLY abilities, tools, technologies, software, programming languages, frameworks, methodologies (MAXIMUM 12 MOST RELEVANT)
-    - SOFT SKILLS = ONLY interpersonal and professional abilities like communication, leadership, problem-solving
+    - TECHNICAL SKILLS = Tools, technologies, software, programming languages, frameworks, methodologies, standards, industry knowledge (MAXIMUM 12 MOST RELEVANT)
+    - SOFT SKILLS = Interpersonal and professional abilities like communication, leadership, problem-solving, teamwork, time management, client relations, collaboration (MINIMUM 3-5 SKILLS)
     - CERTIFICATIONS = ALL licenses, certifications, credentials, professional qualifications, any "Certified X" or "Licensed X"
     - MANDATORY RULE: Driver's License ONLY if explicitly required by job OR already in original resume
     - MANDATORY RULE: If something contains "License", "Certified", "Certification", or "Credential", it goes in Certifications, NOT Skills
     - MANDATORY RULE: Technical skills should be the actual technology/tool name (e.g., "AWS", "Python") not the certification (e.g., "AWS Certified")
+    - MANDATORY RULE: You MUST include BOTH technical_skills AND soft_skills - never leave soft_skills empty
     - DOUBLE CHECK: Before adding anything to technical skills, ask "Is this a license or certification?" If yes, put it in Certifications
     - SKILL PRIORITIZATION: Choose only the 12 most job-relevant technical skills that make the strongest impact
+    
+    EXAMPLES OF PROPER CATEGORIZATION:
+    - Technical: "Project Management", "ICAO Standards", "CAP168", "Design Software", "AutoCAD"
+    - Soft: "Communication Skills", "Client Relationship Management", "Team Leadership", "Problem Solving", "Time Management"
     
     IMPORTANT FOR SKILLS: If the original resume has few or no skills listed, you MUST generate comprehensive technical and soft skills based on:
     - The work experience and roles held
@@ -355,8 +378,8 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
     {
       "summary": "professional summary text here",
       "skills": {
-        "technical_skills": ["skill1", "skill2", "skill3"],
-        "soft_skills": ["skill1", "skill2", "skill3"]
+        "technical_skills": ["Project Management", "ICAO Standards", "CAP168"],
+        "soft_skills": ["Communication Skills", "Client Relationship Management", "Team Leadership"]
       },
       "work_experience": [
         {
@@ -395,7 +418,7 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
       messages: [
         { 
           role: 'system', 
-          content: 'You are an expert resume writer and career coach. Your specialty is creating achievement-focused bullet points that demonstrate specific skills through quantifiable accomplishments. For EVERY work experience entry, you MUST generate 5-6 bullet points that showcase job-relevant skills with metrics and results. Never skip bullet points - they are critical for resume optimization.' 
+          content: 'You are an expert resume writer and career coach. Your specialty is creating achievement-focused bullet points that demonstrate specific skills through quantifiable accomplishments. For EVERY work experience entry, you MUST generate 5-6 bullet points that showcase job-relevant skills with metrics and results. CRITICAL: You MUST properly categorize skills into both technical_skills AND soft_skills - never leave soft_skills empty. Communication, leadership, teamwork, client relations, and time management are soft skills.' 
         },
         { role: 'user', content: prompt }
       ],

@@ -42,7 +42,7 @@ interface UpdatedResumeData {
 }
 
 export default function OptimizeResume() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const { saveResume } = useSavedResumes();
   const [showSaveDialog, setShowSaveDialog] = useState(false);
@@ -180,22 +180,77 @@ export default function OptimizeResume() {
     // The AddWorkExperienceForm component will handle showing the success state and instructions
   };
 
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+        <div className="hidden md:block w-64 bg-gray-200 animate-pulse"></div>
+        <div className="flex-1 p-4 md:p-6 pt-16 md:pt-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-4">
+              <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
+            </div>
+            
+            <div className="flex flex-col md:flex-row md:gap-6 min-h-[calc(100vh-64px)]">
+              {/* Left Column Skeleton */}
+              <div className="w-full md:w-[40%] flex flex-col space-y-6">
+                {/* Upload Form Skeleton */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <div className="space-y-4">
+                    <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-32 w-full bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-6 w-40 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-24 w-full bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-10 w-24 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Right Column Skeleton */}
+              <div className="w-full md:w-[60%] mt-6 md:mt-0">
+                <div className="bg-white rounded-xl shadow-sm p-6 h-full">
+                  <div className="flex flex-col items-center justify-center text-center py-12">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-4"></div>
+                    <div className="h-6 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+                    <div className="h-4 w-80 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
       {/* Sidebar */}
       <Sidebar />
       
       {/* Main Content */}
-      <div className="flex-1 p-4 md:p-6 pt-16 md:pt-6 overflow-x-hidden">
+      <div className="flex-1 p-4 md:p-8 pt-16 md:pt-8 overflow-x-hidden">
         <div className="w-full max-w-7xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl text-black font-bold text-center mb-4">Resume Review</h1>
+          {/* Enhanced Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full text-sm font-medium text-blue-700 mb-4">
+              <FileText className="h-4 w-4 mr-2" />
+              AI-Powered Resume Optimization
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+              Optimize Your Resume
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Get personalized recommendations and boost your chances of landing your dream job
+            </p>
+          </div>
           
-          <div className="flex flex-col md:flex-row md:gap-6 min-h-[calc(100vh-64px)] h-full">
+          <div className="flex flex-col lg:flex-row lg:gap-8 min-h-[calc(100vh-200px)]">
             {/* Left Column - Upload Form + Score Result */}
-            <div className="w-full md:w-[40%] flex flex-col space-y-6 h-full max-h-[calc(100vh-64px)]">
+            <div className="w-full lg:w-[42%] flex flex-col space-y-6">
               {/* Resume Upload Form */}
-              <div className="w-full bg-white rounded-xl shadow-sm overflow-hidden">
-                <div className="p-4 sm:p-6">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                <div className="p-6 md:p-8">
                   <ErrorBoundary fallback={
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                       <p className="text-red-800">Error loading upload form. Please refresh the page.</p>
@@ -213,9 +268,10 @@ export default function OptimizeResume() {
                   </ErrorBoundary>
                 </div>
               </div>
-              {/* Always show ScoreResult if scoreResult exists */}
+              
+              {/* Score Result */}
               {scoreResult && !isScoring && (
-                <div className="w-full">
+                <div className="w-full animate-fadeIn">
                   <ErrorBoundary fallback={
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                       <p className="text-red-800">Error displaying score results.</p>
@@ -235,10 +291,10 @@ export default function OptimizeResume() {
               )}
             </div>
 
-            {/* Right Column - Score Results (initially), Optimized Resume, or Loading States */}
-            <div className="w-full md:w-[60%] mt-6 md:mt-0 flex flex-col h-full max-h-[calc(100vh-64px)]">
-              <div className="w-full bg-white rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col h-full">
-                <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
+            {/* Right Column - Results Display */}
+            <div className="w-full lg:w-[58%] mt-6 lg:mt-0 flex flex-col">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden flex-1 flex flex-col min-h-[600px]">
+                <div className="p-6 md:p-8 flex-1 overflow-y-auto">
                   {loading ? (
                     <LoadingState type="optimizing" />
                   ) : isScoring ? (
@@ -260,14 +316,36 @@ export default function OptimizeResume() {
                       </ResumeEditProvider>
                     </ErrorBoundary>
                   ) : (
-                    <div className="flex flex-col items-center justify-center text-center py-8">
-                      <div className="p-3 bg-blue-50 rounded-full mb-4">
-                        <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
+                    <div className="flex flex-col items-center justify-center text-center py-16">
+                      <div className="relative mb-8">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-lg opacity-20 animate-pulse"></div>
+                        <div className="relative p-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full">
+                          <FileText className="h-12 w-12 text-white" />
+                        </div>
                       </div>
-                      <h3 className="text-base sm:text-lg font-medium text-black mb-2">Two-Step Resume Optimization</h3>
-                      <p className="text-sm sm:text-base text-black max-w-md mx-auto">
-                        First, score your resume against the job description. Then, optimize your resume to improve your chances of getting noticed.
+                      
+                      <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                        Ready to Transform Your Resume?
+                      </h3>
+                      
+                      <p className="text-gray-600 max-w-lg mx-auto mb-8 leading-relaxed">
+                        Our AI-powered system will analyze your resume against the job description and provide personalized optimization recommendations.
                       </p>
+                      
+                      <div className="grid md:grid-cols-2 gap-6 w-full max-w-md">
+                        <div className="text-center p-4 bg-gradient-to-b from-blue-50 to-blue-100 rounded-xl">
+                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <span className="text-white font-bold text-sm">1</span>
+                          </div>
+                          <p className="text-sm font-medium text-blue-700">Score & Analyze</p>
+                        </div>
+                        <div className="text-center p-4 bg-gradient-to-b from-purple-50 to-purple-100 rounded-xl">
+                          <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <span className="text-white font-bold text-sm">2</span>
+                          </div>
+                          <p className="text-sm font-medium text-purple-700">Optimize & Improve</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -275,7 +353,7 @@ export default function OptimizeResume() {
             </div>
           </div>
           
-          {error && <ErrorMessage message={error} className="mt-4" />}
+          {error && <ErrorMessage message={error} className="mt-6" />}
         </div>
       </div>
 

@@ -10,7 +10,7 @@ interface JobDescriptionInputProps {
   error?: string | null;
 }
 
-export const JobDescriptionInput: React.FC<JobDescriptionInputProps> = ({ value, onChange, maxLength = 2000, error }) => (
+export const JobDescriptionInput: React.FC<JobDescriptionInputProps> = ({ value, onChange, maxLength = 3000, error }) => (
   <div className="space-y-3">
     <Label htmlFor="job-description" className="text-black">Paste Job Description</Label>
     <Textarea

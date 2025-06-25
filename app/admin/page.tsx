@@ -9,22 +9,158 @@ import { Badge } from "../../components/ui/base/Badge";
 import { Button } from "../../components/ui/base/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/base/Card";
 import { useAuth } from "../../context/AuthContext";
-import { isAdminEmail } from "../../lib/auth/adminConfig";
 
 type AdminTab = "dashboard" | "users" | "analytics" | "settings" | "feedback";
 
 export default function AdminPage() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [adminCheckLoading, setAdminCheckLoading] = useState(true);
 
-  // Admin access check using centralized configuration
-  if (!user || !isAdminEmail(user.email)) {
+  // Server-side admin check
+  const checkAdminStatus = useCallback(async () => {
+    if (!user) {
+      setIsAdmin(false);
+      setAdminCheckLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/check');
+      const data = await response.json();
+      
+      setIsAdmin(data.isAdmin);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
+    } finally {
+      setAdminCheckLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!authLoading) {
+      checkAdminStatus();
+    }
+  }, [authLoading, checkAdminStatus]);
+
+  // Show loading state with skeleton
+  if (authLoading || adminCheckLoading) {
+    return (
+      <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+        {/* Sidebar Skeleton */}
+        <div className="hidden md:block w-64 bg-gray-200 animate-pulse"></div>
+        
+        {/* Main Content Skeleton */}
+        <div className="flex-1 p-4 md:p-6 pt-16 md:pt-6 overflow-x-hidden">
+          <div className="max-w-7xl mx-auto">
+            {/* Header Skeleton */}
+            <div className="mb-8">
+              <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-4 w-96 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Navigation Tabs Skeleton */}
+            <div className="mb-8">
+              <div className="border-b border-gray-200">
+                <div className="flex space-x-8">
+                  <div className="h-6 w-20 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions Cards Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* Card 1 */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="h-5 w-32 bg-gray-200 rounded animate-pulse mb-2"></div>
+                <div className="h-4 w-40 bg-gray-200 rounded animate-pulse mb-4"></div>
+                <div className="space-y-3">
+                  <div className="h-8 w-full bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-8 w-full bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-8 w-full bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="h-5 w-28 bg-gray-200 rounded animate-pulse mb-2"></div>
+                <div className="h-4 w-36 bg-gray-200 rounded animate-pulse mb-4"></div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-6 w-20 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-6 w-28 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="h-5 w-24 bg-gray-200 rounded animate-pulse mb-2"></div>
+                <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-4"></div>
+                <div className="space-y-3">
+                  <div>
+                    <div className="h-3 w-20 bg-gray-200 rounded animate-pulse mb-1"></div>
+                    <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div>
+                    <div className="h-3 w-24 bg-gray-200 rounded animate-pulse mb-1"></div>
+                    <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Analytics Section Skeleton */}
+            <div className="bg-white rounded-xl shadow p-6">
+              <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mb-6"></div>
+              
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="text-center">
+                    <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mx-auto mb-2"></div>
+                    <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Chart Area */}
+              <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Admin access check using server-side verification
+  if (!user || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600">You don&apos;t have permission to view this page.</p>
+          <p className="text-gray-600 mb-4">You don&apos;t have permission to view this page.</p>
+          {user && (
+            <div className="text-sm text-gray-500">
+              <p>Logged in as: {user.email}</p>
+              <Link href="/admin/debug" className="text-blue-500 hover:underline">
+                Debug admin access
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -209,7 +345,6 @@ function UserManagement() {
   }>>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [pagination, setPagination] = useState({ total: 0, limit: 50, offset: 0 });
   const [error, setError] = useState<string | null>(null);
 
   const fetchUsers = useCallback(async (search = searchTerm) => {
@@ -228,10 +363,6 @@ function UserManagement() {
       if (response.ok) {
         const data = await response.json();
         setUsers(data.users || []);
-        setPagination(prev => ({
-          ...prev,
-          total: data.total || 0
-        }));
       } else {
         const errorData = await response.json();
         const errorMessage = errorData.details || errorData.error || response.statusText;
@@ -253,198 +384,104 @@ function UserManagement() {
   }, [fetchUsers]);
 
   const resetUserUsage = async (userId: string, userEmail: string) => {
-    if (!confirm(`Reset usage for ${userEmail}? This will clear their daily rate limits.`)) {
-      return;
-    }
-
     try {
       const response = await fetch('/api/reset-usage', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),
       });
       
       if (response.ok) {
         alert(`Usage reset successfully for ${userEmail}`);
-        // Refresh the users list to show updated data
-        fetchUsers();
+        fetchUsers(); // Refresh the users list
       } else {
-        const errorData = await response.json();
-        alert(`Failed to reset usage: ${errorData.error || 'Unknown error'}`);
+        const error = await response.json();
+        alert(`Failed to reset usage: ${error.error}`);
       }
     } catch (error) {
       console.error('Error resetting usage:', error);
-      alert('Error resetting user usage');
+      alert('Error resetting usage');
     }
   };
 
-  // Search with debounce
   const handleSearch = (value: string) => {
     setSearchTerm(value);
-    // Reset to first page when searching
-    setPagination(prev => ({ ...prev, offset: 0 }));
-    setTimeout(() => fetchUsers(value), 500);
+    // Debounce search or trigger immediately
+    fetchUsers(value);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Total: {pagination.total} users
-          </p>
-        </div>
+        <h2 className="text-2xl font-bold">User Management</h2>
         <Button onClick={() => fetchUsers()} disabled={loading}>
-          {loading ? 'Loading...' : 'Refresh Users'}
+          {loading ? 'Loading...' : 'Refresh'}
         </Button>
       </div>
 
-      {/* Error Display */}
-      {error && (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-red-800">
-              <AlertCircle className="h-4 w-4" />
-              <p className="text-sm">{error}</p>
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => fetchUsers()} 
-              className="mt-2"
-            >
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Search Users</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* Search */}
+      <div className="flex gap-4">
           <input
             type="text"
             placeholder="Search by email..."
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </CardContent>
-      </Card>
-
-      {/* Users List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Users ({users.length})</CardTitle>
-          <CardDescription>
-            Manage user accounts and rate limits. Usage stats show last 30 days.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {users.length === 0 && !loading ? (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No users found. Click &#34;Refresh Users&ldquo; to load data.</p>
-            </div>
-          ) : loading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 space-y-2">
-                      <div className="h-5 w-64 bg-gray-200 rounded animate-pulse"></div>
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        {Array.from({ length: 5 }).map((_, j) => (
-                          <div key={j} className="space-y-1">
-                            <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
-                            <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="h-8 w-24 bg-gray-200 rounded animate-pulse ml-4"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {users.map((user) => (
-                <div key={user.id} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-medium text-gray-900">{user.email}</h4>
-                        <div className="flex gap-2">
-                          <Badge variant={user.type === 'premium' ? 'default' : user.type === 'admin' ? 'default' : 'secondary'}>
-                            {user.type || 'free'}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {user.id.slice(0, 8)}...
-                          </Badge>
-                        </div>
+          className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+        />
                       </div>
                       
-                      {/* Usage Stats */}
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-3">
-                        <div className="text-sm">
-                          <p className="text-gray-600">Total Usage (30d)</p>
-                          <p className="font-medium text-blue-600">{user.usage?.total || 0}</p>
-                        </div>
-                        <div className="text-sm">
-                          <p className="text-gray-600">Created</p>
-                          <p className="font-medium">{new Date(user.created_at).toLocaleDateString()}</p>
-                        </div>
-                        <div className="text-sm">
-                          <p className="text-gray-600">Last Updated</p>
-                          <p className="font-medium">{user.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'N/A'}</p>
-                        </div>
-                        <div className="text-sm">
-                          <p className="text-gray-600">Status</p>
-                          <Badge variant="default" className="bg-green-100 text-green-800">
-                            Active
-                          </Badge>
-                        </div>
-                      </div>
-
-                      {/* Feature Usage Breakdown */}
-                      {user.usage?.features && Object.keys(user.usage.features).length > 0 && (
-                        <div className="mb-3">
-                          <p className="text-sm text-gray-600 mb-2">Feature Usage (30d):</p>
-                          <div className="flex flex-wrap gap-2">
-                            {Object.entries(user.usage.features).map(([feature, count]) => (
-                              <Badge key={feature} variant="outline" className="text-xs">
-                                {feature.replace('_', ' ')}: {count}
-                              </Badge>
-                            ))}
-                          </div>
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error}</p>
                         </div>
                       )}
-                    </div>
-                    
-                    <div className="flex gap-2 ml-4">
+
+      {/* Users Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {user.email}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <Badge variant={user.type === 'admin' ? 'default' : 'secondary'}>
+                    {user.type || 'free'}
+                  </Badge>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {new Date(user.created_at).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => resetUserUsage(user.id, user.email)}
-                        disabled={loading}
                       >
                         Reset Usage
                       </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {users.length === 0 && !loading && (
+          <div className="text-center py-8 text-gray-500">
+            No users found
             </div>
           )}
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 } 
