@@ -39,6 +39,7 @@ export default function ResumeDashboard() {
   const [showOptimized, setShowOptimized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isScoring, setIsScoring] = useState(false);
+  const [isRescoringOptimized, setIsRescoringOptimized] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Use a single PDF generator instance for the entire page
@@ -183,6 +184,7 @@ export default function ResumeDashboard() {
 
   // Function to score optimized resume
   const scoreOptimizedResume = async (optimizedData: ResumeData, jobDesc: string) => {
+    setIsRescoringOptimized(true);
     try {
       // Get the session token from Supabase
       const { data: { session } } = await supabase.auth.getSession();
@@ -215,6 +217,8 @@ export default function ResumeDashboard() {
       }
     } catch (error) {
       console.error('Error scoring optimized resume:', error);
+    } finally {
+      setIsRescoringOptimized(false);
     }
   };
 
@@ -623,7 +627,7 @@ export default function ResumeDashboard() {
                     <p className="text-red-800 text-sm">Error displaying score results.</p>
                   </div>
                 }>
-                  {isScoring && !scoreResult ? (
+                  {(isScoring && !scoreResult) || (showOptimized && isRescoringOptimized) ? (
                     <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
                       <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
                         <div className="h-4 w-4 sm:h-5 sm:w-5 bg-blue-600 rounded animate-pulse"></div>

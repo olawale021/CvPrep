@@ -29,7 +29,7 @@ export default function ResumeUploadForm({
   const [dragError, setDragError] = useState<string | null>(null);
 
   const minJobDescLength = 50;
-  const maxJobDescLength = 3000;
+  const maxJobDescLength = 5000;
 
   const validateFile = useCallback((file: File): string | null => {
     const allowedTypes = ['.pdf', '.doc', '.docx'];
