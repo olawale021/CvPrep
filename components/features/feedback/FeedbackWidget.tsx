@@ -118,7 +118,7 @@ export default function FeedbackWidget() {
       {/* Floating Feedback Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 group"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 bg-slate-800 hover:bg-slate-700 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 group"
         aria-label="Send Feedback"
       >
         <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 group-hover:rotate-12 transition-transform duration-300" />
@@ -248,7 +248,7 @@ export default function FeedbackWidget() {
               <Button
                 type="submit"
                 disabled={isSubmitting || !formData.title?.trim() || !formData.description?.trim()}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full sm:w-auto"
+                className="bg-slate-800 hover:bg-slate-700 w-full sm:w-auto"
               >
                 {isSubmitting ? (
                   <>

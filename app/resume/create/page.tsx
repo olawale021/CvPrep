@@ -16,15 +16,15 @@ import { useAuth } from '../../../context/AuthContext';
 import { useSavedResumes } from '../../../hooks/api/useSavedResumes';
 import { useAsyncOperation } from '../../../hooks/ui/useAsyncOperation';
 import { supabase } from '../../../lib/auth/supabaseClient';
+import { showFeedbackNotification } from '../../../lib/core/utils';
 import { ResumeScore } from '../../../lib/services/resume/scoreResume';
 import { SaveResumeRequest } from '../../../types/api/savedResume';
-import DashboardScoreResult from '../dashboard/components/DashboardScoreResult';
 import ErrorMessage from '../optimize/components/ErrorMessage';
 import OptimizedResume from '../optimize/components/OptimizedResume';
+import ScoreResult from '../optimize/components/ScoreResult';
 import { ResumeEditProvider } from '../optimize/context/ResumeEditContext';
 import { usePdfGenerator } from '../optimize/hooks/usePdfGenerator';
 import { ResumeData, ResumeResponse } from '../optimize/types';
-import { showFeedbackNotification } from '../../../lib/core/utils';
 
 interface WorkExperience {
   company: string;
@@ -586,10 +586,14 @@ export default function CreateResumePage() {
             </p>
           </div>
 
-          {/* Form Section - Show when no generated resume */}
+          {/* Form and Empty State Layout - Show when no generated resume */}
           {!generatedResume && !isLoading && (
-            <div className="max-w-4xl mx-auto">
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col lg:flex-row lg:gap-6 h-[calc(100vh-200px)]">
+              {/* Left Column - Form (60%) */}
+              <div className="w-full lg:w-[60%] mb-4 sm:mb-6 lg:mb-0">
+                <div className="h-full flex flex-col">
+                  <div className="flex-1 overflow-y-auto pr-2">
+                    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 pb-6">
                 
                 {/* Personal Information Card */}
                 <Card>
@@ -665,7 +669,7 @@ export default function CreateResumePage() {
                       Target Job Information
                     </CardTitle>
                     <CardDescription className="text-xs sm:text-sm">
-                      Enter the job description and your current summary (optional).
+                      Enter the job description.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3 sm:space-y-4">
@@ -678,17 +682,6 @@ export default function CreateResumePage() {
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange('jobDescription', e.target.value)}
                         required
                         rows={6}
-                        className="resize-none text-xs sm:text-sm"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="currentSummary" className="text-xs sm:text-sm text-black">Current Summary (Optional)</Label>
-                      <Textarea
-                        id="currentSummary"
-                        placeholder="Your current professional summary if you have one..."
-                        value={formData.currentSummary}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange('currentSummary', e.target.value)}
-                        rows={4}
                         className="resize-none text-xs sm:text-sm"
                       />
                     </div>
@@ -966,6 +959,40 @@ export default function CreateResumePage() {
                   </Button>
                 </div>
               </form>
+                    </div>
+                  </div>
+                </div>
+
+              {/* Right Column - Empty State (40%) */}
+              <div className="w-full lg:w-[40%]">
+                <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6 h-full">
+                  <div className="flex flex-col items-center justify-center h-full text-center py-8 sm:py-12">
+                    <div className="p-3 sm:p-4 bg-blue-50 rounded-full mb-4 sm:mb-6 w-fit">
+                      <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">Ready to Create Your Resume?</h3>
+                    <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+                      Fill out the form to generate a professional resume tailored to your target job.
+                    </p>
+                    <div className="grid grid-cols-1 gap-3 sm:gap-4 text-left w-full max-w-sm">
+                      <div className="bg-gray-50 p-3 sm:p-4 rounded-lg border">
+                        <div className="flex items-center mb-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                          <span className="font-medium text-gray-900 text-sm sm:text-base">AI-Generated Content</span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-gray-600">Professional summary, skills, and achievements created by AI</p>
+                      </div>
+                      <div className="bg-gray-50 p-3 sm:p-4 rounded-lg border">
+                        <div className="flex items-center mb-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                          <span className="font-medium text-gray-900 text-sm sm:text-base">Instant Scoring</span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-gray-600">Get match percentage and optimization suggestions</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1134,11 +1161,13 @@ export default function CreateResumePage() {
                       </div>
                     </div>
                   ) : scoreResult ? (
-                    <DashboardScoreResult
+                    <ScoreResult
                       scoreResult={scoreResult}
-                      onStartOverAction={handleReset}
-                      showOptimizeButton={false}
-                      isOptimizing={false}
+                      handleOptimize={() => {}} // No optimize functionality needed in create page
+                      loading={false}
+                      setScoreResult={setScoreResult}
+                      file={null}
+                      jobDescription={formData.jobDescription}
                     />
                   ) : (
                     <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
@@ -1152,34 +1181,7 @@ export default function CreateResumePage() {
             </div>
           )}
 
-          {/* Empty State - Mobile Optimized */}
-          {!generatedResume && !isLoading && (
-            <div className="max-w-2xl mx-auto text-center py-8 sm:py-12 px-4 sm:px-0">
-              <div className="p-3 sm:p-4 bg-blue-50 rounded-full mb-4 sm:mb-6 w-fit mx-auto">
-                <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">Ready to Create Your Resume?</h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                Fill out the form above to generate a professional resume tailored to your target job.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left">
-                <div className="bg-white p-3 sm:p-4 rounded-lg border">
-                  <div className="flex items-center mb-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    <span className="font-medium text-gray-900 text-sm sm:text-base">AI-Generated Content</span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-gray-600">Professional summary, skills, and achievements created by AI</p>
-                </div>
-                <div className="bg-white p-3 sm:p-4 rounded-lg border">
-                  <div className="flex items-center mb-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                    <span className="font-medium text-gray-900 text-sm sm:text-base">Instant Scoring</span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-gray-600">Get match percentage and optimization suggestions</p>
-                </div>
-              </div>
-            </div>
-          )}
+
           
           {error && <ErrorMessage message={error} className="mt-3 sm:mt-4 max-w-2xl mx-auto" />}
         </div>

@@ -3,8 +3,8 @@ import { ArrowRight, CheckCircle, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "../components/ui/base/Button";
 import LandingHeader from "../components/layout/LandingHeader";
+import { Button } from "../components/ui/base/Button";
 
 export default function Home() {
   const router = useRouter();
@@ -72,7 +72,7 @@ export default function Home() {
               {/* CTA Button */}
               <div className="space-y-4">
                 <Button 
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-lg px-10 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white text-lg px-10 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                   onClick={handlePrimaryAction}
                 >
                   Get Started <ArrowRight className="ml-2 h-5 w-5" />
@@ -195,7 +195,7 @@ export default function Home() {
                   </div>
                   
                   <Button 
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
                     onClick={() => goToFeature('/dashboard')}
                   >
                     Optimize Your CV <ArrowRight className="ml-2 h-5 w-5" />
@@ -312,7 +312,7 @@ export default function Home() {
                   </div>
                   
                   <Button 
-                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
                     onClick={() => goToFeature('/dashboard')}
                   >
                     Try CV Scoring <ArrowRight className="ml-2 h-5 w-5" />
@@ -417,7 +417,7 @@ export default function Home() {
                   </div>
                   
                   <Button 
-                    className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
                     onClick={() => goToFeature('/cover-letter')}
                   >
                     Generate Cover Letter <ArrowRight className="ml-2 h-5 w-5" />
@@ -516,7 +516,7 @@ export default function Home() {
                   </div>
                   
                   <Button 
-                    className="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
                     onClick={() => goToFeature('/interview-prep')}
                   >
                     Start Interview Practice <ArrowRight className="ml-2 h-5 w-5" />

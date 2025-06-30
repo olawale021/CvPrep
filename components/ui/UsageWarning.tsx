@@ -101,7 +101,7 @@ export function UsageWarning({
             Your 7-day free trial has ended. Upgrade to premium to continue using AI-powered features.
           </p>
           <div className="mt-3">
-            <Button className="bg-red-600 hover:bg-red-700 text-white">
+                          <Button className="bg-slate-800 hover:bg-slate-700 text-white">
               <a href="/upgrade">Upgrade Now</a>
             </Button>
           </div>
@@ -126,7 +126,7 @@ export function UsageWarning({
               <Clock className="h-4 w-4 mr-1" />
               Resets at Midnight
             </Button>
-            <Button className="bg-orange-600 hover:bg-orange-700 text-white">
+                          <Button className="bg-slate-800 hover:bg-slate-700 text-white">
               <a href="/upgrade">Upgrade Now</a>
             </Button>
           </div>
@@ -178,7 +178,7 @@ export function UsageWarning({
             Upgrade now to continue using all features without limits.
           </p>
           <div className="mt-3">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                          <Button className="bg-slate-800 hover:bg-slate-700 text-white">
               <a href="/upgrade">Upgrade Before Trial Ends</a>
             </Button>
           </div>

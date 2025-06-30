@@ -42,18 +42,49 @@ export function useResumeOptimizer() {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
-      const res = await fetch("/api/resume/score", { 
-        method: "POST", 
-        body: form,
-        headers 
-      });
-      const data = await res.json();
+      // Call both analyze and score APIs in parallel
+      const [analyzeRes, scoreRes] = await Promise.all([
+        fetch("/api/resume/analyze", { 
+          method: "POST", 
+          body: form,
+          headers 
+        }),
+        fetch("/api/resume/score", { 
+          method: "POST", 
+          body: form,
+          headers 
+        })
+      ]);
       
-      if (!res.ok) throw new Error(data.error || "Failed to score resume");
-      setScoreResult(data);
+      const [analyzeData, scoreData] = await Promise.all([
+        analyzeRes.json(),
+        scoreRes.json()
+      ]);
+      
+      // Check for errors
+      if (!analyzeRes.ok) throw new Error(analyzeData.error || "Failed to analyze resume");
+      if (!scoreRes.ok) throw new Error(scoreData.error || "Failed to score resume");
+      
+      // Set both response data (for resume analysis) and score result (for scoring)
+      setResponse(analyzeData);
+      setScoreResult(scoreData);
+      
+      // Create resume response object for compatibility
+      const resumeResponseData: ResumeResponse = {
+        data: analyzeData,
+        original: analyzeData,
+        contact_details: analyzeData.contact_details || {
+          name: "",
+          email: "",
+          phone_number: "",
+          location: ""
+        }
+      };
+      setResumeResponse(resumeResponseData);
+      
       setScoringMode(true);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to score resume");
+      setError(e instanceof Error ? e.message : "Failed to analyze and score resume");
     } finally {
       setIsScoring(false);
     }

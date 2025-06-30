@@ -1,4 +1,4 @@
-import { Download, Edit, Expand, FileText, Save } from "lucide-react";
+import { Download, Edit, Expand, Save } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../../../../components/ui/base/Button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../../../components/ui/composite/Dialog";
@@ -19,6 +19,7 @@ interface OptimizedResumeProps {
   isPdfGenerating: boolean;
   onSaveResume?: () => void;
   pdfGenerator?: ReturnType<typeof usePdfGenerator>;
+  isOptimized?: boolean;
 }
 
 interface OptimizedResumeContentProps {
@@ -32,6 +33,7 @@ interface OptimizedResumeContentProps {
   resumeContentRef: React.RefObject<HTMLDivElement | null>;
   onSaveResume?: () => void;
   pdfGenerator?: ReturnType<typeof usePdfGenerator>;
+  isOptimized?: boolean;
 }
 
 export default function OptimizedResume({
@@ -39,7 +41,8 @@ export default function OptimizedResume({
   handleDownloadPdf,
   isPdfGenerating,
   onSaveResume,
-  pdfGenerator
+  pdfGenerator,
+  isOptimized
 }: OptimizedResumeProps) {
   const [activeTab, setActiveTab] = useState<string>("summary");
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -65,6 +68,7 @@ export default function OptimizedResume({
         resumeContentRef={resumeContentRef}
         onSaveResume={onSaveResume}
         pdfGenerator={pdfGenerator}
+        isOptimized={isOptimized}
       />
     </ResumeEditProvider>
   );
@@ -80,7 +84,7 @@ function OptimizedResumeContent({
   setActiveTab,
   resumeContentRef,
   onSaveResume,
-  pdfGenerator
+  pdfGenerator,
 }: OptimizedResumeContentProps) {
   const { editableResume } = useResumeEdit();
   
@@ -116,7 +120,7 @@ function OptimizedResumeContent({
       <div className={`bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden h-full flex flex-col ${isEditMode ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}>
         {/* Global edit mode indicator banner - Mobile Optimized */}
         {isEditMode && (
-          <div className="bg-blue-50 border-b border-blue-200 p-3 sm:p-6 text-xs sm:text-sm text-blue-800 flex items-center justify-center">
+          <div className="bg-slate-50 border-b border-slate-200 p-3 sm:p-6 text-xs sm:text-sm text-slate-800 flex items-center justify-center">
             <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">Edit mode is active — make changes to your resume</span>
             <span className="sm:hidden">Edit mode active</span>
@@ -124,19 +128,21 @@ function OptimizedResumeContent({
         )}
         
         {/* Header Section - Mobile Optimized */}
-        <div className={`p-3 sm:p-6 bg-white border-b ${isEditMode ? 'bg-blue-50/30' : ''}`}>
+        <div className={`p-3 sm:p-6 bg-white border-b ${isEditMode ? 'bg-slate-50/30' : ''}`}>
           <div className="flex flex-col space-y-2 sm:space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center space-x-1 sm:space-x-2">
+            {/* <div className="flex items-center space-x-1 sm:space-x-2">
               <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
-              <h2 className="text-base sm:text-lg font-semibold text-black">Optimized Resume</h2>
-            </div>
+              <h2 className="text-base sm:text-lg font-semibold text-black">
+                {isOptimized ? "Optimized Resume" : "Current Resume Analysis"}
+              </h2>
+            </div> */}
             
             {/* Action Buttons - Mobile Optimized */}
             <div className="w-full md:w-auto flex justify-start gap-1 sm:gap-2 overflow-x-auto pb-1 sm:pb-2">
               <Button
                 variant={isEditMode ? "default" : "outline"}
                 size="sm"
-                className={`whitespace-nowrap items-center text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 ${isEditMode ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                className={`whitespace-nowrap items-center text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 ${isEditMode ? 'bg-slate-800 hover:bg-slate-700' : ''}`}
                 onClick={() => setIsEditMode(!isEditMode)}
               >
                 <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -192,88 +198,88 @@ function OptimizedResumeContent({
         {/* Tabs Section - Mobile Optimized */}
         <div ref={resumeContentRef} className="flex-1 flex flex-col">
           {/* Simple Tabs Navigation - Mobile Optimized */}
-          <div className={`border-b ${isEditMode ? 'bg-blue-50/30' : ''}`}>
+          <div className={`border-b ${isEditMode ? 'bg-slate-50/30' : ''}`}>
             <div className="flex overflow-x-auto px-3 sm:px-6 scrollbar-hide">
-              <button
-                className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
-                  activeTab === "summary" 
-                    ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
-                    : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
-                }`}
-                onClick={() => setActiveTab("summary")}
-              >
-                Summary
-              </button>
+                              <button
+                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
+                    activeTab === "summary" 
+                      ? "border-b-2 border-slate-600 text-slate-700 bg-slate-50 font-semibold" 
+                      : "border-b-2 border-transparent text-gray-600 hover:text-slate-700 hover:border-slate-200"
+                  }`}
+                  onClick={() => setActiveTab("summary")}
+                >
+                  Summary
+                </button>
               
               {(editableResume.skills && Object.keys(editableResume.skills).length > 0) && (
-                <button
-                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
-                    activeTab === "skills" 
-                      ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
-                      : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
-                  }`}
-                  onClick={() => setActiveTab("skills")}
-                >
-                  Skills
-                </button>
+                                  <button
+                    className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
+                      activeTab === "skills" 
+                        ? "border-b-2 border-slate-600 text-slate-700 bg-slate-50 font-semibold" 
+                        : "border-b-2 border-transparent text-gray-600 hover:text-slate-700 hover:border-slate-200"
+                    }`}
+                    onClick={() => setActiveTab("skills")}
+                  >
+                    Skills
+                  </button>
               )}
               
               {(editableResume.work_experience && editableResume.work_experience.length > 0) && (
-                <button
-                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
-                    activeTab === "experience" 
-                      ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
-                      : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
-                  }`}
-                  onClick={() => setActiveTab("experience")}
-                >
-                  Experience
-                </button>
+                                  <button
+                    className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
+                      activeTab === "experience" 
+                        ? "border-b-2 border-slate-600 text-slate-700 bg-slate-50 font-semibold" 
+                        : "border-b-2 border-transparent text-gray-600 hover:text-slate-700 hover:border-slate-200"
+                    }`}
+                    onClick={() => setActiveTab("experience")}
+                  >
+                    Experience
+                  </button>
               )}
               
               {(editableResume.education && editableResume.education.length > 0) && (
-                <button
-                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
-                    activeTab === "education" 
-                      ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
-                      : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
-                  }`}
-                  onClick={() => setActiveTab("education")}
-                >
-                  Education
-                </button>
+                                  <button
+                    className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
+                      activeTab === "education" 
+                        ? "border-b-2 border-slate-600 text-slate-700 bg-slate-50 font-semibold" 
+                        : "border-b-2 border-transparent text-gray-600 hover:text-slate-700 hover:border-slate-200"
+                    }`}
+                    onClick={() => setActiveTab("education")}
+                  >
+                    Education
+                  </button>
               )}
               
               {(editableResume.projects && editableResume.projects.length > 0) && (
-                <button
-                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
-                    activeTab === "projects" 
-                      ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
-                      : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
-                  }`}
-                  onClick={() => setActiveTab("projects")}
-                >
-                  Projects
-                </button>
+                                  <button
+                    className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
+                      activeTab === "projects" 
+                        ? "border-b-2 border-slate-600 text-slate-700 bg-slate-50 font-semibold" 
+                        : "border-b-2 border-transparent text-gray-600 hover:text-slate-700 hover:border-slate-200"
+                    }`}
+                    onClick={() => setActiveTab("projects")}
+                  >
+                    Projects
+                  </button>
               )}
               
               {(editableResume.certifications && editableResume.certifications.length > 0) && (
-                <button
-                  className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
-                    activeTab === "certifications" 
-                      ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50 font-semibold" 
-                      : "border-b-2 border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-200"
-                  }`}
-                  onClick={() => setActiveTab("certifications")}
-                >
-                  Certifications
-                </button>
+                                  <button
+                    className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap ${
+                      activeTab === "certifications" 
+                        ? "border-b-2 border-slate-600 text-slate-700 bg-slate-50 font-semibold" 
+                        : "border-b-2 border-transparent text-gray-600 hover:text-slate-700 hover:border-slate-200"
+                    }`}
+                    onClick={() => setActiveTab("certifications")}
+                  >
+                    Certifications
+                  </button>
               )}
             </div>
           </div>
           
           {/* Tab Content - Mobile Optimized */}
-          <div className={`flex-1 overflow-y-auto p-3 sm:p-6 ${isEditMode ? 'bg-blue-50/10' : ''}`}>
+          <div className={`flex-1 overflow-y-auto p-3 sm:p-6 ${isEditMode ? 'bg-slate-50/10' : ''}`}>
             {activeTab === "summary" && <Summary isEditMode={isEditMode} summary={editableResume.summary} />}
             {activeTab === "skills" && <Skills isEditMode={isEditMode} skills={editableResume.skills} />}
             {activeTab === "experience" && <WorkExperience isEditMode={isEditMode} work_experience={editableResume.work_experience} />}

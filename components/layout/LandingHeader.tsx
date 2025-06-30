@@ -101,7 +101,7 @@ export default function LandingHeader() {
               // Authenticated user
               <div className="flex items-center space-x-4">
                 <Link href="/dashboard">
-                  <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                  <Button className="bg-slate-800 hover:bg-slate-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
                     Dashboard
                   </Button>
                 </Link>
@@ -142,7 +142,7 @@ export default function LandingHeader() {
                   </Button>
                 </Link>
                 <Link href="/login">
-                  <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 ring-2 ring-blue-200/50">
+                  <Button className="bg-slate-800 hover:bg-slate-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 ring-2 ring-slate-200/50">
                     Get Started
                   </Button>
                 </Link>
@@ -221,7 +221,7 @@ export default function LandingHeader() {
                   isScrolled ? 'border-gray-200' : 'border-gray-200/50'
                 }`}>
                   <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg">
+                    <Button className="w-full bg-slate-800 hover:bg-slate-700 text-white shadow-lg">
                       Dashboard
                     </Button>
                   </Link>
@@ -257,7 +257,7 @@ export default function LandingHeader() {
                     </Button>
                   </Link>
                   <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg">
+                    <Button className="w-full bg-slate-800 hover:bg-slate-700 text-white shadow-lg">
                       Get Started
                     </Button>
                   </Link>

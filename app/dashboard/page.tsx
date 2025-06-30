@@ -297,7 +297,7 @@ export default function Dashboard() {
                   </p>
                   <div className="flex gap-3">
                     <Link href="/resume/create">
-                      <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                      <Button className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                         🎯 Create Resume
                       </Button>
                     </Link>
@@ -390,7 +390,7 @@ export default function Dashboard() {
                 <p className="text-gray-600 mb-4 text-sm leading-relaxed">
                   Track application deadlines and interview dates
                 </p>
-                <Button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm shadow-md hover:shadow-lg transition-all duration-200">
+                <Button className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm shadow-md hover:shadow-lg transition-all duration-200">
                   + Add Event
                 </Button>
               </div>

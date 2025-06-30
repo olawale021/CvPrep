@@ -219,10 +219,10 @@ export default function About() {
             Join thousands of professionals who have already transformed their job search with CvPrep&apos;s AI-powered tools.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3">
+            <Button className="bg-white text-slate-800 hover:bg-gray-100 px-8 py-3">
               <Link href="/login">Get Started Free</Link>
             </Button>
-            <Button className="bg-blue-700 text-white hover:bg-blue-800 px-8 py-3">
+            <Button className="bg-slate-800 text-white hover:bg-slate-700 px-8 py-3">
               <Link href="/contact">Contact Us</Link>
             </Button>
           </div>

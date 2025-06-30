@@ -254,20 +254,20 @@ export default function ScoreResult({
   return (
     <>
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-300 ease-in-out">
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6">
+      <div className="bg-slate-800 border-b border-slate-700 p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center text-white">
-            <div className="p-2 bg-white/20 rounded-lg mr-3">
+            <div className="p-2 bg-slate-700 rounded-lg mr-3">
               <FileText className="h-6 w-6" />
             </div>
             <div>
               <h2 className="text-xl font-bold">Resume Analysis</h2>
-              <p className="text-blue-100 text-sm">AI-powered evaluation results</p>
+              <p className="text-slate-300 text-sm">Professional evaluation results</p>
             </div>
           </div>
           
           {loading && (
-            <div className="flex items-center text-white text-sm bg-white/20 px-3 py-1 rounded-full">
+            <div className="flex items-center text-white text-sm bg-slate-700 px-3 py-1 rounded-full">
               <Sparkles className="h-4 w-4 mr-1.5 animate-pulse" />
               <span>Optimizing...</span>
             </div>
@@ -275,11 +275,11 @@ export default function ScoreResult({
         </div>
       </div>
       
-      <div className={`p-6 md:p-8 ${loading ? 'bg-gradient-to-b from-blue-50/50 to-purple-50/50' : ''}`}>
+      <div className={`p-6 md:p-8 ${loading ? 'bg-gray-50' : ''}`}>
         {/* Enhanced Score Display */}
         <div className="flex flex-col items-center justify-center mb-8">
           <div className="relative mb-4">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full blur-xl opacity-30 animate-pulse"></div>
+            <div className="absolute inset-0 bg-gray-200 rounded-full blur-xl opacity-20"></div>
             
             <div className="relative w-40 h-40 md:w-48 md:h-48">
               <svg viewBox="0 0 200 200" className="w-full h-full">
@@ -405,7 +405,7 @@ export default function ScoreResult({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Matched Skills */}
             {scoreResult.matched_skills && scoreResult.matched_skills.length > 0 && (
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-semibold text-green-800 flex items-center text-sm">
                     <div className="p-1 bg-green-200 rounded-full mr-2">
@@ -441,7 +441,7 @@ export default function ScoreResult({
 
             {/* Missing Skills */}
             {scoreResult.missing_skills && scoreResult.missing_skills.length > 0 && (
-              <div className="bg-gradient-to-br from-red-50 to-rose-50 border border-red-200 rounded-xl p-4">
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-semibold text-red-800 flex items-center text-sm">
                     <div className="p-1 bg-red-200 rounded-full mr-2">
@@ -472,22 +472,13 @@ export default function ScoreResult({
                     )}
                   </div>
                 </div>
-                
-                {scoreResult.missing_skills.length > 0 && (
-                  <div className="mt-3 p-2 bg-red-100 rounded-lg">
-                    <p className="text-xs text-red-700 flex items-start">
-                      <AlertCircle className="h-3 w-3 mr-1 mt-0.5 flex-shrink-0" />
-                      Consider adding these skills to your resume or highlighting relevant experience that demonstrates these competencies.
-                    </p>
-                  </div>
-                )}
               </div>
             )}
           </div>
 
           {/* Skills Summary */}
           {(scoreResult.matched_skills?.length > 0 || scoreResult.missing_skills?.length > 0) && (
-            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="text-center">
@@ -516,7 +507,7 @@ export default function ScoreResult({
                   <div className="text-sm font-medium text-gray-700">Skills Match Rate</div>
                   <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
                     <div 
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-500"
                       style={{ 
                         width: `${Math.round(((scoreResult.matched_skills?.length || 0) / ((scoreResult.matched_skills?.length || 0) + (scoreResult.missing_skills?.length || 0))) * 100) || 0}%` 
                       }}
@@ -597,7 +588,7 @@ export default function ScoreResult({
             <Button 
               onClick={handleOptimize} 
               disabled={loading}
-              className={`w-full bg-gradient-to-r ${loading ? 'from-blue-600 to-blue-600' : 'from-black to-gray-800'} text-white hover:from-gray-800 hover:to-black font-medium flex items-center justify-center`}
+              className={`w-full ${loading ? 'bg-slate-600' : 'bg-slate-800 hover:bg-slate-700'} text-white font-medium flex items-center justify-center transition-colors`}
             >
               {loading ? (
                 <>

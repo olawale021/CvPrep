@@ -1,25 +1,25 @@
 "use client";
 
 import {
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    ChevronUp,
-    Download,
-    FileText,
-    FolderClosed,
-    GraduationCap,
-    HelpCircle,
-    Home,
-    LogOut,
-    Menu,
-    MoreVertical,
-    Plus,
-    Settings,
-    Star,
-    Trash2,
-    Users,
-    X
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Download,
+  FileText,
+  FolderClosed,
+  GraduationCap,
+  HelpCircle,
+  Home,
+  LogOut,
+  Menu,
+  MoreVertical,
+  Plus,
+  Settings,
+  Star,
+  Trash2,
+  Users,
+  X
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,11 +29,11 @@ import { useAuth } from "../../context/AuthContext";
 import { Resume, deleteResume, getUserResumes, setPrimaryResume } from "../../lib/services/resumeService";
 import { ResumeUploadDialog } from "../features/resume/ResumeUploadDialog";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "../ui/composite/DropdownMenu";
 
 type SidebarProps = {
@@ -108,7 +108,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     { href: "/resume/create", label: "Create Resume", icon: <Plus className="h-5 w-5" /> },
     { href: "/saved-resumes", label: "Saved Resumes", icon: <FileText className="h-5 w-5" /> },
     // { href: "/resume/dashboard", label: "Resume Dashboard", icon: <Sparkles className="h-5 w-5" /> },
-    { href: "/resume/dashboard", label: "Resume Optimizer", icon: <FolderClosed className="h-5 w-5" /> },
+    { href: "/resume/optimize", label: "Resume Optimizer", icon: <FolderClosed className="h-5 w-5" /> },
     { href: "/interview-prep", label: "Interview Prep", icon: <GraduationCap className="h-5 w-5" /> },
     { href: "/cover-letter", label: "Cover Letter", icon: <FileText className="h-5 w-5" /> },
     { href: "/community", label: "Community", icon: <Users className="h-5 w-5" /> },
@@ -303,7 +303,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
                     showExpandedView ? 'px-3 py-3' : 'p-3 justify-center'
                   } rounded-xl text-base font-semibold transition-all duration-200 group ${
                     isActive 
-                      ? 'bg-gradient-to-r from-blue-600/80 to-blue-700/80 text-white shadow-lg backdrop-blur-sm border border-blue-500/30' 
+                      ? 'bg-slate-800 text-white shadow-lg backdrop-blur-sm border border-slate-600/30' 
                       : 'text-slate-300 hover:bg-slate-700/60 hover:backdrop-blur-sm hover:text-white hover:shadow-md hover:scale-105'
                   }`}
                 >
@@ -431,7 +431,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
               showExpandedView 
                 ? 'w-full flex items-center justify-center gap-2 py-3 px-3' 
                 : 'p-3 rounded-full'
-            } bg-gradient-to-r from-blue-600/80 to-blue-700/80 hover:from-blue-700/90 hover:to-blue-800/90 text-white rounded-xl transition-all duration-200 text-base font-semibold backdrop-blur-sm border border-blue-500/30 hover:scale-105 hover:shadow-lg group`}
+            } bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-all duration-200 text-base font-semibold backdrop-blur-sm border border-slate-600/30 hover:scale-105 hover:shadow-lg group`}
             aria-label="Upload Resume"
           >
             <div className="transition-transform duration-200 group-hover:rotate-180">

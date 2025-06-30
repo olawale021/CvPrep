@@ -102,7 +102,7 @@ export function LimitExceededDialog({
                 Cancel
               </Button>
               <Button 
-                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                className="flex-1 bg-slate-800 hover:bg-slate-700"
                 onClick={() => window.location.href = '/upgrade'}
               >
                 <Crown className="h-4 w-4 mr-1" />

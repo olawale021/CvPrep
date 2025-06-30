@@ -233,7 +233,7 @@ export function UsageTracker() {
             >
               <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
             </Button>
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1">
+            <Button size="sm" className="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1">
               Upgrade
             </Button>
           </div>

@@ -273,7 +273,7 @@ export default function ResumeUploadForm({
             disabled={isScoring || !isFormValid}
             className={`w-full relative overflow-hidden flex justify-center items-center py-4 px-6 border border-transparent rounded-lg shadow-lg text-sm font-semibold transition-all duration-200 transform ${
               isFormValid && !isScoring
-                ? 'text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-[1.02] hover:shadow-xl' 
+                ? 'text-white bg-slate-800 hover:bg-slate-700 hover:scale-[1.02] hover:shadow-xl' 
                 : 'text-gray-500 bg-gray-200 cursor-not-allowed'
             }`}
           >
