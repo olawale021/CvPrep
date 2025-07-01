@@ -212,7 +212,7 @@ export default function Dashboard() {
               
               {/* Secondary Actions */}
               <div className="space-y-4">
-                <Link href="/resume/dashboard" className="block group">
+                <Link href="/resume/optimize" className="block group">
                   <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="bg-purple-100 p-2 rounded-lg">
