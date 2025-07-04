@@ -28,7 +28,7 @@ export default function ResumeDashboard() {
   const { toast } = useToast();
   const { saveResume } = useSavedResumes();
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  
+
   const [file, setFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState<string>("");
   const [originalResumeData, setOriginalResumeData] = useState<ResumeData | null>(null);
@@ -505,24 +505,24 @@ export default function ResumeDashboard() {
               {/* Left Column - Upload Form */}
               <div className="w-full lg:w-[40%] mb-4 sm:mb-6 lg:mb-0">
                 <div className="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden">
-                  <div className="p-4 sm:p-6">
-                    <ErrorBoundary fallback={
+                <div className="p-4 sm:p-6">
+                  <ErrorBoundary fallback={
                       <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
                         <p className="text-red-800 text-sm">Error loading upload form. Please refresh the page.</p>
-                      </div>
-                    }>
-                      <ResumeUploadForm
-                        file={file}
-                        setFile={setFile}
-                        jobDescription={jobDescription}
-                        setJobDescription={setJobDescription}
-                        isScoring={isScoring}
-                        fileInputRef={fileInputRef as React.RefObject<HTMLInputElement>}
+                    </div>
+                  }>
+                    <ResumeUploadForm
+                      file={file}
+                      setFile={setFile}
+                      jobDescription={jobDescription}
+                      setJobDescription={setJobDescription}
+                      isScoring={isScoring}
+                      fileInputRef={fileInputRef as React.RefObject<HTMLInputElement>}
                         onSubmit={(e: FormEvent<Element>) => handleSubmit(e as FormEvent<HTMLFormElement>)}
                         submitButtonText="Analyze & Score Resume"
                         submitButtonIcon={<Sparkles className="h-4 w-4 mr-1 sm:mr-2" />}
-                      />
-                    </ErrorBoundary>
+                    />
+                  </ErrorBoundary>
                   </div>
                 </div>
               </div>
@@ -557,8 +557,8 @@ export default function ResumeDashboard() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+                </div>
+              )}
 
           {/* Loading State - Mobile Optimized */}
           {(isLoading && !currentResumeData) || optimizeOperation.isLoading ? (
@@ -631,8 +631,8 @@ export default function ResumeDashboard() {
                         </button>
                       </div>
                     </div>
-                  </div>
-                  
+            </div>
+
                   {/* Resume Content - Mobile Optimized */}
                   <div className="p-3 sm:p-6 overflow-y-auto max-h-[calc(100vh-300px)]">
                     <ErrorBoundary fallback={
@@ -691,14 +691,14 @@ export default function ResumeDashboard() {
                         <div className="text-center text-gray-500 text-sm sm:text-base">
                           Score will appear here once analysis is complete
                         </div>
-                      </div>
-                    )}
+                    </div>
+                  )}
                   </ErrorBoundary>
                 </div>
               </div>
             </div>
           ) : null}
-
+          
           {error && <ErrorMessage message={error} className="mt-3 sm:mt-4 max-w-2xl mx-auto" />}
         </div>
       </div>
@@ -718,4 +718,4 @@ export default function ResumeDashboard() {
       />
     </div>
   );
-} 
+}
