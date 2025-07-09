@@ -444,7 +444,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
         {/* Resume Upload Dialog */}
         <ResumeUploadDialog 
           open={showResumeUpload} 
-          onOpenChange={setShowResumeUpload} 
+          onOpenChangeAction={setShowResumeUpload} 
           onSuccess={handleResumeUploadSuccess}
         />
       </div>

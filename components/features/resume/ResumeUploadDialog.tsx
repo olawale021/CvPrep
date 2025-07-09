@@ -50,11 +50,11 @@ const useToast = () => {
 
 interface ResumeUploadDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChangeAction: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
-export function ResumeUploadDialog({ open, onOpenChange, onSuccess }: ResumeUploadDialogProps) {
+export function ResumeUploadDialog({ open, onOpenChangeAction, onSuccess }: ResumeUploadDialogProps) {
   const { user } = useAuth();
 
   const [title, setTitle] = useState("");
@@ -107,7 +107,7 @@ export function ResumeUploadDialog({ open, onOpenChange, onSuccess }: ResumeUplo
           duration: 3000,
         });
         resetForm();
-        onOpenChange(false);
+        onOpenChangeAction(false);
         if (onSuccess) {
           onSuccess();
         }
@@ -142,7 +142,7 @@ export function ResumeUploadDialog({ open, onOpenChange, onSuccess }: ResumeUplo
 
   return (
     <div className={`fixed inset-0 z-50 ${open ? 'block' : 'hidden'}`}>
-      <div className="bg-black/50 backdrop-blur-sm fixed inset-0" onClick={() => onOpenChange(false)}></div>
+      <div className="bg-black/50 backdrop-blur-sm fixed inset-0" onClick={() => onOpenChangeAction(false)}></div>
       <div className="sm:max-w-[500px] p-6 bg-white fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] rounded-lg shadow-xl">
         <div className="mb-4">
           <h2 className="text-2xl font-bold text-gray-900">Upload Resume</h2>
@@ -219,7 +219,7 @@ export function ResumeUploadDialog({ open, onOpenChange, onSuccess }: ResumeUplo
         </div>
         <div className="mt-6 flex justify-end gap-3">
           <button 
-            onClick={() => onOpenChange(false)} 
+            onClick={() => onOpenChangeAction(false)} 
             disabled={isUploading}
             className="px-5 py-2.5 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 text-base"
           >
