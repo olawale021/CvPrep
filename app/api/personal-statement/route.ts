@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withFeatureLimit } from '../../../lib/auth/userRateLimit';
-import { generateCoverLetter } from '../../../lib/services/cover-letter/coverLetterService';
+import { generatePersonalStatement } from '../../../lib/services/personal-statement/personalStatementService';
 
 export async function POST(req: NextRequest) {
-  return withFeatureLimit(req, 'cover_letter_create', async () => {
+  return withFeatureLimit(req, 'personal_statement_create', async () => {
     try {
       const formData = await req.formData();
       const jobDescription = formData.get('jobDescription') as string;
@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Generate cover letter using the service
-      const result = await generateCoverLetter(
+      // Generate personal statement using the service
+      const result = await generatePersonalStatement(
         jobDescription.trim(),
         resumeText,
         resumeFile,
@@ -36,14 +36,14 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json(result);
     } catch (error) {
-      console.error('Cover Letter API Error:', error);
+      console.error('Personal Statement API Error:', error);
       return NextResponse.json(
         {
-          error: 'Cover letter generation error',
-          message: error instanceof Error ? error.message : 'An error occurred during cover letter generation. Please try again.'
+          error: 'Personal statement generation error',
+          message: error instanceof Error ? error.message : 'An error occurred during personal statement generation. Please try again.'
         },
         { status: 500 }
       );
     }
   });
-}
+} 

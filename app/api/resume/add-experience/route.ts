@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withFeatureLimit } from '../../../../lib/auth/userRateLimit';
-import { addWorkExperience } from '../../../../lib/services/resume/addExperienceService';
+import { addWorkExperience } from '../../../../lib/services/resume/resumeUtils/addExperienceService';
 
 export const config = {
   api: {

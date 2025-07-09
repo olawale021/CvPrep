@@ -17,7 +17,7 @@ import { useSavedResumes } from '../../../hooks/api/useSavedResumes';
 import { useAsyncOperation } from '../../../hooks/ui/useAsyncOperation';
 import { supabase } from '../../../lib/auth/supabaseClient';
 import { showFeedbackNotification } from '../../../lib/core/utils';
-import { ResumeScore } from '../../../lib/services/resume/scoreResume';
+import { ResumeScore } from '../../../lib/services/resume/resumeUtils/scoreResume';
 import { SaveResumeRequest } from '../../../types/api/savedResume';
 import ErrorMessage from '../optimize/components/ErrorMessage';
 import OptimizedResume from '../optimize/components/OptimizedResume';

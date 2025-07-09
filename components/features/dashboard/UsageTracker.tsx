@@ -14,6 +14,7 @@ interface UsageStats {
   resume_optimize: { used: number; limit: number };
   cover_letter_create: { used: number; limit: number };
   cover_letter_optimize: { used: number; limit: number };
+  personal_statement_create: { used: number; limit: number };
   interview_prep: { used: number; limit: number };
   trialDaysRemaining: number;
   environment?: string;
@@ -34,6 +35,11 @@ const featureConfig = {
     label: "Cover Letter Create",
     icon: MessageSquare,
     color: "bg-purple-500"
+  },
+  personal_statement_create: {
+    label: "Personal Statement",
+    icon: FileText,
+    color: "bg-orange-500"
   },
   interview_prep: {
     label: "Interview Prep",
@@ -106,6 +112,7 @@ export function UsageTracker() {
           resume_optimize: { used: 0, limit: 1 },
           cover_letter_create: { used: 0, limit: 1 },
           cover_letter_optimize: { used: 0, limit: 1 },
+          personal_statement_create: { used: 0, limit: 1 },
           interview_prep: { used: 0, limit: 3 },
           trialDaysRemaining: 7
         });
@@ -120,6 +127,7 @@ export function UsageTracker() {
         resume_optimize: { used: 0, limit: 1 },
         cover_letter_create: { used: 0, limit: 1 },
         cover_letter_optimize: { used: 0, limit: 1 },
+        personal_statement_create: { used: 0, limit: 1 },
         interview_prep: { used: 0, limit: 3 },
         trialDaysRemaining: 7
       });

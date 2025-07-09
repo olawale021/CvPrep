@@ -196,6 +196,7 @@ function getFeatureDisplayName(feature: FeatureType): string {
     resume_optimize: 'resume optimization',
     cover_letter_create: 'cover letter creation',
     cover_letter_optimize: 'cover letter optimization',
+    personal_statement_create: 'personal statement creation',
     interview_prep: 'interview preparation'
   };
   return names[feature] || feature;

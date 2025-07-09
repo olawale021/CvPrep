@@ -2,7 +2,7 @@ import { FormEvent, useRef, useState } from "react";
 import { useToast } from "../../../../components/ui/feedback/use-toast";
 import { supabase } from "../../../../lib/auth/supabaseClient";
 import { showFeedbackNotification } from "../../../../lib/core/utils";
-import { ResumeScore } from "../../../../lib/services/resume/scoreResume";
+import { ResumeScore } from "../../../../lib/services/resume/resumeUtils/scoreResume";
 import { ApiEducationItem, ApiProjectItem, ApiResumeResponse, ApiWorkExperienceItem, ResumeData, ResumeResponse } from "../types";
 
 export function useResumeOptimizer() {

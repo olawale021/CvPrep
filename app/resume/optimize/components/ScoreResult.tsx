@@ -3,7 +3,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Button } from "../../../../components/ui/base/Button";
 import { supabase } from "../../../../lib/auth/supabaseClient";
-import { ResumeScore } from "../../../../lib/services/resume/scoreResume";
+import { ResumeScore } from "../../../../lib/services/resume/resumeUtils/scoreResume";
 import AddWorkExperienceForm from "./AddWorkExperienceForm";
 
 interface UpdatedResumeData {

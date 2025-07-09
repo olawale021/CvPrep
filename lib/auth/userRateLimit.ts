@@ -27,6 +27,7 @@ export type FeatureType =
   | 'resume_optimize' 
   | 'cover_letter_create' 
   | 'cover_letter_optimize'
+  | 'personal_statement_create'
   | 'interview_prep';
 
 // Feature limits for free users
@@ -35,6 +36,7 @@ export const FREE_USER_LIMITS = {
   resume_optimize: 1,    // 1 per day  
   cover_letter_create: 1, // 1 per day
   cover_letter_optimize: 1, // 1 per day
+  personal_statement_create: 1, // 1 per day
   interview_prep: 3,     // 3 per day
 } as const;
 

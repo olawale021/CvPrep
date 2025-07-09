@@ -4,7 +4,7 @@ import { AlertCircle, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { cn } from "../../../lib/core/utils";
-import { uploadResume, validateResumeFile } from "../../../lib/services/resumeService";
+import { uploadResume, validateResumeFile } from "../../../lib/services/resume/resumeService";
 // Simple toast implementation
 const useToast = () => {
   const toast = (options: {

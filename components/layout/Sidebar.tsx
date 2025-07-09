@@ -26,7 +26,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { Resume, deleteResume, getUserResumes, setPrimaryResume } from "../../lib/services/resumeService";
+import { Resume, deleteResume, getUserResumes, setPrimaryResume } from "../../lib/services/resume/resumeService";
 import { ResumeUploadDialog } from "../features/resume/ResumeUploadDialog";
 import {
   DropdownMenu,
@@ -106,8 +106,8 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const navLinks = [
     { href: "/dashboard", label: "Home", icon: <Home className="h-5 w-5" /> },
     { href: "/resume/create", label: "Create Resume", icon: <Plus className="h-5 w-5" /> },
+    { href: "/personal-statement", label: "Personal Statement", icon: <FileText className="h-5 w-5" /> },
     { href: "/saved-resumes", label: "Saved Resumes", icon: <FileText className="h-5 w-5" /> },
-    // { href: "/resume/dashboard", label: "Resume Dashboard", icon: <Sparkles className="h-5 w-5" /> },
     { href: "/resume/optimize", label: "Resume Optimizer", icon: <FolderClosed className="h-5 w-5" /> },
     { href: "/interview-prep", label: "Interview Prep", icon: <GraduationCap className="h-5 w-5" /> },
     { href: "/cover-letter", label: "Cover Letter", icon: <FileText className="h-5 w-5" /> },

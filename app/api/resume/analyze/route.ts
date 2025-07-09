@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { extractContactDetails } from '../../../../lib/services/resume/extractContactDetails';
-import { extractTextFromFile } from '../../../../lib/services/resume/fileParser';
-import { structure_resume } from '../../../../lib/services/resume/resumeParser';
+import { extractContactDetails } from '../../../../lib/services/resume/resumeUtils/extractContactDetails';
+import { extractTextFromFile } from '../../../../lib/services/resume/resumeUtils/fileParser';
+import { structure_resume } from '../../../../lib/services/resume/resumeUtils/resumeParser';
 
 export const config = {
   api: {

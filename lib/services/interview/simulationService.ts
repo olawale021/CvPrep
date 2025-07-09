@@ -1,5 +1,5 @@
 import { OpenAI } from "openai";
-import { extract_job_requirements } from "../resume/jobParser";
+import { extract_job_requirements } from "../resume/resumeUtils/jobParser";
 import { JobRequirements } from "./interviewService";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

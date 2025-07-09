@@ -58,16 +58,7 @@ export async function GET(req: NextRequest) {
 
     if (usageError) {
       console.error('Error fetching usage data:', usageError);
-      // Return default values on error
-      const usage = {
-        resume_create: { used: 0, limit: FREE_USER_LIMITS.resume_create },
-        resume_optimize: { used: 0, limit: FREE_USER_LIMITS.resume_optimize },
-        cover_letter_create: { used: 0, limit: FREE_USER_LIMITS.cover_letter_create },
-        cover_letter_optimize: { used: 0, limit: FREE_USER_LIMITS.cover_letter_optimize },
-        interview_prep: { used: 0, limit: FREE_USER_LIMITS.interview_prep },
-        trialDaysRemaining
-      };
-      return NextResponse.json(usage);
+      return NextResponse.json({ error: 'Failed to fetch usage data' }, { status: 500 });
     }
 
     // Convert usage data to the expected format
@@ -86,6 +77,7 @@ export async function GET(req: NextRequest) {
       'resume_optimize', 
       'cover_letter_create',
       'cover_letter_optimize',
+      'personal_statement_create',
       'interview_prep'
     ];
 

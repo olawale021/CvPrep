@@ -51,12 +51,14 @@ export function UsageBadge() {
                          (data.resume_optimize?.used || 0) + 
                          (data.cover_letter_create?.used || 0) + 
                          (data.cover_letter_optimize?.used || 0) + 
+                         (data.personal_statement_create?.used || 0) + 
                          (data.interview_prep?.used || 0);
                          
         const totalLimit = (data.resume_create?.limit || 0) + 
                           (data.resume_optimize?.limit || 0) + 
                           (data.cover_letter_create?.limit || 0) + 
                           (data.cover_letter_optimize?.limit || 0) + 
+                          (data.personal_statement_create?.limit || 0) + 
                           (data.interview_prep?.limit || 0);
 
         setUsage({

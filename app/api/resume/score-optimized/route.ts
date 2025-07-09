@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withFeatureLimit } from '../../../../lib/auth/userRateLimit';
-import { extractTextFromFile } from '../../../../lib/services/resume/fileParser';
-import { scoreOptimizedResume } from '../../../../lib/services/resume/scoreResume';
+import { extractTextFromFile } from '../../../../lib/services/resume/resumeUtils/fileParser';
+import { scoreOptimizedResume } from '../../../../lib/services/resume/resumeUtils/scoreResume';
 
 export async function POST(request: NextRequest) {
   return withFeatureLimit(request, 'resume_optimize', async () => {

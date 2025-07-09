@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withFeatureLimit } from '../../../../lib/auth/userRateLimit';
-import { extractTextFromFile } from '../../../../lib/services/resume/fileParser';
-import { OptimizedResume, optimizeResume } from '../../../../lib/services/resume/optimizeResume';
-import { structure_resume } from '../../../../lib/services/resume/resumeParser';
+import { extractTextFromFile } from '../../../../lib/services/resume/resumeUtils/fileParser';
+import { OptimizedResume, optimizeResume } from '../../../../lib/services/resume/resumeUtils/optimizeResume';
+import { structure_resume } from '../../../../lib/services/resume/resumeUtils/resumeParser';
 
 // Define an extended interface for the response that might have capitalized keys
 interface ExtendedOptimizedResume extends OptimizedResume {
