@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
-import { extractTextFromFile } from './fileParser';
-import { extract_job_requirements } from './jobParser';
-import { structure_resume, StructuredResume } from './resumeParser';
+import { extractTextFromFile } from '../resume/resumeUtils/fileParser';
+import { extract_job_requirements } from '../resume/resumeUtils/jobParser';
+import { structure_resume, StructuredResume } from '../resume/resumeUtils/resumeParser';
 
 // Initialize OpenAI client
 const openaiApiKey = process.env.OPENAI_API_KEY;
