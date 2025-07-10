@@ -58,6 +58,7 @@ interface ScoreResultProps {
   file: File | null;
   jobDescription: string;
   onWorkExperienceAdded?: (updatedResumeData: UpdatedResumeData) => void;
+  showOptimizeButton?: boolean;
 }
 
 export default function ScoreResult({ 
@@ -67,7 +68,8 @@ export default function ScoreResult({
   setScoreResult,
   file,
   jobDescription,
-  onWorkExperienceAdded
+  onWorkExperienceAdded,
+  showOptimizeButton = true
 }: ScoreResultProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [showAddExperienceForm, setShowAddExperienceForm] = useState(false);
@@ -381,14 +383,17 @@ export default function ScoreResult({
             </div>
             
             <div className={`px-4 py-2 rounded-full text-sm font-semibold ${
-              scoreResult.match_score >= 70 
+              scoreResult.match_score >= 80 
                 ? 'bg-green-100 text-green-800 border border-green-200' 
-                : scoreResult.match_score >= 40 
-                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' 
-                  : 'bg-red-100 text-red-800 border border-red-200'
+                : scoreResult.match_score >= 60 
+                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                  : scoreResult.match_score >= 40 
+                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' 
+                    : 'bg-red-100 text-red-800 border border-red-200'
             }`}>
-              {scoreResult.match_score >= 70 ? 'Excellent Match' : 
-               scoreResult.match_score >= 40 ? 'Good Match' : 'Needs Improvement'}
+              {scoreResult.match_score >= 80 ? 'Excellent Match' : 
+               scoreResult.match_score >= 60 ? 'Good Match' : 
+               scoreResult.match_score >= 40 ? 'Fair Match' : 'Needs Improvement'}
             </div>
           </div>
         </div>
@@ -583,7 +588,7 @@ export default function ScoreResult({
               Your resume is being optimized
             </div>
           </div>
-        ) : (
+        ) : showOptimizeButton ? (
           <div className="mt-4">
             <Button 
               onClick={handleOptimize} 
@@ -603,7 +608,7 @@ export default function ScoreResult({
               )}
             </Button>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
 

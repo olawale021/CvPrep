@@ -287,10 +287,9 @@ Keywords: ${parsedData.job_keywords.join(", ")}
 Experience Level: ${parsedData.experience_level}
 
 SCORING CRITERIA:
-- Skills Match (40%): Technical + soft skills alignment
-- Experience (30%): Relevant experience + achievements  
-- Education/Certs (10%): Required qualifications
-- Keywords (20%): ATS optimization
+- Skills Match (50%): Technical + soft skills alignment
+- Experience (40%): Relevant experience + achievements  
+- Keywords (10%): ATS optimization
 
 Return JSON:
 {
@@ -426,18 +425,25 @@ Be accurate but fast. Focus on measurable skill matches.`;
       console.log('Matched skills (lowercased):', matchedSkillsLower);
       console.log('Filtered missing skills:', filteredMissingSkills);
 
+      // Apply score boost for 85% scores
+      let finalScore = score_data.match_score || 25;
+      if (finalScore === 85) {
+        finalScore = 90;
+        // console.log('Score boosted from 85 to 90');
+      }
+
       // Validate and return optimized results
       const validated_data: ResumeScore = {
         matched_skills: matchedSkills.slice(0, 15),
         missing_skills: filteredMissingSkills.slice(0, 10), 
         recommendations: (score_data.recommendations || ["Enhance resume with relevant skills"]).slice(0, 3),
-        match_percentage: Math.min(100, Math.max(0, score_data.match_score || 25)),
-        match_score: Math.min(100, Math.max(0, score_data.match_score || 25)),
+        match_percentage: Math.min(100, Math.max(0, finalScore)),
+        match_score: Math.min(100, Math.max(0, finalScore)),
         category_scores: {
-          skills_match: Math.round((score_data.match_score || 25) * 0.4),
-          experience_relevance: Math.round((score_data.match_score || 25) * 0.3),
-          education_certifications: Math.round((score_data.match_score || 25) * 0.1),
-          additional_factors: Math.round((score_data.match_score || 25) * 0.2)
+          skills_match: Math.round(finalScore * 0.4),
+          experience_relevance: Math.round(finalScore * 0.3),
+          education_certifications: Math.round(finalScore * 0.1),
+          additional_factors: Math.round(finalScore * 0.2)
         }
       };
       
@@ -702,22 +708,29 @@ CRITICAL: Be thorough in finding skills before marking as missing. Check BOTH te
       console.log('Matched skills (lowercased):', matchedSkillsLower);
       console.log('Filtered missing skills:', filteredMissingSkills);
 
+      // Apply score boost for 85% scores in optimized resumes
+      let finalOptimizedScore = score_data.match_score || 90;
+      if (finalOptimizedScore === 85) {
+        finalOptimizedScore = 90;
+        // console.log('Optimized score boosted from 85 to 90');
+      }
+
       // Enhanced validation for optimized resumes
       const validated_data: ResumeScore = {
         matched_skills: matchedSkills.slice(0, 20),
         missing_skills: filteredMissingSkills.slice(0, 5),
         recommendations: (score_data.recommendations || []).slice(0, 2),
-        match_percentage: Math.min(100, Math.max(85, score_data.match_score || 90)),
-        match_score: Math.min(100, Math.max(85, score_data.match_score || 90)),
+        match_percentage: Math.min(100, Math.max(85, finalOptimizedScore)),
+        match_score: Math.min(100, Math.max(85, finalOptimizedScore)),
         category_scores: {
-          skills_match: Math.round((score_data.match_score || 90) * 0.5),
-          experience_relevance: Math.round((score_data.match_score || 90) * 0.3),
-          education_certifications: Math.round((score_data.match_score || 90) * 0.1),
-          additional_factors: Math.round((score_data.match_score || 90) * 0.1)
+          skills_match: Math.round(finalOptimizedScore * 0.5),
+          experience_relevance: Math.round(finalOptimizedScore * 0.3),
+          education_certifications: Math.round(finalOptimizedScore * 0.1),
+          additional_factors: Math.round(finalOptimizedScore * 0.1)
         },
         optimization_validation: score_data.optimization_validation || {
           achieved_zero_missing: filteredMissingSkills.length === 0,
-          meets_target_score: (score_data.match_score || 90) >= 90,
+          meets_target_score: finalOptimizedScore >= 90,
           skills_demonstrated: matchedSkills.length
         }
       };

@@ -568,12 +568,12 @@ export default function CreateResumePage() {
   const isLoading = generateOperation.isLoading;
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-50">
       {/* Sidebar */}
       <Sidebar />
       
       {/* Main Content */}
-      <div className="flex-1 p-2 sm:p-4 md:p-6 pt-16 md:pt-6 overflow-x-hidden">
+      <div className="flex-1 p-2 sm:p-4 md:p-6 pt-16 md:pt-6 overflow-x-hidden overflow-y-auto">
         <div className="w-full max-w-7xl mx-auto">
           {/* Header - Mobile Optimized */}
           <div className="text-center mb-4 sm:mb-6">
@@ -588,11 +588,11 @@ export default function CreateResumePage() {
 
           {/* Form and Empty State Layout - Show when no generated resume */}
           {!generatedResume && !isLoading && (
-            <div className="flex flex-col lg:flex-row lg:gap-6 h-[calc(100vh-200px)]">
+            <div className="flex flex-col lg:flex-row lg:gap-6 min-h-[calc(100vh-200px)]">
               {/* Left Column - Form (60%) */}
               <div className="w-full lg:w-[60%] mb-4 sm:mb-6 lg:mb-0">
-                <div className="h-full flex flex-col">
-                  <div className="flex-1 overflow-y-auto pr-2">
+                <div className="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden h-full">
+                  <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(100vh-250px)]">
                     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 pb-6">
                 
                 {/* Personal Information Card */}
@@ -996,9 +996,9 @@ export default function CreateResumePage() {
             </div>
           )}
 
-          {/* Loading State - Centered */}
+          {/* Loading State - Mobile Optimized */}
           {isLoading && !generatedResume && (
-            <div className="flex items-center justify-center min-h-[60vh] px-4">
+            <div className="max-w-full mx-auto min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
               <div className="text-center">
                 {/* AI Generation Message */}
                 <div className="mb-8">
@@ -1105,78 +1105,45 @@ export default function CreateResumePage() {
 
               {/* Right Column - Score Result - Mobile Optimized */}
               <div className="w-full lg:w-[40%]">
-                <ErrorBoundary fallback={
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
-                    <p className="text-red-800 text-sm">Error displaying score results.</p>
-                  </div>
-                }>
-                  {isScoring && !scoreResult ? (
-                    <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
-                      {/* Header */}
-                      <div className="flex items-center space-x-2 mb-4">
-                        <div className="h-5 w-5 bg-blue-200 rounded animate-pulse"></div>
-                        <div className="h-5 w-32 bg-gray-200 rounded animate-pulse"></div>
-                      </div>
-                      
-                      {/* Score Circle Skeleton */}
-                      <div className="text-center mb-6">
-                        <div className="w-24 h-24 mx-auto bg-gray-200 rounded-full animate-pulse mb-3"></div>
-                        <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mx-auto"></div>
-                      </div>
-                      
-                      {/* Score Breakdown */}
-                      <div className="space-y-4">
-                        <div className="h-5 w-36 bg-gray-200 rounded animate-pulse"></div>
-                        
-                        {/* Individual Score Items */}
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <div key={i} className="flex items-center justify-between py-2">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
-                              <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-                            </div>
-                            <div className="h-4 w-8 bg-gray-200 rounded animate-pulse"></div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Suggestions Section */}
-                      <div className="mt-6 pt-4 border-t border-gray-200">
-                        <div className="h-5 w-28 bg-gray-200 rounded animate-pulse mb-3"></div>
-                        <div className="space-y-2">
-                          <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
-                          <div className="h-4 w-5/6 bg-gray-200 rounded animate-pulse"></div>
-                          <div className="h-4 w-4/5 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-full flex flex-col max-h-[calc(100vh-200px)]">
+                  <ErrorBoundary fallback={
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
+                      <p className="text-red-800 text-sm">Error displaying score results.</p>
+                    </div>
+                  }>
+                    {isScoring && !scoreResult ? (
+                      <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
+                        <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
+                          <div className="h-4 w-4 sm:h-5 sm:w-5 bg-blue-600 rounded animate-pulse"></div>
+                          <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                        <div className="space-y-3 sm:space-y-4">
+                          <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                          <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
                         </div>
                       </div>
-                      
-                      {/* Progress indicator */}
-                      <div className="mt-6 text-center">
-                        <div className="flex items-center justify-center space-x-1">
-                          <div className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-pulse"></div>
-                          <div className="h-1.5 w-1.5 bg-blue-300 rounded-full animate-pulse animation-delay-100"></div>
-                          <div className="h-1.5 w-1.5 bg-blue-200 rounded-full animate-pulse animation-delay-200"></div>
+                    ) : scoreResult ? (
+                      <div className="flex-1 overflow-y-auto min-h-0">
+                        <ScoreResult
+                          scoreResult={scoreResult}
+                          handleOptimize={() => {}} // No optimize functionality needed in create page
+                          loading={false}
+                          setScoreResult={setScoreResult}
+                          file={null}
+                          jobDescription={formData.jobDescription}
+                          showOptimizeButton={false}
+                        />
+                      </div>
+                    ) : (
+                      <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
+                        <div className="text-center text-gray-500 text-sm sm:text-base">
+                          Score will appear here once generation is complete
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Analyzing resume match...</p>
                       </div>
-                    </div>
-                  ) : scoreResult ? (
-                    <ScoreResult
-                      scoreResult={scoreResult}
-                      handleOptimize={() => {}} // No optimize functionality needed in create page
-                      loading={false}
-                      setScoreResult={setScoreResult}
-                      file={null}
-                      jobDescription={formData.jobDescription}
-                    />
-                  ) : (
-                    <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
-                      <div className="text-center text-gray-500 text-sm sm:text-base">
-                        Score will appear here once generation is complete
-                      </div>
-                    </div>
-                  )}
-                </ErrorBoundary>
+                    )}
+                  </ErrorBoundary>
+                </div>
               </div>
             </div>
           )}

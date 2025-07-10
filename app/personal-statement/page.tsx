@@ -104,36 +104,36 @@ export default function PersonalStatementPage() {
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Header */}
-        <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 px-6 py-6 flex-shrink-0">
+        {/* Header - Compact */}
+        <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 px-6 py-4 flex-shrink-0">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Sparkles className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 bg-clip-text text-transparent">
                   Personal Statement Generator
                 </h1>
-                <p className="text-slate-600 font-medium">
+                <p className="text-slate-600 font-medium text-sm">
                   Create compelling personal statements with AI-powered insights
                 </p>
               </div>
             </div>
             
             {/* Feature highlights */}
-            <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-1.5 rounded-full border border-blue-200/50">
-                <Target className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-700">Tailored to Job</span>
+            <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 px-2.5 py-1 rounded-full border border-blue-200/50">
+                <Target className="w-3 h-3 text-blue-600" />
+                <span className="text-xs font-medium text-blue-700">Tailored to Job</span>
               </div>
-              <div className="flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-1.5 rounded-full border border-green-200/50">
-                <Zap className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-medium text-green-700">AI-Powered</span>
+              <div className="flex items-center gap-1.5 bg-gradient-to-r from-green-50 to-emerald-50 px-2.5 py-1 rounded-full border border-green-200/50">
+                <Zap className="w-3 h-3 text-green-600" />
+                <span className="text-xs font-medium text-green-700">AI-Powered</span>
               </div>
-              <div className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-pink-50 px-3 py-1.5 rounded-full border border-purple-200/50">
-                <FileText className="w-4 h-4 text-purple-600" />
-                <span className="text-sm font-medium text-purple-700">Professional Quality</span>
+              <div className="flex items-center gap-1.5 bg-gradient-to-r from-purple-50 to-pink-50 px-2.5 py-1 rounded-full border border-purple-200/50">
+                <FileText className="w-3 h-3 text-purple-600" />
+                <span className="text-xs font-medium text-purple-700">Professional Quality</span>
               </div>
             </div>
           </div>
@@ -141,22 +141,22 @@ export default function PersonalStatementPage() {
 
         {/* Content */}
         <div className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto px-6 py-8">
-            <UsageWarning feature="personal_statement_create" className="mb-8" />
+          <div className="max-w-7xl mx-auto px-6 py-6">
+            <UsageWarning feature="personal_statement_create" className="mb-6" />
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 h-full">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full">
               {/* Input Section */}
-              <div className="space-y-6 h-fit">
-                {/* Job Description Card */}
+              <div className="space-y-4 h-fit">
+                {/* Job Description Card - Compact */}
                 <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm ring-1 ring-slate-200/50">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-3 text-xl">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
-                        <Target className="w-4 h-4 text-white" />
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+                        <Target className="w-3 h-3 text-white" />
                       </div>
                       Job Description
                     </CardTitle>
-                    <p className="text-slate-600 text-sm">
+                    <p className="text-slate-600 text-xs">
                       Paste the job posting you&apos;re applying for
                     </p>
                   </CardHeader>
@@ -165,45 +165,47 @@ export default function PersonalStatementPage() {
                       placeholder="Paste the complete job description here..."
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
-                      rows={6}
+                      rows={5}
                       className="w-full border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl text-sm resize-none"
                     />
                   </CardContent>
                 </Card>
 
-                {/* Resume Upload Card */}
+                {/* Resume Upload Card - Compact */}
                 <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm ring-1 ring-slate-200/50">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-3 text-xl">
-                      <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-                        <FileText className="w-4 h-4 text-white" />
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <div className="w-6 h-6 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                        <FileText className="w-3 h-3 text-white" />
                       </div>
                       Your Resume
                     </CardTitle>
-                    <p className="text-slate-600 text-sm">
+                    <p className="text-slate-600 text-xs">
                       Upload your resume for personalized analysis
                     </p>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <ResumeUpload 
-                      file={resumeFile}
-                      onFileChange={(file: File | null) => {
-                        setResumeFile(file);
-                        if (file) {
-                          setResumeText('');
-                        }
-                      }}
-                      onRemoveFile={() => {
-                        setResumeFile(null);
-                      }}
-                    />
+                  <CardContent className="space-y-3">
+                    <div className="max-h-24">
+                      <ResumeUpload 
+                        file={resumeFile}
+                        onFileChange={(file: File | null) => {
+                          setResumeFile(file);
+                          if (file) {
+                            setResumeText('');
+                          }
+                        }}
+                        onRemoveFile={() => {
+                          setResumeFile(null);
+                        }}
+                      />
+                    </div>
                     
                     {resumeFile && (
-                      <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-                        <FileText className="h-4 w-4 text-green-600" />
+                      <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 py-2">
+                        <FileText className="h-3 w-3 text-green-600" />
                         <div className="text-green-800">
-                          <div className="font-semibold">{resumeFile.name}</div>
-                          <div className="text-sm mt-1">
+                          <div className="font-semibold text-sm">{resumeFile.name}</div>
+                          <div className="text-xs mt-0.5">
                             {(resumeFile.size / 1024).toFixed(1)} KB • Ready for analysis
                           </div>
                         </div>
@@ -213,23 +215,23 @@ export default function PersonalStatementPage() {
                   </CardContent>
                 </Card>
 
-                {/* Generate Button */}
+                {/* Generate Button - Compact */}
                 <Button 
                   onClick={handleGenerate}
                   disabled={loading || !jobDescription.trim() || (!resumeText.trim() && !resumeFile)}
-                  className="w-full h-14 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02]"
+                  className="w-full h-12 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02]"
                   size="lg"
                 >
                   {loading ? (
                     <>
-                      <LoadingSpinner size="sm" className="mr-3" />
+                      <LoadingSpinner size="sm" className="mr-2" />
                       Generating Personal Statement...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5 mr-3" />
+                      <Sparkles className="w-4 h-4 mr-2" />
                       Generate Personal Statement
-                      <ArrowRight className="w-5 h-5 ml-3" />
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </>
                   )}
                 </Button>
@@ -280,9 +282,9 @@ export default function PersonalStatementPage() {
                     )}
 
                     {result && !loading && (
-                      <div className="flex flex-col space-y-6 h-full">
-                        <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 p-6 rounded-xl border border-slate-200/50 max-h-[calc(100vh-400px)] overflow-auto">
-                          <pre className="whitespace-pre-wrap text-slate-800 font-sans leading-relaxed text-base">
+                      <div className="flex flex-col space-y-4 h-full">
+                        <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 p-4 rounded-xl border border-slate-200/50 max-h-[calc(100vh-350px)] overflow-auto">
+                          <pre className="whitespace-pre-wrap text-slate-800 font-sans leading-relaxed text-sm">
                             {result.personal_statement}
                           </pre>
                         </div>
