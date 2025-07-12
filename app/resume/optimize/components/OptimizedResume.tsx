@@ -1,10 +1,11 @@
-import { Download, Edit, Expand, Save } from "lucide-react";
+import { Edit, Expand, Save } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../../../../components/ui/base/Button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../../../components/ui/composite/Dialog";
 import { ResumeEditProvider, useResumeEdit } from "../context/ResumeEditContext";
 import { usePdfGenerator } from "../hooks/usePdfGenerator";
 import { ResumeData, ResumeResponse } from "../types";
+import { DownloadDropdown } from "./DownloadDropdown";
 import Certifications from "./sections/Certifications";
 import Education from "./sections/Education";
 import Projects from "./sections/Projects";
@@ -15,6 +16,7 @@ import TemplateSelector from "./TemplateSelector";
 
 interface OptimizedResumeProps {
   response: ResumeData;
+  resumeResponse?: ResumeResponse | null;
   handleDownloadPdf: (editableResume?: ResumeData) => void;
   isPdfGenerating: boolean;
   onSaveResume?: () => void;
@@ -24,6 +26,7 @@ interface OptimizedResumeProps {
 
 interface OptimizedResumeContentProps {
   response: ResumeData;
+  resumeResponse?: ResumeResponse | null;
   handleDownloadPdf: (editableResume?: ResumeData) => void;
   isPdfGenerating: boolean;
   isEditMode: boolean;
@@ -38,6 +41,7 @@ interface OptimizedResumeContentProps {
 
 export default function OptimizedResume({
   response,
+  resumeResponse,
   handleDownloadPdf,
   isPdfGenerating,
   onSaveResume,
@@ -59,6 +63,7 @@ export default function OptimizedResume({
     <ResumeEditProvider initialData={response}>
       <OptimizedResumeContent 
         response={response}
+        resumeResponse={resumeResponse}
         handleDownloadPdf={handleDownloadPdf}
         isPdfGenerating={isPdfGenerating}
         isEditMode={isEditMode}
@@ -76,6 +81,7 @@ export default function OptimizedResume({
 
 function OptimizedResumeContent({
   response,
+  resumeResponse,
   handleDownloadPdf,
   isPdfGenerating,
   isEditMode,
@@ -104,11 +110,11 @@ function OptimizedResumeContent({
   
   const handlePreview = async () => {
     setIsPreviewLoading(true);
-    const resumeResponse = {
+    const resumeResponseData = resumeResponse || {
       data: editableResume,
       original: response
     } as ResumeResponse;
-    await generatePreview(editableResume, resumeResponse);
+    await generatePreview(editableResume, resumeResponseData);
     setIsPreviewOpen(true);
     setIsPreviewLoading(false);
   };
@@ -172,17 +178,13 @@ function OptimizedResumeContent({
                 <span className="hidden sm:inline">{isPreviewLoading ? "Loading Preview..." : "Preview"}</span>
                 <span className="sm:hidden">{isPreviewLoading ? "Loading..." : "Preview"}</span>
               </Button>
-              <Button
-                variant="default"
-                size="sm"
-                className="whitespace-nowrap items-center text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2"
-                onClick={() => handleDownloadPdf(editableResume)}
-                disabled={isPdfGenerating}
-              >
-                <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">{isPdfGenerating ? "Generating..." : "Download PDF"}</span>
-                <span className="sm:hidden">{isPdfGenerating ? "..." : "PDF"}</span>
-              </Button>
+              <DownloadDropdown
+                editableResume={editableResume}
+                resumeResponse={resumeResponse || { data: editableResume, original: response } as ResumeResponse}
+                handleDownloadPdf={handleDownloadPdf}
+                isPdfGenerating={isPdfGenerating}
+                selectedTemplate={selectedTemplate}
+              />
             </div>
           </div>
         </div>

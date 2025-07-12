@@ -39,6 +39,12 @@ export interface GeneratedResumeData {
   education: EducationItem[];
   projects: ProjectItem[];
   certifications: string[];
+  contact_details?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+  };
 }
 
 export interface GeneratedWorkExperience {
@@ -72,6 +78,12 @@ export interface SavedResume {
   generated_education?: GeneratedResumeData['education'];
   generated_projects?: GeneratedResumeData['projects'];
   generated_certifications?: string[];
+  generated_contact_details?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+  };
   
   // Metadata
   is_primary: boolean;

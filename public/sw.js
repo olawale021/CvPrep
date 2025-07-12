@@ -41,7 +41,6 @@ const API_CACHE_CONFIG = {
  * Install event - cache static assets
  */
 self.addEventListener('install', (event) => {
-  console.log('Service Worker installing...');
   
   event.waitUntil(
     Promise.all([
@@ -59,7 +58,6 @@ self.addEventListener('install', (event) => {
  * Activate event - clean up old caches
  */
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker activating...');
   
   event.waitUntil(
     Promise.all([
@@ -72,7 +70,7 @@ self.addEventListener('activate', (event) => {
               cacheName !== API_CACHE_NAME &&
               cacheName !== STATIC_CACHE_NAME
             ) {
-              console.log('Deleting old cache:', cacheName);
+    
               return caches.delete(cacheName);
             }
           })
@@ -141,7 +139,7 @@ async function handleApiRequest(request) {
     
     return networkResponse;
   } catch (error) {
-    console.log('Network failed, trying cache for:', pathname, error);
+    
     
     // Network failed, try cache
     const cache = await caches.open(API_CACHE_NAME);
@@ -193,7 +191,7 @@ async function handleStaticAsset(request) {
     }
     return networkResponse;
   } catch (error) {
-    console.log('Failed to fetch static asset:', request.url);
+    
     throw error;
   }
 }
@@ -227,7 +225,7 @@ async function handleImageRequest(request) {
     }
     return networkResponse;
   } catch (error) {
-    console.log('Failed to fetch image:', request.url);
+    
     throw error;
   }
 }
@@ -248,7 +246,7 @@ async function handleDocumentRequest(request) {
     
     return networkResponse;
   } catch (error) {
-    console.log('Network failed for document, trying cache:', request.url, error);
+    
     
     // Network failed, try cache
     const cache = await caches.open(CACHE_NAME);
@@ -366,7 +364,7 @@ async function doBackgroundSync() {
   try {
     // Get pending requests from IndexedDB or localStorage
     // This would sync any offline actions when connection is restored
-    console.log('Performing background sync...');
+
     
     // Example: sync offline form submissions, analytics, etc.
     // Implementation would depend on specific requirements

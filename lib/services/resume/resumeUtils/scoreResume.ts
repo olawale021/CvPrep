@@ -258,12 +258,6 @@ export async function scoreResume(resumeText: string, jobDescription: string): P
       };
     }
 
-    // Debug logging for initial parsed skills
-    console.log('Job required skills:', parsedData.job_required_skills);
-    console.log('Job preferred skills:', parsedData.job_preferred_skills);
-    console.log('Job keywords:', parsedData.job_keywords);
-    console.log('Resume skills:', parsedData.resume_skills);
-
     // Create comprehensive skill list for filtering
     const allJobSkills = [
       ...parsedData.job_required_skills,
@@ -421,15 +415,13 @@ Be accurate but fast. Focus on measurable skill matches.`;
         return !isAlreadyMatched;
       });
 
-      // Debug logging
-      console.log('Matched skills (lowercased):', matchedSkillsLower);
-      console.log('Filtered missing skills:', filteredMissingSkills);
-
-      // Apply score boost for 85% scores
+      // Apply score boost for 85% scores with random bonus
       let finalScore = score_data.match_score || 25;
       if (finalScore === 85) {
-        finalScore = 90;
-        // console.log('Score boosted from 85 to 90');
+        // Add random bonus between 5-9 points to make scoring more dynamic
+        const randomBonus = Math.floor(Math.random() * 5) + 5; // Generates 5, 6, 7, 8, or 9
+        finalScore = 85 + randomBonus;
+        // console.log(`Score boosted from 85 to ${finalScore} (bonus: +${randomBonus})`);
       }
 
       // Validate and return optimized results
@@ -536,12 +528,6 @@ export async function scoreOptimizedResume(resumeText: string, jobDescription: s
         match_score: 0
       };
     }
-
-    // Debug logging for initial parsed skills
-    console.log('Job required skills:', parsedData.job_required_skills);
-    console.log('Job preferred skills:', parsedData.job_preferred_skills);
-    console.log('Job keywords:', parsedData.job_keywords);
-    console.log('Resume skills:', parsedData.resume_skills);
 
     // Create comprehensive skill list for filtering
     const allJobSkills = [
@@ -704,15 +690,13 @@ CRITICAL: Be thorough in finding skills before marking as missing. Check BOTH te
         return !isAlreadyMatched;
       });
 
-      // Debug logging
-      console.log('Matched skills (lowercased):', matchedSkillsLower);
-      console.log('Filtered missing skills:', filteredMissingSkills);
-
-      // Apply score boost for 85% scores in optimized resumes
+      // Apply score boost for 85% scores with random bonus
       let finalOptimizedScore = score_data.match_score || 90;
       if (finalOptimizedScore === 85) {
-        finalOptimizedScore = 90;
-        // console.log('Optimized score boosted from 85 to 90');
+        // Add random bonus between 5-9 points to make scoring more dynamic
+        const randomBonus = Math.floor(Math.random() * 5) + 5; // Generates 5, 6, 7, 8, or 9
+        finalOptimizedScore = 85 + randomBonus;
+        // console.log(`Optimized score boosted from 85 to ${finalOptimizedScore} (bonus: +${randomBonus})`);
       }
 
       // Enhanced validation for optimized resumes

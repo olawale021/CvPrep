@@ -474,12 +474,10 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
       });
       
       // Try to extract work experience manually if JSON parsing fails
-      console.log("Attempting manual extraction of structured data...");
       try {
         const manuallyExtracted = extractStructuredDataManually(content);
         if (manuallyExtracted && Object.keys(manuallyExtracted).length > 0) {
           structuredData = manuallyExtracted;
-          console.log("Successfully extracted structured data manually");
         }
       } catch (manualError) {
         console.error("Manual extraction also failed:", manualError);
@@ -492,9 +490,7 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
     // Ensure structured data has proper format
     const finalStructuredData = { ...structuredData as Partial<OptimizedResume> };
     
-    // Debug logging
-    console.log("Raw OpenAI response content preview:", content.substring(0, 500));
-    console.log("Parsed structured data:", JSON.stringify(finalStructuredData, null, 2));
+
     
     // Normalize work experience data format without fallbacks
     if (finalStructuredData.work_experience && Array.isArray(finalStructuredData.work_experience)) {
@@ -503,7 +499,7 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
         // Get actual bullets without fallbacks
         const bullets = (expData.achievements || expData.bullets || expData.accomplishments || []) as string[];
         
-        console.log(`Work experience for ${expData.company}: Found ${bullets.length} bullet points`, bullets);
+
         
         return {
           company: (expData.company as string) || '',
@@ -519,7 +515,7 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
     
     // Normalize education format without fallbacks
     if (finalStructuredData.education && Array.isArray(finalStructuredData.education)) {
-      console.log(`Found ${finalStructuredData.education.length} education entries`);
+
       finalStructuredData.education = finalStructuredData.education.map((edu: unknown) => {
         const eduData = edu as Record<string, unknown>;
         return {
@@ -535,11 +531,9 @@ export async function optimizeResume(resumeText: string, jobDescription: string,
     // Check if we got valid structured data
     if (!finalStructuredData || Object.keys(finalStructuredData).length === 0) {
       console.error("CRITICAL: No structured data was parsed from OpenAI response");
-      console.log("Attempting manual extraction as last resort...");
       const extractedFromText = extractStructuredDataManually(plainTextResume);
       if (Object.keys(extractedFromText).length > 0) {
         Object.assign(finalStructuredData, extractedFromText);
-        console.log("Manual extraction succeeded:", extractedFromText);
       } else {
         console.error("Manual extraction also failed - no data could be extracted");
       }

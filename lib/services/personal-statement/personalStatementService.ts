@@ -29,7 +29,8 @@ export interface JobRequirements {
 function createPersonalStatementPrompt(
   structuredResume: StructuredResume,
   jobDescription: string,
-  jobRequirements: JobRequirements
+  jobRequirements: JobRequirements,
+  targetWordCount: number = 600
 ): string {
   return `
 Create a comprehensive personal statement/supporting information section based on the candidate's resume and the job description.
@@ -39,6 +40,8 @@ This is a FULL personal statement suitable for:
 - Academic posts
 - Applications requiring "supporting information" or "personal statement" sections
 - Formal application forms
+
+TARGET WORD COUNT: ${targetWordCount} words (±50 words acceptable)
 
 STRUCTURE (Follow this flow without explicit headings):
 
@@ -73,7 +76,7 @@ FORMATTING REQUIREMENTS:
 - Write as flowing, connected paragraphs
 - Use transitions between paragraphs
 - STAR method should be invisible - woven into natural storytelling
-- Total length: 500-700 words (adjust based on typical requirements for this sector)
+- Target length: ${targetWordCount} words (adjust content depth to meet this target)
 - Written in first person
 - Use evidence, not just claims
 - Each skill/competency should be backed by a specific example
@@ -91,7 +94,7 @@ ${jobDescription}
 Job Requirements:
 ${JSON.stringify(jobRequirements, null, 2)}
 
-Remember: This is NOT a CV summary - it's a comprehensive supporting statement that demonstrates how you meet the essential and desirable criteria through concrete examples. Write it as natural, flowing prose without explicit structure labels.
+Remember: This is NOT a CV summary - it's a comprehensive supporting statement that demonstrates how you meet the essential and desirable criteria through concrete examples. Write it as natural, flowing prose without explicit structure labels. IMPORTANT: Aim for exactly ${targetWordCount} words.
 `;
 }
 
@@ -113,12 +116,17 @@ export async function generatePersonalStatement(
   jobDescription: string,
   resumeText?: string | null,
   resumeFile?: File | null,
-  userId?: string | null
+  userId?: string | null,
+  targetWordCount: number = 600
 ): Promise<PersonalStatementResponse> {
   try {
     // Validate inputs
     if (!jobDescription || jobDescription.trim().length === 0) {
       throw new Error('Job description is required');
+    }
+
+    if (targetWordCount < 100 || targetWordCount > 1500) {
+      throw new Error('Target word count must be between 100 and 1500 words');
     }
 
     if (!openai) {
@@ -134,8 +142,8 @@ export async function generatePersonalStatement(
     // Structure the resume data
     const structuredResume = await structure_resume(resumeData);
 
-    // Create the prompt
-    const prompt = createPersonalStatementPrompt(structuredResume, jobDescription, jobRequirements);
+    // Create the prompt with target word count
+    const prompt = createPersonalStatementPrompt(structuredResume, jobDescription, jobRequirements, targetWordCount);
 
     // Generate personal statement using OpenAI
     const response = await openai.chat.completions.create({
@@ -154,6 +162,7 @@ Write comprehensive personal statements that are:
 - Tailored to the specific role and organization
 - Appropriate for formal application processes
 - Free from generic statements and clichés
+- EXACTLY meeting the specified target word count (±50 words acceptable)
 
 CRITICAL FORMATTING REQUIREMENTS:
 - NO bold headings, section titles, or structural labels
@@ -162,6 +171,7 @@ CRITICAL FORMATTING REQUIREMENTS:
 - STAR method should be invisible - woven into natural narrative sentences
 - Use smooth transitions between different topics/competencies
 - Each paragraph should demonstrate one key requirement in the job description through storytelling
+- Adjust content depth and detail to meet the exact target word count
 
 Focus on:
 - Proving competencies through concrete examples told as natural stories
@@ -180,12 +190,13 @@ Avoid:
 - Overly casual language inappropriate for formal applications
 - Clichés without substantial backing
 - Failing to address specific job requirements
+- Going significantly over or under the target word count
       `.trim()
         },
         { role: "user", content: prompt }
       ],
       temperature: 0.6,
-      max_tokens: 2000
+      max_tokens: Math.min(2000, Math.ceil(targetWordCount * 1.5)) // Adjust max tokens based on target word count
     });
 
     // Extract the personal statement text

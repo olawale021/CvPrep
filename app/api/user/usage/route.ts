@@ -38,11 +38,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ premium: true });
     }
 
-    // Calculate trial days remaining
+            // Calculate trial days remaining (based on 3-day trial for display)
     const createdDate = new Date(userData.created_at);
     const expiryDate = new Date(createdDate.getTime() + (FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000));
     const now = new Date();
     const trialDaysRemaining = Math.max(0, Math.ceil((expiryDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+    
+    // Check if free trial is actually expired (3 days after creation)
+    const trialExpiryDate = new Date(createdDate.getTime() + (3 * 24 * 60 * 60 * 1000));
+    const isTrialExpired = now > trialExpiryDate;
 
     // Get today's usage from database
     const today = new Date().toISOString().split('T')[0];
@@ -75,6 +79,7 @@ export async function GET(req: NextRequest) {
     const featureTypes: FeatureType[] = [
       'resume_create',
       'resume_optimize', 
+      'resume_scoring',
       'cover_letter_create',
       'cover_letter_optimize',
       'personal_statement_create',
@@ -93,6 +98,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       ...usage,
       trialDaysRemaining,
+      isTrialExpired,
       environment
     });
   } catch (error) {

@@ -2,12 +2,15 @@
 
 import { Check, ClipboardCopy, Download, FileText, Send } from "lucide-react";
 import React, { useRef, useState } from "react";
+import { UsageTracker } from "../../components/features/dashboard/UsageTracker";
 import { JobDescriptionInput } from "../../components/features/resume/JobDescriptionInput";
 import { ResumeUpload } from "../../components/features/resume/ResumeUpload";
 import Sidebar from "../../components/layout/Sidebar";
 import { Button } from "../../components/ui/base/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/base/Card";
+import { LimitExceededDialog } from "../../components/ui/LimitExceededDialog";
 import { useAuth } from "../../context/AuthContext";
+import { useFeatureAccess } from "../../hooks/ui/useFeatureAccess";
 import { supabase } from "../../lib/auth/supabaseClient";
 
 // Define type for API response
@@ -31,6 +34,10 @@ export default function CoverLetterPage() {
   const [activeTab, setActiveTab] = useState<"upload" | "result">("upload");
   
   const coverLetterRef = useRef<HTMLDivElement>(null);
+
+  // Feature access checking
+  const featureAccess = useFeatureAccess('cover_letter_create');
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
 
   // Redirect to login if not authenticated
   if (authLoading) {
@@ -72,6 +79,13 @@ export default function CoverLetterPage() {
   };
 
   const generateCoverLetter = async () => {
+    // Check feature access before proceeding
+    const hasAccess = await featureAccess.checkAccess();
+    if (!hasAccess) {
+      setShowLimitDialog(true);
+      return;
+    }
+
     if (!jobDescription) {
       setError("Please enter a job description.");
       return;
@@ -176,6 +190,11 @@ export default function CoverLetterPage() {
           <h1 className="text-4xl font-extrabold text-black mb-2 text-center">Cover Letter Generator</h1>
           <p className="text-center text-black mb-8">Generate a tailored cover letter in seconds. Upload your resume and paste the job description below.</p>
           
+          {/* Usage Tracker */}
+          <div className="mb-6 flex justify-center">
+            <UsageTracker />
+          </div>
+
           {/* Tab Switcher */}
           <div className="flex border-b mb-6">
             <button
@@ -284,6 +303,16 @@ export default function CoverLetterPage() {
           )}
         </div>
       </main>
+
+      {/* Limit Exceeded Dialog */}
+      <LimitExceededDialog
+        open={showLimitDialog}
+        onCloseAction={() => setShowLimitDialog(false)}
+        feature="cover_letter_create"
+        remaining={featureAccess.remaining}
+        resetTime={Date.now() + (24 * 60 * 60 * 1000)} // Next midnight
+        trialExpired={featureAccess.isTrialExpired}
+      />
     </div>
   );
 }

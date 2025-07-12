@@ -96,3 +96,9 @@ db/migrations/004_add_updated_at_to_users.sql
 db/migrations/README_updated_at.md
 README.md
 docs/OAUTH_SETUP.md
+db/migrations/add_generated_contact_details_to_saved_resumes.sql
+db/migrations/fix_updated_at_trigger.sql
+docs/rate-limiting.md
+docs/rate-limiting.md
+docs/rate-limiting.md
+docs/rate-limiting.md

@@ -25,6 +25,7 @@ interface UsageMetadata {
 export type FeatureType = 
   | 'resume_create' 
   | 'resume_optimize' 
+  | 'resume_scoring'
   | 'cover_letter_create' 
   | 'cover_letter_optimize'
   | 'personal_statement_create'
@@ -34,6 +35,7 @@ export type FeatureType =
 export const FREE_USER_LIMITS = {
   resume_create: 1,      // 1 per day
   resume_optimize: 1,    // 1 per day  
+  resume_scoring: 1,     // 1 per day
   cover_letter_create: 1, // 1 per day
   cover_letter_optimize: 1, // 1 per day
   personal_statement_create: 1, // 1 per day
@@ -41,7 +43,7 @@ export const FREE_USER_LIMITS = {
 } as const;
 
 // Trial period in days
-export const FREE_TRIAL_DAYS = 7;
+export const FREE_TRIAL_DAYS = 3;
 
 // Get current environment
 const getCurrentEnvironment = (): 'production' | 'development' => {

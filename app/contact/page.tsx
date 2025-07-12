@@ -94,32 +94,32 @@ export default function Contact() {
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">General Support</h3>
                   <p className="text-gray-600 mb-2">For general questions and support</p>
-                  <a href="mailto:support@cvprep.app" className="text-blue-600 hover:text-blue-800">
-                    support@cvprep.app
+                  <a href="mailto:olawale@ola-hub.dev" className="text-blue-600 hover:text-blue-800">
+                    olawale@ola-hub.dev
                   </a>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Privacy & Data</h3>
                   <p className="text-gray-600 mb-2">For privacy-related inquiries</p>
-                  <a href="mailto:privacy@cvprep.app" className="text-blue-600 hover:text-blue-800">
-                    privacy@cvprep.app
+                  <a href="mailto:olawale@ola-hub.dev" className="text-blue-600 hover:text-blue-800">
+                  olawale@ola-hub.dev
                   </a>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Business Inquiries</h3>
                   <p className="text-gray-600 mb-2">For partnerships and business opportunities</p>
-                  <a href="mailto:business@cvprep.app" className="text-blue-600 hover:text-blue-800">
-                    business@cvprep.app
+                  <a href="mailto:olawale@ola-hub.dev" className="text-blue-600 hover:text-blue-800">
+                  olawale@ola-hub.dev
                   </a>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Legal</h3>
                   <p className="text-gray-600 mb-2">For legal and compliance matters</p>
-                  <a href="mailto:legal@cvprep.app" className="text-blue-600 hover:text-blue-800">
-                    legal@cvprep.app
+                  <a href="mailto:olawale@cvprep.app" className="text-blue-600 hover:text-blue-800">
+                  olawale@ola-hub.dev
                   </a>
                 </div>
               </div>
@@ -156,16 +156,15 @@ export default function Contact() {
                 <div>
                   <h3 className="font-medium text-gray-900 mb-2">Do you offer refunds?</h3>
                   <p className="text-gray-600 text-sm">
-                    We offer refunds within 7 days of purchase if you&apos;re not satisfied with our service. 
-                    Please contact our support team for assistance.
+                    No refunds are offered.
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <p className="text-sm text-gray-600">
-                  Can&apos;t find what you&apos;re looking for? 
-                  <a href="mailto:support@cvprep.app" className="text-blue-600 hover:text-blue-800 ml-1">
+                  Can&apos;t find what you&apos;re looking for?
+                  <a href="mailto:olawale@ola-hub.dev" className="text-blue-600 hover:text-blue-800 ml-1">
                     Contact our support team
                   </a>
                 </p>

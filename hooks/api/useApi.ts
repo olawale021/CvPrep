@@ -268,9 +268,6 @@ export function useResumeOperations() {
   const analyzeResume = useMutation(
     (file: File) => api.resume.analyze(file),
     {
-      onSuccess: () => {
-        console.log('Resume analyzed successfully');
-      },
       invalidateCache: ['/api/resume'],
     }
   );
@@ -296,9 +293,6 @@ export function useUserOperations() {
   const updateProfile = useMutation(
     (data: Record<string, unknown>) => api.user.updateProfile(data),
     {
-      onSuccess: () => {
-        console.log('Profile updated successfully');
-      },
       invalidateCache: ['/api/user'],
     }
   );

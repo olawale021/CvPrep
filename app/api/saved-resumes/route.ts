@@ -122,6 +122,7 @@ export async function POST(req: NextRequest) {
       generated_education: generatedData.education || null,
       generated_projects: generatedData.projects || null,
       generated_certifications: generatedData.certifications || null,
+      generated_contact_details: generatedData.contact_details || null,
       
       // Metadata
       is_primary: isPrimary,

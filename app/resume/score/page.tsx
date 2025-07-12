@@ -2,6 +2,7 @@
 
 import { FileText, Target, Zap } from "lucide-react";
 import { FormEvent, useState } from "react";
+import { UsageTracker } from "../../../components/features/dashboard/UsageTracker";
 import { UsageWarning } from "../../../components/features/dashboard/UsageWarning";
 import { ResumeUpload } from "../../../components/features/resume/ResumeUpload";
 import Sidebar from "../../../components/layout/Sidebar";
@@ -10,7 +11,9 @@ import { Button } from "../../../components/ui/base/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/base/Card";
 import { Textarea } from "../../../components/ui/base/Textarea";
 import { LoadingSpinner } from "../../../components/ui/feedback/LoadingSpinner";
+import { LimitExceededDialog } from "../../../components/ui/LimitExceededDialog";
 import { useAuth } from "../../../context/AuthContext";
+import { useFeatureAccess } from "../../../hooks/ui/useFeatureAccess";
 import { supabase } from "../../../lib/auth/supabaseClient";
 import { ResumeScore } from "../../../lib/services/resume/resumeUtils/scoreResume";
 import ScoreResult from "../optimize/components/ScoreResult";
@@ -23,9 +26,20 @@ export default function ResumeScorePage() {
   const [isScoring, setIsScoring] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Feature access checking
+  const featureAccess = useFeatureAccess('resume_scoring');
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
+    // Check feature access before proceeding
+    const hasAccess = await featureAccess.checkAccess();
+    if (!hasAccess) {
+      setShowLimitDialog(true);
+      return;
+    }
+
     if (!resumeFile || !jobDescription.trim()) {
       setError("Please upload a resume and provide a job description");
       return;
@@ -130,6 +144,11 @@ export default function ResumeScorePage() {
                 <FileText className="w-3 h-3 text-purple-600" />
                 <span className="text-xs font-medium text-purple-700">Detailed Feedback</span>
               </div>
+            </div>
+
+            {/* Usage Tracker */}
+            <div className="mt-6 flex justify-center">
+              <UsageTracker />
             </div>
           </div>
         </div>
@@ -292,6 +311,16 @@ export default function ResumeScorePage() {
           </div>
         </div>
       </div>
+
+      {/* Limit Exceeded Dialog */}
+      <LimitExceededDialog
+        open={showLimitDialog}
+        onCloseAction={() => setShowLimitDialog(false)}
+        feature="resume_scoring"
+        remaining={featureAccess.remaining}
+        resetTime={Date.now() + (24 * 60 * 60 * 1000)} // Next midnight
+        trialExpired={featureAccess.isTrialExpired}
+      />
     </div>
   );
 } 

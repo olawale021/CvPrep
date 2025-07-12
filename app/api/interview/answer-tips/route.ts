@@ -5,8 +5,9 @@ import { generateAnswerTips } from "../../../../lib/services/interview/answerTip
 export async function POST(req: NextRequest) {
   return withFeatureLimit(req, 'interview_prep', async () => {
     try {
-      const body = await req.json();
-      const { question, jobDescription } = body;
+      const formData = await req.formData();
+      const question = formData.get("question") as string;
+      const jobDescription = formData.get("job_description") as string;
 
       // Validate required fields
       if (!question || question.trim().length === 0) {

@@ -32,6 +32,12 @@ interface GeneratedWorkExperience {
 }
 
 export interface CreateResumeRequest {
+  // Personal Information
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  location: string;
+  // Job and Content
   jobDescription: string;
   currentSummary?: string;
   workExperience: WorkExperience[];
@@ -69,6 +75,12 @@ export interface ResumeData {
     technologies: string[];
   }>;
   certifications: string[];
+  contact_details?: {
+    name: string;
+    email: string;
+    phone: string;
+    location: string;
+  };
 }
 
 export interface CreateResumeResponse {
@@ -81,6 +93,10 @@ export interface CreateResumeResponse {
 export async function createResumeFromScratch(data: CreateResumeRequest): Promise<CreateResumeResponse> {
   try {
     const { 
+      fullName,
+      email,
+      phoneNumber,
+      location,
       jobDescription, 
       currentSummary, 
       workExperience, 
@@ -300,7 +316,13 @@ IMPORTANT: Return ONLY the JSON object, no additional text or explanation.
         })),
       education: transformedEducation,
       projects: transformedProjects,
-      certifications: allCertifications
+      certifications: allCertifications,
+      contact_details: {
+        name: fullName || '',
+        email: email || '',
+        phone: phoneNumber || '',
+        location: location || ''
+      }
     };
 
     return {

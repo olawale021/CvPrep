@@ -1,46 +1,71 @@
 "use client";
 
-import { Clock, FileText, MessageSquare, RefreshCw, Users, Zap } from "lucide-react";
+import { ChevronDown, Clock, FileText, MessageSquare, RefreshCw, Star, Users, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/auth/supabaseClient";
 import { Badge } from "./base/Badge";
 import { Button } from "./base/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "./base/Card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuTrigger } from "./composite/DropdownMenu";
 import { ProgressBar } from "./feedback/ProgressBar";
+import { UpgradeContactDialog } from "./UpgradeContactDialog";
 
 interface UsageStats {
   resume_create: { used: number; limit: number };
   resume_optimize: { used: number; limit: number };
+  resume_scoring: { used: number; limit: number };
   cover_letter_create: { used: number; limit: number };
   cover_letter_optimize: { used: number; limit: number };
   interview_prep: { used: number; limit: number };
   trialDaysRemaining: number;
+  isTrialExpired?: boolean;
   environment?: string;
 }
 
-const featureConfig = {
-  resume_create: {
-    label: "Resume Create",
-    icon: FileText,
-    color: "bg-blue-500"
-  },
-  resume_optimize: {
-    label: "Resume Optimize", 
-    icon: Zap,
-    color: "bg-green-500"
-  },
-  cover_letter_create: {
-    label: "Cover Letter Create",
-    icon: MessageSquare,
-    color: "bg-purple-500"
-  },
-  interview_prep: {
-    label: "Interview Prep",
-    icon: Users,
-    color: "bg-indigo-500"
-  }
-} as const;
+function FeatureUsage({ 
+  icon, 
+  name, 
+  used, 
+  limit, 
+  isTrialExpired 
+}: { 
+  icon: React.ReactNode; 
+  name: string; 
+  used: number; 
+  limit: number; 
+  isTrialExpired?: boolean;
+}) {
+  const percentage = limit > 0 ? (used / limit) * 100 : 0;
+  const isAtLimit = used >= limit;
+
+  return (
+    <div className="flex items-center justify-between py-2">
+      <div className="flex items-center space-x-2">
+        <div className={`w-5 h-5 rounded-full flex items-center justify-center ${isTrialExpired ? 'bg-gray-400' : isAtLimit ? 'bg-red-500' : 'bg-blue-500'}`}>
+          {icon}
+        </div>
+        <span className="text-sm font-medium text-gray-700">{name}</span>
+      </div>
+      <div className="flex items-center space-x-2">
+        {isTrialExpired ? (
+          <span className="text-sm text-gray-500">Trial used</span>
+        ) : (
+          <>
+            <ProgressBar 
+              value={percentage} 
+              size="sm"
+              variant={isAtLimit ? "error" : "default"}
+              className="w-16"
+            />
+            <span className={`text-sm font-medium ${isAtLimit ? 'text-red-600' : 'text-gray-600'} min-w-[2rem]`}>
+              {used}/{limit}
+            </span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function UsageTracker() {
   const { appUser, user } = useAuth();
@@ -48,6 +73,7 @@ export function UsageTracker() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -104,10 +130,12 @@ export function UsageTracker() {
         setUsage({
           resume_create: { used: 0, limit: 1 },
           resume_optimize: { used: 0, limit: 1 },
+          resume_scoring: { used: 0, limit: 1 },
           cover_letter_create: { used: 0, limit: 1 },
           cover_letter_optimize: { used: 0, limit: 1 },
           interview_prep: { used: 0, limit: 3 },
-          trialDaysRemaining: 7
+          trialDaysRemaining: 3,
+          isTrialExpired: false
         });
       }
     } catch (err) {
@@ -118,10 +146,12 @@ export function UsageTracker() {
       setUsage({
         resume_create: { used: 0, limit: 1 },
         resume_optimize: { used: 0, limit: 1 },
+        resume_scoring: { used: 0, limit: 1 },
         cover_letter_create: { used: 0, limit: 1 },
         cover_letter_optimize: { used: 0, limit: 1 },
         interview_prep: { used: 0, limit: 3 },
-        trialDaysRemaining: 7
+        trialDaysRemaining: 3,
+        isTrialExpired: false
       });
     } finally {
       setLoading(false);
@@ -141,151 +171,199 @@ export function UsageTracker() {
 
   if (appUser?.type === 'premium') {
     return (
-      <Card className="border-0 shadow-sm bg-gradient-to-r from-yellow-50 to-amber-50">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center">
-                <Zap className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900">Premium Plan</h3>
-                <p className="text-xs text-gray-600">Unlimited access</p>
-              </div>
-            </div>
-            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-              Premium
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-lg border border-yellow-200">
+        <div className="w-6 h-6 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center">
+          <Zap className="w-3 h-3 text-white" />
+        </div>
+        <span className="text-sm font-medium text-gray-900">Premium Plan</span>
+        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs">
+          Unlimited
+        </Badge>
+      </div>
     );
   }
 
   if (loading) {
     return (
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-4">
-          <div className="animate-pulse">
-            <div className="flex items-center justify-between mb-3">
-              <div className="h-4 bg-gray-200 rounded w-24"></div>
-              <div className="h-6 bg-gray-200 rounded w-16"></div>
-            </div>
-            <div className="flex space-x-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex-1 text-center">
-                  <div className="w-8 h-8 bg-gray-200 rounded mx-auto mb-2"></div>
-                  <div className="h-2 bg-gray-200 rounded mb-1"></div>
-                  <div className="h-3 bg-gray-200 rounded w-8 mx-auto"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+        <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+        <div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div>
+      </div>
     );
   }
 
   if (error && !usage) {
     return (
-      <Card className="border-0 shadow-sm border-red-200 bg-red-50">
-        <CardContent className="p-4">
-          <div className="text-center">
-            <p className="text-red-600 text-sm mb-2">{error}</p>
-            <Button 
-              onClick={handleRefresh} 
-              disabled={refreshing}
-              size="sm" 
-              variant="outline"
-              className="border-red-200 text-red-600 hover:bg-red-100"
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? 'Refreshing...' : 'Refresh'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center space-x-2 px-3 py-2 bg-red-50 rounded-lg border border-red-200">
+        <div className="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center">
+          <RefreshCw className="w-3 h-3 text-red-600" />
+        </div>
+        <span className="text-sm text-red-600">Error loading usage</span>
+        <Button 
+          onClick={handleRefresh} 
+          disabled={refreshing}
+          size="sm" 
+          variant="outline"
+          className="text-xs px-2 py-1 border-red-200 text-red-600 hover:bg-red-100"
+        >
+          Retry
+        </Button>
+      </div>
     );
   }
 
   if (!usage) return null;
 
+  // Calculate total usage for summary
+  const totalUsed = usage.resume_create.used + usage.resume_optimize.used + usage.resume_scoring.used + 
+                   usage.cover_letter_create.used + usage.cover_letter_optimize.used + usage.interview_prep.used;
+  const totalLimit = usage.resume_create.limit + usage.resume_optimize.limit + usage.resume_scoring.limit + 
+                    usage.cover_letter_create.limit + usage.cover_letter_optimize.limit + usage.interview_prep.limit;
+
   return (
-    <Card className="border-0 shadow-sm">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-              <Clock className="w-4 h-4 text-white" />
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="outline" 
+            className={`flex items-center space-x-2 px-3 py-2 h-auto ${
+              usage.isTrialExpired 
+                ? 'border-red-200 bg-red-50 hover:bg-red-100' 
+                : usage.trialDaysRemaining <= 1 
+                  ? 'border-orange-200 bg-orange-50 hover:bg-orange-100' 
+                  : 'border-blue-200 bg-blue-50 hover:bg-blue-100'
+            }`}
+          >
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+              usage.isTrialExpired 
+                ? 'bg-red-500' 
+                : usage.trialDaysRemaining <= 1 
+                  ? 'bg-orange-500' 
+                  : 'bg-blue-500'
+            }`}>
+              <Clock className="w-3 h-3 text-white" />
             </div>
-            <div>
-              <CardTitle className="text-base font-medium text-gray-900">Free Trial</CardTitle>
-              <p className="text-xs text-gray-600">{usage.trialDaysRemaining} days remaining</p>
+            <div className="flex flex-col items-start">
+              <span className="text-sm font-medium text-gray-900">
+                {usage.isTrialExpired ? "Trial Used" : `${usage.trialDaysRemaining} days left`}
+              </span>
+              <span className="text-xs text-gray-600">
+                {totalUsed}/{totalLimit} used today
+              </span>
             </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button 
-              onClick={handleRefresh}
-              disabled={refreshing}
-              size="sm" 
-              variant="outline"
-              className="text-xs px-2 py-1"
-            >
-              <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button size="sm" className="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1">
-              Upgrade
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="pt-0">
-        <div className="flex space-x-4">
-          {Object.entries(usage)
-            .filter(([key]) => key !== 'trialDaysRemaining' && key !== 'environment' && key in featureConfig)
-            .map(([key, value]) => {
-            const featureKey = key as keyof typeof featureConfig;
-            const config = featureConfig[featureKey];
-            
-            const { used, limit } = value;
-            const percentage = limit > 0 ? (used / limit) * 100 : 0;
-            const isAtLimit = used >= limit;
-            
-            const Icon = config.icon;
-            
-            return (
-              <div key={key} className="flex-1 text-center">
-                <div className="mb-2">
-                  <div className={`w-8 h-8 ${isAtLimit ? 'bg-red-500' : config.color} rounded-lg flex items-center justify-center mx-auto mb-1`}>
-                    <Icon className="w-4 h-4 text-white" />
-                  </div>
-                  <p className="text-xs font-medium text-gray-700 mb-1">{config.label}</p>
-                </div>
-                
-                <div className="space-y-1">
-                  <ProgressBar 
-                    value={percentage} 
-                    size="sm"
-                    variant={isAtLimit ? "error" : "default"}
-                  />
-                  <div className="flex justify-center">
-                    <span className={`text-xs font-medium ${isAtLimit ? 'text-red-600' : 'text-gray-600'}`}>
-                      {used}/{limit}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+            <ChevronDown className="w-4 h-4 text-gray-500" />
+          </Button>
+        </DropdownMenuTrigger>
         
-        <div className="mt-4 text-center">
-          <p className="text-xs text-gray-500">
-            Limits reset daily at midnight. <span className="text-blue-600 cursor-pointer hover:underline">Upgrade for unlimited access.</span>
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+        <DropdownMenuContent className="w-80 p-0" align="start">
+          <div className="p-4">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-base font-medium text-gray-900">
+                  {usage.isTrialExpired ? "Free Trial Used" : "Free Trial"}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {usage.isTrialExpired ? "Upgrade to continue" : `${usage.trialDaysRemaining} days remaining`}
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button 
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                  size="sm" 
+                  variant="outline"
+                  className="text-xs px-2 py-1"
+                >
+                  <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
+                </Button>
+                <Button 
+                  size="sm" 
+                  className="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1"
+                  onClick={() => setShowUpgradeDialog(true)}
+                >
+                  Upgrade
+                </Button>
+              </div>
+            </div>
+
+            {!usage.isTrialExpired && (
+              <div className="text-xs text-gray-500 mb-4">
+                Limits reset daily at midnight
+              </div>
+            )}
+
+            {/* Resume Features */}
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
+                <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                Resume Features
+              </h4>
+              <div className="space-y-1">
+                <FeatureUsage
+                  icon={<FileText className="w-3 h-3 text-white" />}
+                  name="Resume Creation"
+                  used={usage.resume_create.used}
+                  limit={usage.resume_create.limit}
+                  isTrialExpired={usage.isTrialExpired}
+                />
+                <FeatureUsage
+                  icon={<Zap className="w-3 h-3 text-white" />}
+                  name="Resume Optimization"
+                  used={usage.resume_optimize.used}
+                  limit={usage.resume_optimize.limit}
+                  isTrialExpired={usage.isTrialExpired}
+                />
+                <FeatureUsage
+                  icon={<Star className="w-3 h-3 text-white" />}
+                  name="Resume Scoring"
+                  used={usage.resume_scoring.used}
+                  limit={usage.resume_scoring.limit}
+                  isTrialExpired={usage.isTrialExpired}
+                />
+              </div>
+            </div>
+
+            <DropdownMenuSeparator />
+
+            {/* Career Features */}
+            <div className="mt-4">
+              <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
+                <Users className="w-4 h-4 mr-2 text-green-600" />
+                Career Features
+              </h4>
+              <div className="space-y-1">
+                <FeatureUsage
+                  icon={<MessageSquare className="w-3 h-3 text-white" />}
+                  name="Cover Letter Generation"
+                  used={usage.cover_letter_create.used}
+                  limit={usage.cover_letter_create.limit}
+                  isTrialExpired={usage.isTrialExpired}
+                />
+                <FeatureUsage
+                  icon={<Users className="w-3 h-3 text-white" />}
+                  name="Interview Preparation"
+                  used={usage.interview_prep.used}
+                  limit={usage.interview_prep.limit}
+                  isTrialExpired={usage.isTrialExpired}
+                />
+              </div>
+            </div>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <UpgradeContactDialog 
+        open={showUpgradeDialog} 
+        onClose={() => setShowUpgradeDialog(false)}
+        feature="all premium features"
+        title="Upgrade to Premium"
+        description={usage.isTrialExpired 
+          ? "Your free trial has expired. Contact our admin to upgrade and continue using all features!"
+          : "Get unlimited access to all features and priority support!"
+        }
+      />
+    </>
   );
 }

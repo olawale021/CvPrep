@@ -16,16 +16,6 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   const userPhone = contactDetailsExtended.phone_number || contactDetailsExtended.phone || "";
   const userLocation = contactDetails.location || "";
   
-  // Debug logging to understand the data structure
-  // console.log("=== CLASSIC TEMPLATE DEBUG ===");
-  // console.log("resumeResponse:", resumeResponse);
-  // console.log("resumeResponse.data:", resumeResponse?.data);
-  // console.log("resumeResponse.data.contact_details:", resumeResponse?.data?.contact_details);
-  // console.log("contactDetails:", contactDetails);
-  // console.log("userName:", userName);
-  // console.log("resumeData:", resumeData);
-  // console.log("resumeData.contact_details:", resumeData.contact_details);
-  
   // Try to extract contact info from optimized_text if structured data is missing
   let extractedName = "";
   let extractedEmail = "";
@@ -33,36 +23,77 @@ export const generateClassicTemplate = async (resumeData: ResumeData, resumeResp
   let extractedLocation = "";
   
   const resumeDataWithText = resumeData as ResumeData & { optimized_text?: string };
-  if (resumeDataWithText.optimized_text && (!userName || !userEmail)) {
+  
+
+  // Try to extract from optimized_text first
+  if (resumeDataWithText.optimized_text) {
     const text = resumeDataWithText.optimized_text;
-    // console.log("Extracting from optimized_text...");
     
-    // Extract name (first line in bold)
-    const nameMatch = text.match(/\*\*(.*?)\*\*/);
-    if (nameMatch) {
-      extractedName = nameMatch[1].trim();
-      // console.log("Extracted name:", extractedName);
+    // Extract name - try multiple patterns
+    const namePatterns = [
+      /\*\*(.*?)\*\*/,  // **Name**
+      /^([A-Z][a-z]+ [A-Z][a-z]+)/m,  // First line starting with Name
+      /Name:?\s*([A-Z][a-z]+ [A-Z][a-z]+)/i,  // Name: field
+    ];
+    
+    for (const pattern of namePatterns) {
+      const match = text.match(pattern);
+      if (match && match[1] && match[1].trim()) {
+        extractedName = match[1].trim();
+        break;
+      }
     }
     
     // Extract email
     const emailMatch = text.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
     if (emailMatch) {
       extractedEmail = emailMatch[1];
-      // console.log("Extracted email:", extractedEmail);
     }
     
-    // Extract phone (UK format or general format)
-    const phoneMatch = text.match(/(\+?\d{2,3}[\s-]?\d{3,4}[\s-]?\d{3,4}[\s-]?\d{3,4}|\d{5}\s?\d{6})/);
-    if (phoneMatch) {
-      extractedPhone = phoneMatch[1];
-      // console.log("Extracted phone:", extractedPhone);
+    // Extract phone - more flexible patterns
+    const phonePatterns = [
+      /(\+?\d{1,3}[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4})/,  // US format
+      /(\+?\d{2,3}[\s-]?\d{3,4}[\s-]?\d{3,4}[\s-]?\d{3,4})/,  // International
+      /(\d{5}\s?\d{6})/,  // Some other format
+      /Phone:?\s*([+\d\s\-\(\)\.]+)/i,  // Phone: field
+    ];
+    
+    for (const pattern of phonePatterns) {
+      const match = text.match(pattern);
+      if (match && match[1] && match[1].trim()) {
+        extractedPhone = match[1].trim();
+        break;
+      }
     }
     
-    // Extract location (between name and email, before |)
-    const locationMatch = text.match(/\*\*.*?\*\*\s*\n(.*?)\s*\|/);
-    if (locationMatch) {
-      extractedLocation = locationMatch[1].trim();
-      // console.log("Extracted location:", extractedLocation);
+    // Extract location - try multiple patterns
+    const locationPatterns = [
+      /\*\*.*?\*\*\s*\n(.*?)\s*\|/,  // Original pattern
+      /Location:?\s*([A-Z][a-z]+(?:,\s*[A-Z]{2})?)/i,  // Location: field
+      /Address:?\s*([A-Z][a-z]+(?:,\s*[A-Z]{2})?)/i,  // Address: field
+      /([A-Z][a-z]+,\s*[A-Z]{2})/,  // City, State format
+    ];
+    
+    for (const pattern of locationPatterns) {
+      const match = text.match(pattern);
+      if (match && match[1] && match[1].trim()) {
+        extractedLocation = match[1].trim();
+        break;
+      }
+    }
+  }
+  
+  // Try to extract from original data in resumeResponse
+  if (resumeResponse?.original) {
+    const original = resumeResponse.original as unknown as Record<string, unknown>;
+    const originalContacts = original.contact_details as Record<string, unknown> | undefined;
+    if (originalContacts) {
+      if (!extractedName && originalContacts.name) extractedName = String(originalContacts.name);
+      if (!extractedEmail && originalContacts.email) extractedEmail = String(originalContacts.email);
+      if (!extractedPhone && (originalContacts.phone || originalContacts.phone_number)) {
+        extractedPhone = String(originalContacts.phone || originalContacts.phone_number);
+      }
+      if (!extractedLocation && originalContacts.location) extractedLocation = String(originalContacts.location);
     }
   }
   

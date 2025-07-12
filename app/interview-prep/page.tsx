@@ -2,6 +2,7 @@
 
 import { HelpCircle, Info, MessageSquare, Send, Users } from "lucide-react";
 import React, { useRef, useState } from "react";
+import { UsageTracker } from "../../components/features/dashboard/UsageTracker";
 import { ResumeUpload } from "../../components/features/resume/ResumeUpload";
 import Sidebar from "../../components/layout/Sidebar";
 import { Alert, AlertDescription } from "../../components/ui/base/Alert";
@@ -11,22 +12,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../..
 import { Input } from "../../components/ui/base/Input";
 import { Textarea } from "../../components/ui/base/Textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/composite/accordion";
+import { LimitExceededDialog } from "../../components/ui/LimitExceededDialog";
 import { useAuth } from "../../context/AuthContext";
+import { useFeatureAccess } from "../../hooks/ui/useFeatureAccess";
+import { useWordxDownload } from "../../hooks/ui/useWordxDownload";
 import { supabase } from "../../lib/auth/supabaseClient";
 
 type Question = string;
 type Answer = string;
 
-interface QuestionCategory {
-  technical_questions: string[];
-  behavioral_questions: string[];
-  situational_questions: string[];
-  role_specific_questions: string[];
-  culture_fit_questions: string[];
+interface QuestionWithTips {
+  question: string;
+  answer_tips: AnswerTips;
+}
+
+interface QuestionCategoryWithTips {
+  technical_questions: QuestionWithTips[];
+  behavioral_questions: QuestionWithTips[];
+  situational_questions: QuestionWithTips[];
+  role_specific_questions: QuestionWithTips[];
+  culture_fit_questions: QuestionWithTips[];
 }
 
 interface QuestionsResponse {
-  questions: QuestionCategory;
+  questions: QuestionCategoryWithTips;
   metadata: {
     job_analyzed: boolean;
     resume_analyzed: boolean;
@@ -69,6 +78,10 @@ interface SimulationResponse {
 export default function InterviewPrep() {
   const { user, isLoading: authLoading } = useAuth();
   
+  // Feature access checking
+  const featureAccess = useFeatureAccess('interview_prep');
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
+  
   // File and input states
   const [file, setFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState<string>("");
@@ -87,7 +100,7 @@ export default function InterviewPrep() {
   // UI states
   const [activeTab, setActiveTab] = useState<string>("generate");
   const [loading, setLoading] = useState<boolean>(false);
-  const [tipsLoading, setTipsLoading] = useState<boolean>(false);
+  const [answerTipsLoading, setAnswerTipsLoading] = useState<boolean>(false);
   const [simulationLoading, setSimulationLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -95,6 +108,7 @@ export default function InterviewPrep() {
   const questionsRef = useRef<HTMLDivElement>(null);
   const tipsRef = useRef<HTMLDivElement>(null);
   const simulationRef = useRef<HTMLDivElement>(null);
+  const { downloadWordx } = useWordxDownload();
 
   // Redirect to login if not authenticated
   if (authLoading) {
@@ -143,7 +157,14 @@ export default function InterviewPrep() {
   };
 
   const generateQuestions = async () => {
-    if (!jobDescription) {
+    // Check feature access before proceeding
+    const hasAccess = await featureAccess.checkAccess();
+    if (!hasAccess) {
+      setShowLimitDialog(true);
+      return;
+    }
+
+    if (!jobDescription.trim()) {
       setError("Please enter a job description.");
       return;
     }
@@ -156,10 +177,11 @@ export default function InterviewPrep() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       
-      // Create FormData
+      // Create FormData for questions only (fast)
       const formData = new FormData();
       formData.append("job_description", jobDescription);
       formData.append("question_count", questionCount.toString());
+      formData.append("questions_only", "true");
       
       if (file) {
         formData.append("resume_file", file);
@@ -185,6 +207,10 @@ export default function InterviewPrep() {
       if (data && !data.error) {
         setQuestionsResponse(data);
         setActiveTab("questions");
+        
+        // Start fetching answer tips in background
+        fetchAnswerTips();
+        
         // Scroll to questions section
         if (questionsRef.current) {
           questionsRef.current.scrollIntoView({ behavior: "smooth" });
@@ -195,62 +221,146 @@ export default function InterviewPrep() {
     } catch (err) {
       console.error("Error:", err);
       setError(err instanceof Error ? err.message : "An unknown error occurred.");
-    } finally {
+        } finally {
       setLoading(false);
     }
   };
 
-  const getAnswerTips = async (question: string) => {
-    if (!question || !jobDescription) {
-      setError("Question and job description are required.");
+  const fetchAnswerTips = async () => {
+    // Check feature access before proceeding
+    const hasAccess = await featureAccess.checkAccess();
+    if (!hasAccess) {
+      setShowLimitDialog(true);
       return;
     }
 
-    setTipsLoading(true);
-    setError(null);
-    setSelectedQuestion(question);
-    setActiveTab("tips");
+    if (!selectedQuestion.trim()) {
+      setError("Please select a question first.");
+      return;
+    }
 
+    if (!questionsResponse) return;
+    
+    setAnswerTipsLoading(true);
+    
     try {
       // Get the session token from Supabase
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       
+      // Create FormData for answer tips only
       const formData = new FormData();
-      formData.append("question", question);
       formData.append("job_description", jobDescription);
+      formData.append("question_count", questionCount.toString());
+      formData.append("answer_tips_only", "true");
+      
+      if (file) {
+        formData.append("resume_file", file);
+      }
 
       const headers: Record<string, string> = {};
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch("/api/interview/answer-tips", {
+      const response = await fetch("/api/interview/questions", {
         method: "POST",
         body: formData,
         headers
       });
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        console.error("Answer tips API error:", response.status);
+        return;
       }
 
       const data = await response.json();
+      
+      if (data && !data.error && data.questions) {
+        // Merge answer tips with existing questions
+        setQuestionsResponse(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            questions: {
+              technical_questions: prev.questions.technical_questions.map((q, i) => ({
+                ...q,
+                answer_tips: data.questions.technical_questions[i]?.answer_tips || q.answer_tips || {}
+              })),
+              behavioral_questions: prev.questions.behavioral_questions.map((q, i) => ({
+                ...q,
+                answer_tips: data.questions.behavioral_questions[i]?.answer_tips || q.answer_tips || {}
+              })),
+              situational_questions: prev.questions.situational_questions.map((q, i) => ({
+                ...q,
+                answer_tips: data.questions.situational_questions[i]?.answer_tips || q.answer_tips || {}
+              })),
+              role_specific_questions: prev.questions.role_specific_questions.map((q, i) => ({
+                ...q,
+                answer_tips: data.questions.role_specific_questions[i]?.answer_tips || q.answer_tips || {}
+              })),
+              culture_fit_questions: prev.questions.culture_fit_questions.map((q, i) => ({
+                ...q,
+                answer_tips: data.questions.culture_fit_questions[i]?.answer_tips || q.answer_tips || {}
+              }))
+            }
+          };
+        });
+      }
+    } catch (err) {
+      console.error("Answer tips error:", err);
+      // Don't show error for answer tips failure, just log it
+    } finally {
+      setAnswerTipsLoading(false);
+    }
+  };
 
-      if (data && !data.error) {
-        setAnswerTips(data);
+  const getAnswerTips = async (question: string | unknown) => {
+    // Find the answer tips for this question from the pre-generated data
+    if (!questionsResponse) {
+      setError("Questions not available.");
+      return;
+    }
+
+    const questionText = typeof question === 'string' ? question : getQuestionText(question);
+    setSelectedQuestion(questionText);
+    setActiveTab("tips");
+
+    try {
+      // Search through all categories to find the question and its tips
+      const allQuestions = [
+        ...questionsResponse.questions.technical_questions,
+        ...questionsResponse.questions.behavioral_questions,
+        ...questionsResponse.questions.situational_questions,
+        ...questionsResponse.questions.role_specific_questions,
+        ...questionsResponse.questions.culture_fit_questions
+      ];
+
+      const questionWithTips = allQuestions.find(q => {
+        // If question is an object, compare objects directly
+        if (typeof question !== 'string') {
+          return q.question === question;
+        }
+        // If question is a string, compare processed text
+        return getQuestionText(q.question) === question;
+      });
+      
+      if (questionWithTips) {
+        setAnswerTips({
+          question: questionText,
+          answer_tips: questionWithTips.answer_tips
+        });
+        
         // Scroll to tips section
         if (tipsRef.current) {
           tipsRef.current.scrollIntoView({ behavior: "smooth" });
         }
       } else {
-        throw new Error(data.error || "Failed to generate answer tips.");
+        setError("Answer tips not found for this question.");
       }
     } catch (err) {
       console.error("Error:", err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred.");
-    } finally {
-      setTipsLoading(false);
+      setError("Failed to load answer tips.");
     }
   };
 
@@ -277,8 +387,15 @@ export default function InterviewPrep() {
   };
 
   const runSimulation = async () => {
+    // Check feature access before proceeding
+    const hasAccess = await featureAccess.checkAccess();
+    if (!hasAccess) {
+      setShowLimitDialog(true);
+      return;
+    }
+
     if (simulationQuestions.length === 0) {
-      setError("Please add at least one question to the simulation.");
+      setError("Please generate questions first.");
       return;
     }
 
@@ -287,41 +404,71 @@ export default function InterviewPrep() {
       return;
     }
 
+    // Check if job description is available
+    const workingJobDescription = jobDescription;
+    
+    if (!workingJobDescription || workingJobDescription.trim() === "") {
+      setError("Job description is missing. Please go back to the Generate tab, re-enter your job description, and generate questions again.");
+      return;
+    }
+
     setSimulationLoading(true);
     setError(null);
 
     try {
+
+      
       // Get the session token from Supabase
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       
-      const formData = new FormData();
-      formData.append("job_description", jobDescription);
-      
-      simulationQuestions.forEach((q) => {
-        formData.append("questions", q);
-      });
-      
-      simulationAnswers.forEach((a) => {
-        formData.append("answers", a);
-      });
+      // Send JSON data (not FormData) to match the API expectation
+      const requestBody = {
+        jobDescription: workingJobDescription,
+        questions: simulationQuestions,
+        answers: simulationAnswers
+      };
 
-      const headers: Record<string, string> = {};
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
+
+      
       const response = await fetch("/api/interview/simulate", {
         method: "POST",
-        body: formData,
+        body: JSON.stringify(requestBody),
         headers
       });
 
+
+
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error("Simulation API error response:", errorText);
+        
+        // Check for specific OpenAI parsing errors
+        if (errorText.includes("Unexpected token") && errorText.includes("JSON")) {
+          throw new Error("The AI service is temporarily having issues. Please wait 30-60 seconds and try the simulation again.");
+        }
+        
+        throw new Error(`Simulation failed (${response.status}): ${errorText}`);
       }
 
-      const data = await response.json();
+      const responseText = await response.text();
+
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+  
+      } catch (parseError) {
+        console.error("Failed to parse response:", parseError, responseText);
+        throw new Error("Server returned invalid response. Please try again.");
+      }
 
       if (data && !data.error) {
         setSimulationResults(data);
@@ -335,7 +482,14 @@ export default function InterviewPrep() {
       }
     } catch (err) {
       console.error("Error:", err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+      
+      // Add retry suggestion for AI parsing errors
+      if (errorMessage.includes("temporarily having issues") || errorMessage.includes("Unexpected token")) {
+        setError(errorMessage + " This is a known intermittent issue with the AI service.");
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setSimulationLoading(false);
     }
@@ -349,6 +503,74 @@ export default function InterviewPrep() {
     return "text-red-500";
   };
 
+  const getQuestionText = (question: unknown): string => {
+    if (typeof question === 'string') return question;
+    if (question && typeof question === 'object') {
+      const obj = question as Record<string, unknown>;
+      // Try common property names for question text
+      const questionText = obj.text || obj.question || obj.content || obj.title || obj.description;
+      if (questionText) {
+        return String(questionText);
+      }
+      // If no common property found, show the object structure for debugging
+
+      return JSON.stringify(obj, null, 2);
+    }
+    return String(question) || 'Question not available';
+  };
+
+  // Helper to format simulation results for Word download
+  const handleDownloadWordx = async () => {
+    if (!simulationResults) return;
+    
+    try {
+      const sections = [
+        {
+          heading: "Overall Evaluation",
+          content: [
+            `Score: ${simulationResults.overall_evaluation.score}/10`,
+            "",
+            "Strengths:",
+            ...(Array.isArray(simulationResults.overall_evaluation.strengths) 
+              ? simulationResults.overall_evaluation.strengths.map(s => `• ${s}`)
+              : [`• ${simulationResults.overall_evaluation.strengths}`]),
+            "",
+            "Areas for Improvement:",
+            ...(Array.isArray(simulationResults.overall_evaluation.improvements) 
+              ? simulationResults.overall_evaluation.improvements.map(i => `• ${i}`)
+              : [`• ${simulationResults.overall_evaluation.improvements}`]),
+            "",
+            "Recommendation:",
+            simulationResults.overall_evaluation.recommendation,
+          ],
+        },
+        ...simulationResults.answer_feedback.map((feedback, i) => ({
+          heading: `Question ${i + 1}: ${feedback.question}`,
+          content: [
+            `Score: ${feedback.score}/10`,
+            "",
+            "Strengths:",
+            ...(Array.isArray(feedback.strengths) 
+              ? feedback.strengths.map(s => `• ${s}`)
+              : [`• ${feedback.strengths}`]),
+            "",
+            "Areas for Improvement:",
+            ...(Array.isArray(feedback.improvements) 
+              ? feedback.improvements.map(i => `• ${i}`)
+              : [`• ${feedback.improvements}`]),
+            "",
+            "Better Answer Example:",
+            feedback.better_answer,
+          ],
+        })),
+      ];
+      
+      await downloadWordx("Interview Simulation Results", sections);
+    } catch (error) {
+      console.error("Error downloading Word document:", error);
+    }
+  };
+
   const resetAll = () => {
     setActiveTab("generate");
     setQuestionsResponse(null);
@@ -357,6 +579,7 @@ export default function InterviewPrep() {
     setSimulationQuestions([]);
     setSimulationAnswers([]);
     setSimulationResults(null);
+    setAnswerTipsLoading(false);
   };
 
   return (
@@ -376,58 +599,63 @@ export default function InterviewPrep() {
             </Button>
           </div>
 
+          {/* Usage Tracker */}
+          <div className="mb-6 flex justify-center">
+            <UsageTracker />
+          </div>
+
           {/* Tabs Navigation - Make it scrollable on mobile */}
           <div className="border-b mb-6 overflow-x-auto">
             <div className="flex space-x-4 min-w-max pb-2">
               <button
-                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                className={
                   activeTab === "generate"
-                    ? "border-blue-600 text-black"
-                    : "border-transparent text-black hover:text-blue-700 hover:border-blue-200"
-                }`}
+                    ? "px-4 py-2 text-sm font-medium border-b-2 transition-colors border-blue-600 text-black"
+                    : "px-4 py-2 text-sm font-medium border-b-2 transition-colors border-transparent text-black hover:text-blue-700 hover:border-blue-200"
+                }
                 onClick={() => setActiveTab("generate")}
               >
                 Generate
               </button>
               <button
-                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                className={
                   activeTab === "questions"
-                    ? "border-blue-600 text-black"
-                    : "border-transparent text-black hover:text-blue-700 hover:border-blue-200"
-                }`}
+                    ? "px-4 py-2 text-sm font-medium border-b-2 transition-colors border-blue-600 text-black"
+                    : "px-4 py-2 text-sm font-medium border-b-2 transition-colors border-transparent text-black hover:text-blue-700 hover:border-blue-200"
+                }
                 onClick={() => setActiveTab("questions")}
                 disabled={!questionsResponse}
               >
                 Questions
               </button>
               <button
-                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                className={
                   activeTab === "tips"
-                    ? "border-blue-600 text-black"
-                    : "border-transparent text-black hover:text-blue-700 hover:border-blue-200"
-                }`}
+                    ? "px-4 py-2 text-sm font-medium border-b-2 transition-colors border-blue-600 text-black"
+                    : "px-4 py-2 text-sm font-medium border-b-2 transition-colors border-transparent text-black hover:text-blue-700 hover:border-blue-200"
+                }
                 onClick={() => setActiveTab("tips")}
                 disabled={!answerTips}
               >
                 Answer Tips
               </button>
               <button
-                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                className={
                   activeTab === "simulation"
-                    ? "border-blue-600 text-black"
-                    : "border-transparent text-black hover:text-blue-700 hover:border-blue-200"
-                }`}
+                    ? "px-4 py-2 text-sm font-medium border-b-2 transition-colors border-blue-600 text-black"
+                    : "px-4 py-2 text-sm font-medium border-b-2 transition-colors border-transparent text-black hover:text-blue-700 hover:border-blue-200"
+                }
                 onClick={() => setActiveTab("simulation")}
                 disabled={simulationQuestions.length === 0}
               >
                 Simulation
               </button>
               <button
-                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                className={
                   activeTab === "results"
-                    ? "border-blue-600 text-black"
-                    : "border-transparent text-black hover:text-blue-700 hover:border-blue-200"
-                }`}
+                    ? "px-4 py-2 text-sm font-medium border-b-2 transition-colors border-blue-600 text-black"
+                    : "px-4 py-2 text-sm font-medium border-b-2 transition-colors border-transparent text-black hover:text-blue-700 hover:border-blue-200"
+                }
                 onClick={() => setActiveTab("results")}
                 disabled={!simulationResults}
               >
@@ -438,6 +666,7 @@ export default function InterviewPrep() {
 
           {/* Generate Tab Content - Stack cards on mobile */}
           {activeTab === "generate" && (
+            <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Resume Upload Card */}
               <Card className="shadow-md">
@@ -504,7 +733,7 @@ export default function InterviewPrep() {
                     {loading ? (
                       <>
                         <div className="w-4 h-4 mr-2 bg-white/30 rounded animate-pulse"></div>
-                        Generating Questions...
+                        Generating Questions & Tips...
                       </>
                     ) : (
                       <>
@@ -516,6 +745,24 @@ export default function InterviewPrep() {
                 </CardContent>
               </Card>
             </div>
+            
+            {/* Loading State for Question Generation */}
+            {loading && (
+              <Card className="mt-6">
+                <CardContent className="py-12">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="w-8 h-8 bg-gray-200 rounded animate-pulse mb-4"></div>
+                    <div className="h-4 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+                    <div className="h-4 w-64 bg-gray-200 rounded animate-pulse mb-4"></div>
+                    <div className="text-center text-gray-600">
+                      <p className="font-medium">Generating interview questions...</p>
+                      <p className="text-sm mt-2">Questions will appear in ~10 seconds, then answer tips will load separately.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            </>
           )}
 
           {/* Questions Tab - Adjust question items for mobile */}
@@ -527,6 +774,12 @@ export default function InterviewPrep() {
                   <CardDescription className="text-black">
                     {questionsResponse?.metadata?.question_count} questions per category
                     {questionsResponse?.metadata?.resume_analyzed ? " (tailored to your resume)" : ""}
+                    {answerTipsLoading && (
+                      <div className="flex items-center mt-2 text-blue-600">
+                        <div className="w-4 h-4 mr-2 bg-blue-600 rounded animate-pulse"></div>
+                        Answer tips are loading in the background...
+                      </div>
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -541,15 +794,15 @@ export default function InterviewPrep() {
                         </AccordionTrigger>
                         <AccordionContent>
                           <ul className="space-y-4">
-                            {questionsResponse.questions.technical_questions.map((question, index) => (
+                            {questionsResponse.questions.technical_questions.map((questionWithTips, index) => (
                               <li key={`tech-${index}`} className="p-3 bg-gray-50 rounded-md">
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                                  <p className="text-black">{question}</p>
+                                  <p className="text-black">{getQuestionText(questionWithTips.question)}</p>
                                   <div className="flex gap-2 w-full sm:w-auto">
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => getAnswerTips(question)}
+                                      onClick={() => getAnswerTips(questionWithTips.question)}
                                       className="flex-1 sm:flex-none"
                                     >
                                       <HelpCircle className="h-4 w-4 mr-1" />
@@ -558,7 +811,7 @@ export default function InterviewPrep() {
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => addQuestionToSimulation(question)}
+                                      onClick={() => addQuestionToSimulation(getQuestionText(questionWithTips.question))}
                                       className="flex-1 sm:flex-none"
                                     >
                                       <MessageSquare className="h-4 w-4 mr-1" />
@@ -581,15 +834,15 @@ export default function InterviewPrep() {
                         </AccordionTrigger>
                         <AccordionContent>
                           <ul className="space-y-4">
-                            {questionsResponse.questions.behavioral_questions.map((question, index) => (
+                            {questionsResponse.questions.behavioral_questions.map((questionWithTips, index) => (
                               <li key={`behav-${index}`} className="p-3 bg-gray-50 rounded-md">
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                                  <p className="text-black">{question}</p>
+                                  <p className="text-black">{getQuestionText(questionWithTips.question)}</p>
                                   <div className="flex gap-2 w-full sm:w-auto">
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => getAnswerTips(question)}
+                                      onClick={() => getAnswerTips(questionWithTips.question)}
                                       className="flex-1 sm:flex-none"
                                     >
                                       <HelpCircle className="h-4 w-4 mr-1" />
@@ -598,7 +851,7 @@ export default function InterviewPrep() {
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => addQuestionToSimulation(question)}
+                                      onClick={() => addQuestionToSimulation(getQuestionText(questionWithTips.question))}
                                       className="flex-1 sm:flex-none"
                                     >
                                       <MessageSquare className="h-4 w-4 mr-1" />
@@ -621,15 +874,15 @@ export default function InterviewPrep() {
                         </AccordionTrigger>
                         <AccordionContent>
                           <ul className="space-y-4">
-                            {questionsResponse.questions.situational_questions.map((question, index) => (
+                            {questionsResponse.questions.situational_questions.map((questionWithTips, index) => (
                               <li key={`sit-${index}`} className="p-3 bg-gray-50 rounded-md">
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                                  <p className="text-black">{question}</p>
+                                  <p className="text-black">{getQuestionText(questionWithTips.question)}</p>
                                   <div className="flex gap-2 w-full sm:w-auto">
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => getAnswerTips(question)}
+                                      onClick={() => getAnswerTips(questionWithTips.question)}
                                       className="flex-1 sm:flex-none"
                                     >
                                       <HelpCircle className="h-4 w-4 mr-1" />
@@ -638,7 +891,7 @@ export default function InterviewPrep() {
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => addQuestionToSimulation(question)}
+                                      onClick={() => addQuestionToSimulation(getQuestionText(questionWithTips.question))}
                                       className="flex-1 sm:flex-none"
                                     >
                                       <MessageSquare className="h-4 w-4 mr-1" />
@@ -661,15 +914,15 @@ export default function InterviewPrep() {
                         </AccordionTrigger>
                         <AccordionContent>
                           <ul className="space-y-4">
-                            {questionsResponse.questions.role_specific_questions.map((question, index) => (
+                            {questionsResponse.questions.role_specific_questions.map((questionWithTips, index) => (
                               <li key={`role-${index}`} className="p-3 bg-gray-50 rounded-md">
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                                  <p className="text-black">{question}</p>
+                                  <p className="text-black">{getQuestionText(questionWithTips.question)}</p>
                                   <div className="flex gap-2 w-full sm:w-auto">
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => getAnswerTips(question)}
+                                      onClick={() => getAnswerTips(questionWithTips.question)}
                                       className="flex-1 sm:flex-none"
                                     >
                                       <HelpCircle className="h-4 w-4 mr-1" />
@@ -678,7 +931,7 @@ export default function InterviewPrep() {
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => addQuestionToSimulation(question)}
+                                      onClick={() => addQuestionToSimulation(getQuestionText(questionWithTips.question))}
                                       className="flex-1 sm:flex-none"
                                     >
                                       <MessageSquare className="h-4 w-4 mr-1" />
@@ -701,15 +954,15 @@ export default function InterviewPrep() {
                         </AccordionTrigger>
                         <AccordionContent>
                           <ul className="space-y-4">
-                            {questionsResponse.questions.culture_fit_questions.map((question, index) => (
+                            {questionsResponse.questions.culture_fit_questions.map((questionWithTips, index) => (
                               <li key={`culture-${index}`} className="p-3 bg-gray-50 rounded-md">
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                                  <p className="text-black">{question}</p>
+                                  <p className="text-black">{getQuestionText(questionWithTips.question)}</p>
                                   <div className="flex gap-2 w-full sm:w-auto">
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => getAnswerTips(question)}
+                                      onClick={() => getAnswerTips(questionWithTips.question)}
                                       className="flex-1 sm:flex-none"
                                     >
                                       <HelpCircle className="h-4 w-4 mr-1" />
@@ -718,7 +971,7 @@ export default function InterviewPrep() {
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => addQuestionToSimulation(question)}
+                                      onClick={() => addQuestionToSimulation(getQuestionText(questionWithTips.question))}
                                       className="flex-1 sm:flex-none"
                                     >
                                       <MessageSquare className="h-4 w-4 mr-1" />
@@ -770,12 +1023,7 @@ export default function InterviewPrep() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {tipsLoading ? (
-                    <div className="flex flex-col items-center justify-center py-12">
-                      <div className="w-8 h-8 bg-gray-200 rounded animate-pulse mb-4"></div>
-                      <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-                    </div>
-                  ) : answerTips ? (
+                  {answerTips ? (
                     <div className="space-y-6">
                       <div>
                         <h3 className="text-lg font-medium mb-2 text-black">Answer Structure</h3>
@@ -1035,13 +1283,22 @@ export default function InterviewPrep() {
                       >
                         Back to Practice
                       </Button>
-                      <Button 
-                        onClick={resetAll} 
-                        variant="outline"
-                        className="w-full sm:w-auto"
-                      >
-                        Start Over
-                      </Button>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Button
+                          onClick={handleDownloadWordx}
+                          variant="default"
+                          className="w-full sm:w-auto"
+                        >
+                          Download as Word
+                        </Button>
+                        <Button 
+                          onClick={resetAll} 
+                          variant="outline"
+                          className="w-full sm:w-auto"
+                        >
+                          Start Over
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -1054,6 +1311,16 @@ export default function InterviewPrep() {
           )}
         </div>
       </main>
+
+      {/* Limit Exceeded Dialog */}
+      <LimitExceededDialog
+        open={showLimitDialog}
+        onCloseAction={() => setShowLimitDialog(false)}
+        feature="interview_prep"
+        remaining={featureAccess.remaining}
+        resetTime={Date.now() + (24 * 60 * 60 * 1000)} // Next midnight
+        trialExpired={featureAccess.isTrialExpired}
+      />
     </div>
   );
 }

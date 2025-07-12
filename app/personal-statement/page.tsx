@@ -1,7 +1,8 @@
 "use client";
 
-import { AlertCircle, ArrowRight, Check, Copy, Download, FileText, Sparkles, Target, Zap } from 'lucide-react';
+import { AlertCircle, ArrowRight, Check, Copy, Download, FileText, Hash, Sparkles, Target, Zap } from 'lucide-react';
 import { useState } from 'react';
+import { UsageTracker } from '../../components/features/dashboard/UsageTracker';
 import { UsageWarning } from '../../components/features/dashboard/UsageWarning';
 import { ResumeUpload } from '../../components/features/resume/ResumeUpload';
 import Sidebar from '../../components/layout/Sidebar';
@@ -9,9 +10,12 @@ import { Alert } from '../../components/ui/base/Alert';
 import { Badge } from '../../components/ui/base/Badge';
 import { Button } from '../../components/ui/base/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/base/Card';
+import { Input } from '../../components/ui/base/Input';
 import { Textarea } from '../../components/ui/base/Textarea';
 import { LoadingSpinner } from '../../components/ui/feedback/LoadingSpinner';
+import { LimitExceededDialog } from '../../components/ui/LimitExceededDialog';
 import { useAuth } from '../../context/AuthContext';
+import { useFeatureAccess } from '../../hooks/ui/useFeatureAccess';
 
 interface PersonalStatementResult {
   personal_statement: string;
@@ -24,6 +28,7 @@ interface PersonalStatementResult {
 export default function PersonalStatementPage() {
   const { user } = useAuth();
   const [jobDescription, setJobDescription] = useState('');
+  const [wordCount, setWordCount] = useState<number>(600);
   const [resumeText, setResumeText] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [result, setResult] = useState<PersonalStatementResult | null>(null);
@@ -31,7 +36,18 @@ export default function PersonalStatementPage() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  // Feature access checking
+  const featureAccess = useFeatureAccess('personal_statement_create');
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
+
   const handleGenerate = async () => {
+    // Check feature access before proceeding
+    const hasAccess = await featureAccess.checkAccess();
+    if (!hasAccess) {
+      setShowLimitDialog(true);
+      return;
+    }
+
     if (!jobDescription.trim()) {
       setError('Please enter a job description');
       return;
@@ -42,12 +58,18 @@ export default function PersonalStatementPage() {
       return;
     }
 
+    if (wordCount < 100 || wordCount > 1500) {
+      setError('Word count must be between 100 and 1500 words');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
       const formData = new FormData();
       formData.append('jobDescription', jobDescription);
+      formData.append('wordCount', wordCount.toString());
       formData.append('userId', user?.id || '');
       
       if (resumeFile) {
@@ -104,8 +126,8 @@ export default function PersonalStatementPage() {
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Header - Compact */}
-        <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 px-6 py-4 flex-shrink-0">
+        {/* Header */}
+        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-slate-200/50 px-6 py-4">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -122,7 +144,7 @@ export default function PersonalStatementPage() {
             </div>
             
             {/* Feature highlights */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-3">
               <div className="flex items-center gap-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 px-2.5 py-1 rounded-full border border-blue-200/50">
                 <Target className="w-3 h-3 text-blue-600" />
                 <span className="text-xs font-medium text-blue-700">Tailored to Job</span>
@@ -136,6 +158,11 @@ export default function PersonalStatementPage() {
                 <span className="text-xs font-medium text-purple-700">Professional Quality</span>
               </div>
             </div>
+
+            {/* Usage Tracker */}
+            <div className="flex justify-center">
+              <UsageTracker />
+            </div>
           </div>
         </div>
 
@@ -143,7 +170,7 @@ export default function PersonalStatementPage() {
         <div className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-6 py-6">
             <UsageWarning feature="personal_statement_create" className="mb-6" />
-
+            
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full">
               {/* Input Section */}
               <div className="space-y-4 h-fit">
@@ -168,6 +195,56 @@ export default function PersonalStatementPage() {
                       rows={5}
                       className="w-full border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl text-sm resize-none"
                     />
+                  </CardContent>
+                </Card>
+
+                {/* Word Count Input */}
+                <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm ring-1 ring-slate-200/50">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <Hash className="w-3 h-3 text-white" />
+                      </div>
+                      Word Count
+                    </CardTitle>
+                                         <p className="text-slate-600 text-xs">
+                       Enter the desired word count for your personal statement (100-1500 words)
+                     </p>
+                   </CardHeader>
+                   <CardContent className="space-y-2">
+                     <Input
+                       type="number"
+                       placeholder="Enter word count (e.g., 600)"
+                       value={wordCount}
+                       onChange={(e) => setWordCount(Number(e.target.value))}
+                       min={100}
+                       max={1500}
+                       className="w-full border-slate-200 focus:border-purple-500 focus:ring-purple-500/20 rounded-xl text-sm"
+                     />
+                     <div className="flex items-center gap-2 text-xs text-slate-500">
+                       <span>💡 Common lengths:</span>
+                       <button
+                         type="button"
+                         onClick={() => setWordCount(300)}
+                         className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 transition-colors"
+                       >
+                         300 (Short)
+                       </button>
+                       <button
+                         type="button"
+                         onClick={() => setWordCount(600)}
+                         className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 transition-colors"
+                       >
+                         600 (Standard)
+                       </button>
+                       <button
+                         type="button"
+                         onClick={() => setWordCount(1000)}
+                         className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 transition-colors"
+                       >
+                         1000 (Long)
+                       </button>
+                     </div>
                   </CardContent>
                 </Card>
 
@@ -218,7 +295,7 @@ export default function PersonalStatementPage() {
                 {/* Generate Button - Compact */}
                 <Button 
                   onClick={handleGenerate}
-                  disabled={loading || !jobDescription.trim() || (!resumeText.trim() && !resumeFile)}
+                  disabled={loading || !jobDescription.trim() || (!resumeText.trim() && !resumeFile) || wordCount < 100 || wordCount > 1500}
                   className="w-full h-12 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02]"
                   size="lg"
                 >
@@ -340,6 +417,16 @@ export default function PersonalStatementPage() {
           </div>
         </div>
       </div>
+
+      {/* Limit Exceeded Dialog */}
+      <LimitExceededDialog
+        open={showLimitDialog}
+        onCloseAction={() => setShowLimitDialog(false)}
+        feature="personal_statement_create"
+        remaining={featureAccess.remaining}
+        resetTime={Date.now() + (24 * 60 * 60 * 1000)} // Next midnight
+        trialExpired={featureAccess.isTrialExpired}
+      />
     </div>
   );
 } 

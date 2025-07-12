@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withFeatureLimit } from '../../../../lib/auth/userRateLimit';
+import { extractContactDetails } from '../../../../lib/services/resume/resumeUtils/extractContactDetails';
 import { extractTextFromFile } from '../../../../lib/services/resume/resumeUtils/fileParser';
 import { OptimizedResume, optimizeResume } from '../../../../lib/services/resume/resumeUtils/optimizeResume';
 import { structure_resume } from '../../../../lib/services/resume/resumeUtils/resumeParser';
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
     const startTime = Date.now();
     
     try {
-      console.log('Optimize API: Request started');
+
       
       const formData = await req.formData();
       const file = formData.get('file') as File;
@@ -51,12 +52,7 @@ export async function POST(req: NextRequest) {
       const missingSkillsStr = formData.get('missing_skills') as string || '';
       const missingSkills = missingSkillsStr ? JSON.parse(missingSkillsStr) : [];
       
-      console.log('Optimize API: File and job validation passed', {
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-        jobLength: job.length
-      });
+
       
       // Validate file type
       const allowedTypes = ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
@@ -76,7 +72,7 @@ export async function POST(req: NextRequest) {
       const buffer = Buffer.from(arrayBuffer);
       const mimetype = file.type;
       
-      console.log('Optimize API: File processing started');
+
       
       // Extract text from the resume file
       const text = await extractTextFromFile(buffer, mimetype);
@@ -85,30 +81,24 @@ export async function POST(req: NextRequest) {
         throw new Error('Could not extract sufficient text from the file. Please ensure the file contains readable text.');
       }
       
-      console.log('Optimize API: Text extraction completed', {
-        textLength: text.length,
-        elapsedTime: Date.now() - startTime
-      });
+
+      
+      // Extract contact details for debugging
+      const contactDetails = await extractContactDetails(text);
+
       
       // OPTIMIZATION: Run structure_resume in parallel with optimization instead of sequentially
       // This saves 15-20 seconds by removing the sequential dependency
-      console.log('Optimize API: Starting parallel optimization (structure + optimize)');
+
       
-      const [optimized, structuredResume] = await Promise.all([
+      const [optimized] = await Promise.all([
         // Start optimization without waiting for structuring
         optimizeResume(text, job, undefined, missingSkills), // Pass missing skills to optimization
         // Run structuring in parallel
         structure_resume(text)
       ]);
     
-      console.log('Optimize API: Parallel optimization completed', {
-        hasOptimized: !!optimized,
-        hasSummary: !!optimized?.summary,
-        hasSkills: !!optimized?.skills,
-        hasWorkExperience: !!optimized?.work_experience,
-        hasStructure: !!structuredResume,
-        elapsedTime: Date.now() - startTime
-      });
+
 
       // Validate optimization result
       if (!optimized || typeof optimized !== 'object') {
@@ -213,7 +203,14 @@ export async function POST(req: NextRequest) {
         summary: optimized.summary || optimizedWithCapitalKeys["Summary"] || "",
         education: optimized.education || optimizedWithCapitalKeys["Education"] || [],
         certifications: optimized.certifications || optimizedWithCapitalKeys["Certifications"] || [],
-        projects: processedProjects
+        projects: processedProjects,
+        // Use the already extracted contact details with normalized structure
+        contact_details: {
+          name: contactDetails.name || '',
+          email: contactDetails.email || '',
+          phone: contactDetails.phone || '',
+          location: contactDetails.location || ''
+        }
       };
       
       console.log('Optimize API: Response data prepared', {
@@ -221,6 +218,8 @@ export async function POST(req: NextRequest) {
         hasSkills: !!responseData.skills?.technical_skills?.length,
         hasWorkExperience: !!responseData.work_experience?.length,
         hasProjects: !!responseData.projects?.length,
+        hasContactDetails: !!responseData.contact_details,
+        contactDetailsPreview: responseData.contact_details,
         summaryPreview: responseData.summary?.substring(0, 100),
         elapsedTime: Date.now() - startTime
       });
@@ -242,4 +241,4 @@ export async function POST(req: NextRequest) {
       );
     }
   });
-} 
+}

@@ -224,8 +224,7 @@ class ErrorReportingService {
     if (this.config.enableConsoleLogging) {
       console.group(`🚨 Error Report [${report.severity.toUpperCase()}]`);
       console.error('Error:', errorObj);
-      console.log('Context:', context);
-      console.log('Category:', report.category);
+
       console.groupEnd();
     }
 

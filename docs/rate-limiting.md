@@ -7,7 +7,7 @@ This system implements user-based rate limiting with database tracking to manage
 ## Features
 
 ### Free Users
-- **7-day free trial** from account creation
+- **3-day free trial** from account creation
 - **Daily limits per feature:**
   - Resume creation: 1 per day
   - Resume optimization: 1 per day  

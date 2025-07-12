@@ -7,6 +7,7 @@ export async function POST(req: NextRequest) {
     try {
       const formData = await req.formData();
       const jobDescription = formData.get('jobDescription') as string;
+      const wordCountStr = formData.get('wordCount') as string;
       const resumeText = formData.get('resumeText') as string | null;
       const resumeFile = formData.get('resumeFile') as File | null;
       const userId = formData.get('userId') as string | null;
@@ -26,12 +27,22 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      // Parse and validate word count
+      const wordCount = wordCountStr ? parseInt(wordCountStr, 10) : 600;
+      if (isNaN(wordCount) || wordCount < 100 || wordCount > 1500) {
+        return NextResponse.json(
+          { error: 'Word count must be between 100 and 1500 words' },
+          { status: 400 }
+        );
+      }
+
       // Generate personal statement using the service
       const result = await generatePersonalStatement(
         jobDescription.trim(),
         resumeText,
         resumeFile,
-        userId
+        userId,
+        wordCount
       );
 
       return NextResponse.json(result);

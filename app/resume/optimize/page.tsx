@@ -2,14 +2,17 @@
 
 import { FileText, Sparkles } from "lucide-react";
 import { FormEvent, useRef, useState } from "react";
+import { UsageTracker } from "../../../components/features/dashboard/UsageTracker";
 import { SaveResumeDialog } from "../../../components/features/resume/SaveResumeDialog";
 import Sidebar from "../../../components/layout/Sidebar";
 import { Button } from "../../../components/ui/base/Button";
 import { ErrorBoundary } from "../../../components/ui/feedback/ErrorBoundary";
 import { useToast } from "../../../components/ui/feedback/use-toast";
+import { LimitExceededDialog } from "../../../components/ui/LimitExceededDialog";
 import { useAuth } from "../../../context/AuthContext";
 import { useSavedResumes } from "../../../hooks/api/useSavedResumes";
 import { useAsyncOperation } from "../../../hooks/ui/useAsyncOperation";
+import { useFeatureAccess } from "../../../hooks/ui/useFeatureAccess";
 import { supabase } from "../../../lib/auth/supabaseClient";
 import { showFeedbackNotification } from "../../../lib/core/utils";
 import { ResumeScore } from "../../../lib/services/resume/resumeUtils/scoreResume";
@@ -44,7 +47,11 @@ export default function ResumeDashboard() {
 
   // Use a single PDF generator instance for the entire page
   const pdfGenerator = usePdfGenerator();
-  const { isPdfGenerating, downloadPdf, selectedTemplate } = pdfGenerator;
+  const { isPdfGenerating, downloadPdf } = pdfGenerator;
+
+  // Feature access checking
+  const featureAccess = useFeatureAccess('resume_optimize');
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
 
   // All async operations
   const analyzeOperation = useAsyncOperation(
@@ -328,6 +335,13 @@ export default function ResumeDashboard() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
+    // Check feature access before proceeding
+    const hasAccess = await featureAccess.checkAccess();
+    if (!hasAccess) {
+      setShowLimitDialog(true);
+      return;
+    }
+
     if (!file || !jobDescription.trim()) {
       setError("Please upload a resume and provide a job description");
       return;
@@ -355,6 +369,13 @@ export default function ResumeDashboard() {
   };
 
   const handleOptimizeResume = async () => {
+    // Check feature access before proceeding
+    const hasAccess = await featureAccess.checkAccess();
+    if (!hasAccess) {
+      setShowLimitDialog(true);
+      return;
+    }
+
     if (!file || !jobDescription.trim()) {
       setError("Missing original file or job description");
       return;
@@ -365,35 +386,32 @@ export default function ResumeDashboard() {
   };
 
   const handleDownloadPdf = async (editableResume?: ResumeData) => {
-    console.log('Dashboard handleDownloadPdf called with selectedTemplate:', selectedTemplate);
+
     
     const currentResume = showOptimized ? optimizedResume : originalResumeData;
-    if (currentResume && resumeResponse) {
-      try {
-        const safeResponse = {
-          ...currentResume,
-          summary: currentResume.summary || "",
-          skills: currentResume.skills || {},
-          work_experience: currentResume.work_experience || [],
-          education: currentResume.education || [],
-          projects: currentResume.projects || [],
-          certifications: currentResume.certifications || []
-        };
-        
-        const mergedData = { ...safeResponse };
-        if (editableResume) {
-          if (editableResume.summary) mergedData.summary = editableResume.summary;
-          if (editableResume.skills) mergedData.skills = editableResume.skills;
-          if (editableResume.work_experience) mergedData.work_experience = editableResume.work_experience;
-          if (editableResume.education) mergedData.education = editableResume.education;
-          if (editableResume.projects) mergedData.projects = editableResume.projects;
-          if (editableResume.certifications) mergedData.certifications = editableResume.certifications;
-        }
-        
-        await downloadPdf(mergedData, resumeResponse);
-      } catch (error) {
-        console.error("Error generating PDF:", error);
+    const mergedData = editableResume || currentResume;
+    
+    if (!mergedData) {
+      console.error('No resume data available for PDF download');
+      return;
+    }
+
+    console.log('Downloading PDF with data:', {
+      hasData: !!mergedData,
+      sections: {
+        summary: !!mergedData.summary,
+        skills: !!mergedData.skills,
+        experience: !!mergedData.work_experience,
+        education: !!mergedData.education,
+        projects: !!mergedData.projects,
+        certifications: !!mergedData.certifications
       }
+    });
+
+    try {
+      await downloadPdf(mergedData, resumeResponse);
+    } catch (error) {
+      console.error('PDF download error:', error);
     }
   };
 
@@ -463,7 +481,13 @@ export default function ResumeDashboard() {
           description: proj.description || '',
           technologies: Array.isArray(proj.technologies) ? proj.technologies.join(', ') : (proj.technologies || '')
         })),
-        certifications: currentResume.certifications || []
+        certifications: currentResume.certifications || [],
+        contact_details: currentResume.contact_details || {
+          name: '',
+          email: '',
+          phone: '',
+          location: ''
+        }
       };
 
       const saveRequest: SaveResumeRequest = {
@@ -497,6 +521,11 @@ export default function ResumeDashboard() {
           <div className="text-center mb-4 sm:mb-6">
             <h1 className="text-xl sm:text-2xl md:text-3xl text-black font-bold mb-1 sm:mb-2">Resume Optimizer</h1>
             <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">Upload your resume and job description to get an optimized resume with instant scoring</p>
+          </div>
+          
+          {/* Usage Tracker */}
+          <div className="mb-6 flex justify-center">
+            <UsageTracker />
           </div>
           
           {/* Upload Form and Empty State Layout */}
@@ -643,6 +672,7 @@ export default function ResumeDashboard() {
                       <ResumeEditProvider key={showOptimized ? 'optimized' : 'analyzed'} initialData={currentResumeData}>
                         <OptimizedResume
                           response={currentResumeData}
+                          resumeResponse={resumeResponse}
                           handleDownloadPdf={handleDownloadPdf}
                           isPdfGenerating={isPdfGenerating}
                           onSaveResume={() => setShowSaveDialog(true)}
@@ -715,6 +745,16 @@ export default function ResumeDashboard() {
           });
         }}
         defaultTitle={`${showOptimized ? 'Optimized' : 'Analyzed'} Resume for ${jobDescription.split(' ').slice(0, 3).join(' ')}...`}
+      />
+
+      {/* Limit Exceeded Dialog */}
+      <LimitExceededDialog
+        open={showLimitDialog}
+        onCloseAction={() => setShowLimitDialog(false)}
+        feature="resume_optimize"
+        remaining={featureAccess.remaining}
+        resetTime={Date.now() + (24 * 60 * 60 * 1000)} // Next midnight
+        trialExpired={featureAccess.isTrialExpired}
       />
     </div>
   );

@@ -37,13 +37,21 @@ export default function SavedResumeViewPage() {
   
   // Use a single PDF generator instance for the entire page
   const pdfGenerator = usePdfGenerator();
-  const { downloadPdf, isPdfGenerating, selectedTemplate } = pdfGenerator;
+  const { downloadPdf, isPdfGenerating } = pdfGenerator;
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showJobDescription, setShowJobDescription] = useState(false);
 
   // Convert saved resume data to ResumeData format for OptimizedResume component
   const convertToResumeData = (savedResume: SavedResume): ResumeData => {
+    // Use the properly saved contact details from the database
+    const contactDetails = savedResume.generated_contact_details || {
+      name: '',
+      email: '',
+      phone: '',
+      location: ''
+    };
+
     return {
       summary: savedResume.generated_summary || '',
       skills: savedResume.generated_skills || { technical_skills: [], soft_skills: [] },
@@ -61,17 +69,12 @@ export default function SavedResumeViewPage() {
           : []
       })) || [],
       certifications: savedResume.generated_certifications || [],
-      contact_details: {
-        name: '',
-        email: '',
-        phone: '',
-        location: ''
-      }
+      contact_details: contactDetails
     };
   };
 
   const handleDownloadPdf = async (editableResume?: ResumeData) => {
-    console.log('SavedResume handleDownloadPdf called with selectedTemplate:', selectedTemplate);
+
     
     if (!savedResume) return;
 
@@ -81,10 +84,10 @@ export default function SavedResumeViewPage() {
         data: resumeData,
         original: resumeData,
         contact_details: {
-          name: '',
-          email: '',
-          phone_number: '',
-          location: ''
+          name: resumeData.contact_details?.name || '',
+          email: resumeData.contact_details?.email || '',
+          phone_number: resumeData.contact_details?.phone || '',
+          location: resumeData.contact_details?.location || ''
         }
       };
       

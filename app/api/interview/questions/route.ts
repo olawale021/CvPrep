@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withFeatureLimit } from "../../../../lib/auth/userRateLimit";
-import { generateInterviewQuestions } from "../../../../lib/services/interview/interviewService";
+import { generateInterviewQuestionsWithTips } from "../../../../lib/services/interview/interviewService";
 
 export async function POST(req: NextRequest) {
   return withFeatureLimit(req, 'interview_prep', async () => {
@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
         }, { status: 400 });
       }
 
-      // Generate interview questions using the service
-      const result = await generateInterviewQuestions(
+      // Generate interview questions with answer tips using the enhanced service
+      const result = await generateInterviewQuestionsWithTips(
         jobDescription.trim(),
         questionCount,
         resumeFile

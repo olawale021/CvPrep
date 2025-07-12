@@ -258,7 +258,7 @@ export function AnalyticsDashboard() {
       {/* Recent Trends */}
       <Card>
         <CardHeader>
-          <CardTitle>Daily Usage Trends (Last 7 Days)</CardTitle>
+                          <CardTitle>Daily Usage Trends (Last 3 Days)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

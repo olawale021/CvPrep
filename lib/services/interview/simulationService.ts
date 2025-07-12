@@ -64,19 +64,40 @@ Return as JSON with:
 
 function parseSimulationResponse(content: string): SimulationFeedback {
   try {
+
+    
     // Clean the content before parsing
     let cleanContent = content.trim();
     
     // Remove any potential markdown formatting
     cleanContent = cleanContent.replace(/```json\n?|```\n?/g, '');
     
-    // Try to fix common JSON issues
-    cleanContent = cleanContent.replace(/\n/g, '\\n');
-    cleanContent = cleanContent.replace(/\r/g, '\\r');
-    cleanContent = cleanContent.replace(/\t/g, '\\t');
+    // Remove any leading/trailing whitespace again after markdown removal
+    cleanContent = cleanContent.trim();
     
-    // Parse the JSON
-    const result = JSON.parse(cleanContent);
+        // Try to parse the JSON directly first
+    let result;
+    try {
+      result = JSON.parse(cleanContent);
+    } catch {
+ 
+      
+      // If direct parsing fails, try more aggressive cleaning
+      // Replace unescaped newlines, tabs, and carriage returns
+      cleanContent = cleanContent
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r')
+        .replace(/\t/g, '\\t')
+        // Fix double escaping that might have occurred
+        .replace(/\\\\n/g, '\\n')
+        .replace(/\\\\r/g, '\\r')
+        .replace(/\\\\t/g, '\\t');
+      
+      // Try parsing again
+      result = JSON.parse(cleanContent);
+    }
+    
+
     
     // Validate and return - throw error if invalid structure
     const feedback: SimulationFeedback = {
@@ -134,6 +155,8 @@ export async function simulateInterview(
   answers: string[]
 ): Promise<SimulationFeedback> {
   try {
+
+    
     // Validate inputs
     if (!jobDescription || jobDescription.trim().length === 0) {
       throw new Error("Job description is required for interview simulation");
@@ -159,6 +182,8 @@ export async function simulateInterview(
     // Create the prompt
     const prompt = createSimulationPrompt(jobDescription.trim(), jobRequirements, qaPairs);
 
+
+    
     // Generate feedback using OpenAI
     const response = await openai.chat.completions.create({
       model: process.env.GPT_MODEL || "gpt-4o-mini",
@@ -173,6 +198,8 @@ export async function simulateInterview(
       response_format: { type: "json_object" }
     });
     
+
+    
     // Handle possible null content
     const content = response.choices[0].message.content;
     if (!content) {
@@ -182,6 +209,7 @@ export async function simulateInterview(
     // Parse and validate the response
     const feedback = parseSimulationResponse(content);
     
+
     return feedback;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';

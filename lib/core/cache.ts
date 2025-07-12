@@ -443,7 +443,7 @@ class CacheManager {
         const existing = await this.get(url, config, params);
         if (existing === null) {
           // This would typically fetch from API, but for preloading we'd need the actual data
-          console.log(`Preloading cache for: ${url}`);
+
         }
       } catch (error) {
         console.warn(`Failed to preload cache for ${url}:`, error);

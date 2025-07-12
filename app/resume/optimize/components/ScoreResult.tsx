@@ -162,9 +162,27 @@ export default function ScoreResult({
     if (!updatedResumeData || !file) return;
     
     try {
-      // Get the session token from Supabase
+      // Check usage limits before proceeding
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
+      
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      // Quick usage check
+      const usageResponse = await fetch('/api/user/usage', { headers });
+      if (usageResponse.ok) {
+        const usageData = await usageResponse.json();
+        if (usageData.isTrialExpired || (usageData.resume_scoring && usageData.resume_scoring.used >= usageData.resume_scoring.limit)) {
+          // Don't proceed if limits are exceeded - the backend will handle this
+    
+        }
+      }
       
       // Create a new FormData with the updated resume data
       const formData = new FormData();
@@ -177,15 +195,10 @@ export default function ScoreResult({
       formData.append('file', updatedResumeFile);
       formData.append('job', jobDescription);
       
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
       const response = await fetch('/api/resume/score', {
         method: 'POST',
         body: formData,
-        headers
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       
       const scoreData = await response.json();

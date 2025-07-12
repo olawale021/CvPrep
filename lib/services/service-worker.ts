@@ -40,7 +40,7 @@ class ServiceWorkerManager {
       this.setupServiceWorkerListeners(registration);
       this.emit('sw-registered', registration);
 
-      console.log('Service Worker registered successfully');
+
       return registration;
     } catch (error) {
       console.error('Service Worker registration failed:', error);
@@ -86,10 +86,10 @@ class ServiceWorkerManager {
         this.emit('sw-cache-updated', payload.url);
         break;
       case 'OFFLINE_READY':
-        console.log('App is ready for offline use');
+
         break;
       default:
-        console.log('Unknown service worker message:', type, payload);
+
     }
   }
 

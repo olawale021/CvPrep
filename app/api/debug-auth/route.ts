@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       origin: req.headers.get('origin'),
     };
 
-    console.log('Debug Auth Info:', debugInfo);
+
 
     // Try to get user using new SSR method
     const { user, error: authError } = await getServerUser(req);

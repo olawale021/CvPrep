@@ -3,6 +3,7 @@
 import { Award, Briefcase, FileText, GraduationCap, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { FormEvent, useEffect, useState } from 'react';
+import { UsageTracker } from '../../../components/features/dashboard/UsageTracker';
 import { SaveResumeDialog } from '../../../components/features/resume/SaveResumeDialog';
 import Sidebar from '../../../components/layout/Sidebar';
 import { Button } from '../../../components/ui/base/Button';
@@ -12,9 +13,11 @@ import { Label } from '../../../components/ui/base/Label';
 import { Textarea } from '../../../components/ui/base/Textarea';
 import { ErrorBoundary } from '../../../components/ui/feedback/ErrorBoundary';
 import { useToast } from '../../../components/ui/feedback/use-toast';
+import { LimitExceededDialog } from '../../../components/ui/LimitExceededDialog';
 import { useAuth } from '../../../context/AuthContext';
 import { useSavedResumes } from '../../../hooks/api/useSavedResumes';
 import { useAsyncOperation } from '../../../hooks/ui/useAsyncOperation';
+import { useFeatureAccess } from '../../../hooks/ui/useFeatureAccess';
 import { supabase } from '../../../lib/auth/supabaseClient';
 import { showFeedbackNotification } from '../../../lib/core/utils';
 import { ResumeScore } from '../../../lib/services/resume/resumeUtils/scoreResume';
@@ -64,6 +67,10 @@ export default function CreateResumePage() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   
+  // Feature access checking
+  const featureAccess = useFeatureAccess('resume_create');
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
+
   const [formData, setFormData] = useState<CreateResumeFormData>({
     // Personal Information
     fullName: '',
@@ -92,7 +99,7 @@ export default function CreateResumePage() {
 
   // Use a single PDF generator instance for the entire page
   const pdfGenerator = usePdfGenerator();
-  const { isPdfGenerating, downloadPdf, selectedTemplate } = pdfGenerator;
+  const { isPdfGenerating, downloadPdf } = pdfGenerator;
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -357,6 +364,13 @@ export default function CreateResumePage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
+    // Check feature access before proceeding
+    const hasAccess = await featureAccess.checkAccess();
+    if (!hasAccess) {
+      setShowLimitDialog(true);
+      return;
+    }
+
     if (!formData.jobDescription.trim()) {
       setError("Please provide a job description");
       return;
@@ -370,7 +384,7 @@ export default function CreateResumePage() {
   };
 
   const handleDownloadPdf = async (editableResume?: ResumeData) => {
-    console.log('Create handleDownloadPdf called with selectedTemplate:', selectedTemplate);
+
     
     if (generatedResume && resumeResponse) {
       try {
@@ -496,7 +510,13 @@ export default function CreateResumePage() {
           description: proj.description || '',
           technologies: Array.isArray(proj.technologies) ? proj.technologies.join(', ') : (proj.technologies || '')
         })),
-        certifications: generatedResume.certifications || []
+        certifications: generatedResume.certifications || [],
+        contact_details: {
+          name: formData.fullName || '',
+          email: formData.email || '',
+          phone: formData.phoneNumber || '',
+          location: formData.location || ''
+        }
       };
 
       const saveRequest: SaveResumeRequest = {
@@ -584,6 +604,11 @@ export default function CreateResumePage() {
             <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
               Provide your complete information and let AI generate professional summary, skills, and achievements
             </p>
+          </div>
+
+          {/* Usage Tracker */}
+          <div className="mb-4 sm:mb-6 flex justify-center">
+            <UsageTracker />
           </div>
 
           {/* Form and Empty State Layout - Show when no generated resume */}
@@ -1106,43 +1131,43 @@ export default function CreateResumePage() {
               {/* Right Column - Score Result - Mobile Optimized */}
               <div className="w-full lg:w-[40%]">
                 <div className="h-full flex flex-col max-h-[calc(100vh-200px)]">
-                  <ErrorBoundary fallback={
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
-                      <p className="text-red-800 text-sm">Error displaying score results.</p>
-                    </div>
-                  }>
-                    {isScoring && !scoreResult ? (
-                      <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
+                <ErrorBoundary fallback={
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
+                    <p className="text-red-800 text-sm">Error displaying score results.</p>
+                  </div>
+                }>
+                  {isScoring && !scoreResult ? (
+                    <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
                         <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
                           <div className="h-4 w-4 sm:h-5 sm:w-5 bg-blue-600 rounded animate-pulse"></div>
                           <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-                        </div>
+                      </div>
                         <div className="space-y-3 sm:space-y-4">
                           <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse"></div>
                           <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
                           <div className="h-3 sm:h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
-                        </div>
                       </div>
-                    ) : scoreResult ? (
+                    </div>
+                  ) : scoreResult ? (
                       <div className="flex-1 overflow-y-auto min-h-0">
-                        <ScoreResult
-                          scoreResult={scoreResult}
-                          handleOptimize={() => {}} // No optimize functionality needed in create page
-                          loading={false}
-                          setScoreResult={setScoreResult}
-                          file={null}
-                          jobDescription={formData.jobDescription}
+                    <ScoreResult
+                      scoreResult={scoreResult}
+                      handleOptimize={() => {}} // No optimize functionality needed in create page
+                      loading={false}
+                      setScoreResult={setScoreResult}
+                      file={null}
+                      jobDescription={formData.jobDescription}
                           showOptimizeButton={false}
-                        />
+                    />
                       </div>
-                    ) : (
-                      <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
-                        <div className="text-center text-gray-500 text-sm sm:text-base">
-                          Score will appear here once generation is complete
-                        </div>
+                  ) : (
+                    <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
+                      <div className="text-center text-gray-500 text-sm sm:text-base">
+                        Score will appear here once generation is complete
                       </div>
-                    )}
-                  </ErrorBoundary>
+                    </div>
+                  )}
+                </ErrorBoundary>
                 </div>
               </div>
             </div>
@@ -1166,6 +1191,16 @@ export default function CreateResumePage() {
           });
         }}
         defaultTitle={`Resume for ${formData.jobDescription.split(' ').slice(0, 3).join(' ')}...`}
+      />
+
+      {/* Limit Exceeded Dialog */}
+      <LimitExceededDialog
+        open={showLimitDialog}
+        onCloseAction={() => setShowLimitDialog(false)}
+        feature="resume_create"
+        remaining={featureAccess.remaining}
+        resetTime={Date.now() + (24 * 60 * 60 * 1000)} // Next midnight
+        trialExpired={featureAccess.isTrialExpired}
       />
     </div>
   );

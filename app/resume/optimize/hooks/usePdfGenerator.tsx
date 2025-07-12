@@ -15,6 +15,8 @@ export function usePdfGenerator() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>("classic");
+  
+
   const { appUser } = useAuth();
   const isPremium = appUser?.type === "premium";
 
@@ -22,12 +24,6 @@ export function usePdfGenerator() {
    * Generate a PDF based on the selected template
    */
   const generatePdfDocument = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null, template: ResumeTemplate = "classic") => {
-    console.log('generatePdfDocument called with:', { 
-      template, 
-      isPremium, 
-      userType: appUser?.type,
-      hasResumeData: !!resumeData 
-    });
     
     if (!resumeData) return null; // Return null if no data
     
@@ -40,9 +36,7 @@ export function usePdfGenerator() {
     
     try {
       setIsPdfGenerating(true);
-      console.log('Calling generatePdf with template:', template);
       const result = await generatePdf(resumeData, resumeResponse, template);
-      console.log('generatePdf result:', { success: !!result, template });
       return result;
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -58,7 +52,6 @@ export function usePdfGenerator() {
    * Generate a preview of the PDF
    */
   const generatePreview = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => {
-    console.log('generatePreview called with template:', selectedTemplate);
     
     if (!resumeData) return;
     
@@ -103,12 +96,6 @@ export function usePdfGenerator() {
    * Download the PDF
    */
   const downloadPdf = async (resumeData: ResumeData, resumeResponse: ResumeResponse | null) => {
-    console.log('downloadPdf called with:', { 
-      selectedTemplate, 
-      isPremium, 
-      userType: appUser?.type,
-      hasResumeData: !!resumeData 
-    });
     
     if (!resumeData) return;
     
@@ -121,13 +108,11 @@ export function usePdfGenerator() {
     
     try {
       setIsPdfGenerating(true);
-      console.log('Starting PDF generation for download with template:', selectedTemplate);
       const pdf = await generatePdfDocument(resumeData, resumeResponse, selectedTemplate);
       if (!pdf) {
         console.error('PDF generation returned null for template:', selectedTemplate);
         throw new Error("Failed to generate PDF");
       }
-      console.log('PDF generated successfully, saving with template:', selectedTemplate);
       pdf.save('optimized-resume.pdf');
     } catch (err) {
       setError('Failed to download PDF');

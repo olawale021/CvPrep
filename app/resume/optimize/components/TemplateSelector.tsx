@@ -50,13 +50,13 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
     
     // Don't reset during auth loading to prevent race conditions
     if (isLoading) {
-      console.log('Auth still loading, skipping template reset');
+
       return;
     }
     
     // Only reset if user is definitively non-premium (not undefined/loading) and has modern template
     if (isPremium === false && selectedTemplate === 'modern') {
-      console.log('Resetting modern template to classic for non-premium user');
+
       setSelectedTemplate('classic');
     }
   }, [isPremium, selectedTemplate, setSelectedTemplate, appUser, isLoading]);
