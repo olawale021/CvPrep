@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./composite/Di
 
 interface UpgradeContactDialogProps {
   open: boolean;
-  onClose: () => void;
+  onCloseAction: () => void;
   feature?: string;
   title?: string;
   description?: string;
@@ -14,7 +14,7 @@ interface UpgradeContactDialogProps {
 
 export function UpgradeContactDialog({ 
   open, 
-  onClose, 
+  onCloseAction, 
   feature = "premium features",
   title = "Ready to Upgrade?",
   description = "Contact our admin to get premium access and unlock all features!"
@@ -46,7 +46,7 @@ Thank you!`;
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onCloseAction}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-blue-600">
@@ -100,7 +100,7 @@ Thank you!`;
           <div className="flex justify-end">
             <Button
               variant="outline"
-              onClick={onClose}
+              onClick={onCloseAction}
               className="w-full"
             >
               Close

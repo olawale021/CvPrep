@@ -119,7 +119,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           );
         })}
       </div>
-      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
+      <UpgradeModal open={showUpgrade} onCloseAction={() => setShowUpgrade(false)} />
     </div>
   );
 };

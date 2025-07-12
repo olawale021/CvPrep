@@ -126,7 +126,7 @@ export function UsageWarning({
         
         <UpgradeContactDialog 
           open={showUpgradeDialog} 
-          onClose={() => setShowUpgradeDialog(false)}
+          onCloseAction={() => setShowUpgradeDialog(false)}
           feature={getFeatureDisplayName(feature)}
           title="Upgrade to Premium"
           description={`You've reached your daily limit for ${getFeatureDisplayName(feature)}. Upgrade to premium for unlimited access!`}
@@ -166,7 +166,7 @@ export function UsageWarning({
         
         <UpgradeContactDialog 
           open={showUpgradeDialog} 
-          onClose={() => setShowUpgradeDialog(false)}
+          onCloseAction={() => setShowUpgradeDialog(false)}
           feature={getFeatureDisplayName(feature)}
           title="Upgrade to Premium"
           description={`You're almost at your daily limit for ${getFeatureDisplayName(feature)}. Upgrade to premium for unlimited access!`}
@@ -205,7 +205,7 @@ export function UsageWarning({
         
         <UpgradeContactDialog 
           open={showUpgradeDialog} 
-          onClose={() => setShowUpgradeDialog(false)}
+          onCloseAction={() => setShowUpgradeDialog(false)}
           feature="all premium features"
           title="Upgrade to Premium"
           description={`Your free trial ends in ${trialDaysRemaining} day${trialDaysRemaining === 1 ? '' : 's'}. Contact our admin to upgrade and continue using all features!`}

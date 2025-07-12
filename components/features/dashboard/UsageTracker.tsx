@@ -366,7 +366,7 @@ export function UsageTracker() {
 
       <UpgradeContactDialog 
         open={showUpgradeDialog} 
-        onClose={() => setShowUpgradeDialog(false)}
+        onCloseAction={() => setShowUpgradeDialog(false)}
         feature="all premium features"
         title="Upgrade to Premium"
         description={usage.isTrialExpired 

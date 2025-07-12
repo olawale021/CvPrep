@@ -169,59 +169,39 @@ export default function LandingHeader() {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className={`md:hidden border-t py-4 transition-colors duration-300 ${
-            isScrolled ? 'border-gray-200 bg-white/95' : 'border-gray-200/50 bg-white/90 backdrop-blur-md'
-          }`}>
+          <div className="md:hidden border-t border-gray-200 py-4 bg-white shadow-lg font-sans">
             <div className="flex flex-col space-y-4">
               <button
                 onClick={() => scrollToSection('features')}
-                className={`text-left px-2 py-1 transition-colors duration-300 ${
-                  isScrolled 
-                    ? 'text-gray-600 hover:text-gray-900' 
-                    : 'text-white/90 hover:text-white'
-                }`}
+                className="text-left px-2 py-1 text-gray-900 hover:text-blue-600 transition-colors duration-300 font-sans"
               >
                 Features
               </button>
               <Link
                 href="/pricing"
-                className={`px-2 py-1 transition-colors duration-300 ${
-                  isScrolled 
-                    ? 'text-gray-600 hover:text-gray-900' 
-                    : 'text-white/90 hover:text-white'
-                }`}
+                className="px-2 py-1 text-gray-900 hover:text-blue-600 transition-colors duration-300 font-sans"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Pricing
               </Link>
               <button
                 onClick={() => scrollToSection('testimonials')}
-                className={`text-left px-2 py-1 transition-colors duration-300 ${
-                  isScrolled 
-                    ? 'text-gray-600 hover:text-gray-900' 
-                    : 'text-white/90 hover:text-white'
-                }`}
+                className="text-left px-2 py-1 text-gray-900 hover:text-blue-600 transition-colors duration-300 font-sans"
               >
                 Testimonials
               </button>
               <Link
                 href="/blog"
-                className={`px-2 py-1 transition-colors duration-300 ${
-                  isScrolled 
-                    ? 'text-gray-600 hover:text-gray-900' 
-                    : 'text-white/90 hover:text-white'
-                }`}
+                className="px-2 py-1 text-gray-900 hover:text-blue-600 transition-colors duration-300 font-sans"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Blog
               </Link>
               
               {!isLoading && user ? (
-                <div className={`flex flex-col space-y-2 pt-4 border-t ${
-                  isScrolled ? 'border-gray-200' : 'border-gray-200/50'
-                }`}>
+                <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-slate-800 hover:bg-slate-700 text-white shadow-lg">
+                    <Button className="w-full bg-slate-800 hover:bg-slate-700 text-white shadow-lg font-sans">
                       Dashboard
                     </Button>
                   </Link>
@@ -231,33 +211,23 @@ export default function LandingHeader() {
                       signOut();
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full transition-colors duration-300 ${
-                      isScrolled 
-                        ? 'text-gray-600 hover:text-gray-900' 
-                        : 'text-white/90 hover:text-white'
-                    }`}
+                    className="w-full text-gray-900 hover:text-blue-600 transition-colors duration-300 font-sans"
                   >
                     Sign Out
                   </Button>
                 </div>
               ) : (
-                <div className={`flex flex-col space-y-2 pt-4 border-t ${
-                  isScrolled ? 'border-gray-200' : 'border-gray-200/50'
-                }`}>
+                <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button 
                       variant="ghost" 
-                      className={`w-full transition-colors duration-300 ${
-                        isScrolled 
-                          ? 'text-gray-600 hover:text-gray-900' 
-                          : 'text-white/90 hover:text-white'
-                      }`}
+                      className="w-full text-gray-900 hover:text-blue-600 transition-colors duration-300 font-sans"
                     >
                       Sign In
                     </Button>
                   </Link>
                   <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-slate-800 hover:bg-slate-700 text-white shadow-lg">
+                    <Button className="w-full bg-slate-800 hover:bg-slate-700 text-white shadow-lg font-sans">
                       Get Started
                     </Button>
                   </Link>

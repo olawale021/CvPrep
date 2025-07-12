@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, Clock, Zap } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/auth/supabaseClient";
 import { FeatureType } from "../../lib/auth/userRateLimit";
@@ -36,7 +36,7 @@ export function UsageWarning({
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const { appUser } = useAuth();
 
-  const fetchUsageData = async () => {
+  const fetchUsageData = useCallback(async () => {
     try {
       // Get the session token from Supabase
       const { data: { session } } = await supabase.auth.getSession();
@@ -58,7 +58,7 @@ export function UsageWarning({
     } finally {
       setLoading(false);
     }
-  };
+  }, [feature]);
 
   useEffect(() => {
     if (!appUser) {
@@ -116,7 +116,7 @@ export function UsageWarning({
         
         <UpgradeContactDialog 
           open={showUpgradeDialog} 
-          onClose={() => setShowUpgradeDialog(false)}
+          onCloseAction={() => setShowUpgradeDialog(false)}
           feature="all premium features"
           title="Upgrade to Premium"
           description="Your free trial has expired. Contact our admin to upgrade and continue using all features!"
@@ -154,7 +154,7 @@ export function UsageWarning({
         
         <UpgradeContactDialog 
           open={showUpgradeDialog} 
-          onClose={() => setShowUpgradeDialog(false)}
+          onCloseAction={() => setShowUpgradeDialog(false)}
           feature={getFeatureDisplayName(feature)}
           title="Upgrade to Premium"
           description={`You've reached your daily limit for ${getFeatureDisplayName(feature)}. Upgrade to premium for unlimited access!`}
@@ -194,7 +194,7 @@ export function UsageWarning({
         
         <UpgradeContactDialog 
           open={showUpgradeDialog} 
-          onClose={() => setShowUpgradeDialog(false)}
+          onCloseAction={() => setShowUpgradeDialog(false)}
           feature={getFeatureDisplayName(feature)}
           title="Upgrade to Premium"
           description={`You're almost at your daily limit for ${getFeatureDisplayName(feature)}. Upgrade to premium for unlimited access!`}
@@ -233,7 +233,7 @@ export function UsageWarning({
         
         <UpgradeContactDialog 
           open={showUpgradeDialog} 
-          onClose={() => setShowUpgradeDialog(false)}
+          onCloseAction={() => setShowUpgradeDialog(false)}
           feature="all premium features"
           title="Upgrade to Premium"
           description={`Your free trial ends in ${trialDaysRemaining} day${trialDaysRemaining === 1 ? '' : 's'}. Contact our admin to upgrade and continue using all features!`}

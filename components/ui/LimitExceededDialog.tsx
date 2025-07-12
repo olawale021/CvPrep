@@ -62,7 +62,7 @@ export function LimitExceededDialog({
     return (
       <UpgradeContactDialog 
         open={open} 
-        onClose={onCloseAction}
+        onCloseAction={onCloseAction}
         feature="all premium features"
         title="Upgrade to Premium"
         description="Your free trial has expired. Contact our admin to upgrade and continue using all features!"
@@ -142,7 +142,7 @@ export function LimitExceededDialog({
       
       <UpgradeContactDialog 
         open={showUpgradeDialog} 
-        onClose={() => setShowUpgradeDialog(false)}
+        onCloseAction={() => setShowUpgradeDialog(false)}
         feature={featureDisplayName}
         title="Upgrade to Premium"
         description={`You've reached your daily limit for ${featureDisplayName}. Upgrade to premium for unlimited access!`}
